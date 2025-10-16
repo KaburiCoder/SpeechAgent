@@ -1,0 +1,40 @@
+﻿using Microsoft.Extensions.DependencyInjection;
+using SpeechAgent.Features.Main;
+using SpeechAgent.Features.Settings;
+using SpeechAgent.Services;
+using System.Windows;
+
+namespace SpeechAgent
+{
+  public partial class App : Application
+  {
+    public new static App Current => (App)Application.Current;
+    public IServiceProvider Services { get; } = default!;
+    public MainView? MainView { get; set; }
+
+    private static IServiceProvider ConfigureServices()
+    {
+      var services = new ServiceCollection();
+
+      services.AddSingleton<IViewService, ViewService>();
+      services.AddSingleton<MainViewModel>();
+      services.AddSingleton<IViewModelFactory, ViewModelFactory>();
+
+      services.AddTransient<SettingsViewModel>();
+
+
+      return services.BuildServiceProvider();
+    }
+
+    public App()
+    {
+      Services = ConfigureServices();
+    }
+
+    private void Application_Startup(object sender, StartupEventArgs e)
+    {
+      var viewService = Services.GetRequiredService<IViewService>();
+      viewService.ShowMainView();
+    }
+  }
+}

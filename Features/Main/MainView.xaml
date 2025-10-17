@@ -32,7 +32,18 @@
       </Button>
     </Grid>
     <Grid Grid.Row="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Button Command="{Binding TestCommand}"/>
+        <TextBlock Grid.Row="1" Text="{Binding PatInfo.Chart}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
+        <TextBlock Grid.Row="2" Text="{Binding PatInfo.Name}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
+      </Grid>
       <!-- Main content here -->
+
     </Grid>
   </Grid>
 </Window>

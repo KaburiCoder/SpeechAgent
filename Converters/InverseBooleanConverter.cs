@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
-
 namespace SpeechAgent.Converters
 {
   public class InverseBooleanConverter : IValueConverter

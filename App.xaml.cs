@@ -16,12 +16,17 @@ namespace SpeechAgent
     {
       var services = new ServiceCollection();
 
+      // Singletons
       services.AddSingleton<IViewService, ViewService>();
-      services.AddSingleton<MainViewModel>();
       services.AddSingleton<IViewModelFactory, ViewModelFactory>();
+      services.AddSingleton<IControlSearchService, ControlSearchService>();
 
+      // ViewModels
+      services.AddTransient<MainViewModel>();
       services.AddTransient<SettingsViewModel>();
 
+      // Services
+      services.AddTransient<IMainService, MainService>();
 
       return services.BuildServiceProvider();
     }

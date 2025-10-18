@@ -1,12 +1,6 @@
-﻿using SpeechAgent.Bases;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
-using System.Diagnostics;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SpeechAgent.Bases;
 
 namespace SpeechAgent.Features.Settings
 {
@@ -18,22 +12,30 @@ namespace SpeechAgent.Features.Settings
 
   partial class SettingsViewModel : BaseViewModel
   {
+    public SettingsViewModel(ISettingsService settingsService)
+    {
+      PropertyChanged += OnPropertyChanged;
+      this._settingsService = settingsService;
+    }
+
+    private readonly ISettingsService _settingsService;
+
     [ObservableProperty]
     private List<Option> options = [];
 
     [ObservableProperty]
-    private string? appName;
+    private string appName = "";
 
     [ObservableProperty]
-    private string? connectKey;
+    private string connectKey = "";
 
     [RelayCommand]
     void SaveSettings()
     {
       // Save settings
-      setting.Default.CONNECT_KEY = ConnectKey ?? string.Empty;
-      setting.Default.APP_NAME = AppName ?? string.Empty;
-      setting.Default.Save();
+      _settingsService.UpdateSettings(
+        connectKey: ConnectKey,
+        appName: AppName);
     }
 
     [RelayCommand]
@@ -42,10 +44,7 @@ namespace SpeechAgent.Features.Settings
       View.Close();
     }
 
-    public SettingsViewModel()
-    {
-      PropertyChanged += OnPropertyChanged;
-    }
+
 
     private void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
@@ -65,13 +64,12 @@ namespace SpeechAgent.Features.Settings
     public override void Initialize()
     {
       Options = [
-        new() { Key = "eClick(신진료실)", Value = "e_new" },
-        new() { Key = "eClick(구진료실)", Value = "e_old" }
+        new() { Key = "eClick진료실", Value = "eClick" },
       ];
 
       // Load settings
-      ConnectKey = setting.Default.CONNECT_KEY;
-      AppName = setting.Default.APP_NAME;
+      ConnectKey = _settingsService.ConnectKey;
+      AppName = _settingsService.AppName;
     }
   }
 }

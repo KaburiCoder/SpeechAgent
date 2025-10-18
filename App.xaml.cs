@@ -2,6 +2,7 @@
 using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Services;
+using SpeechAgent.Services.MedicSIO;
 using System.Windows;
 
 namespace SpeechAgent
@@ -20,6 +21,8 @@ namespace SpeechAgent
       services.AddSingleton<IViewService, ViewService>();
       services.AddSingleton<IViewModelFactory, ViewModelFactory>();
       services.AddSingleton<IControlSearchService, ControlSearchService>();
+      services.AddSingleton<ISettingsService, SettingsService>();
+      services.AddSingleton<IMedicSIOService, MedicSIOService>();
 
       // ViewModels
       services.AddTransient<MainViewModel>();

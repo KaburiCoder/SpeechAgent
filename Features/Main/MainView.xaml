@@ -35,12 +35,35 @@
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button Command="{Binding TestCommand}"/>
-        <TextBlock Grid.Row="1" Text="{Binding PatInfo.Chart}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
-        <TextBlock Grid.Row="2" Text="{Binding PatInfo.Name}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
+        
+        
+        <materialDesign:Card Grid.Row="0" Margin="10" Padding="10">
+          <StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+              <materialDesign:PackIcon Kind="CheckCircle" Foreground="Green" Visibility="{Binding IsSIOConnected, Converter={StaticResource BooleanToVisibilityConverter}}" Width="20" Height="20" />
+              <materialDesign:PackIcon Kind="CloseCircle" Foreground="Red" Visibility="{Binding IsSIOConnected, Converter={StaticResource InverseBooleanToVisibilityConverter}}" Width="20" Height="20" />
+              <TextBlock Text="서버 연결" FontSize="14" VerticalAlignment="Center" Margin="5,0,0,0"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+              <materialDesign:PackIcon Kind="CheckCircle" Foreground="Green" Visibility="{Binding IsJoinedRoom, Converter={StaticResource BooleanToVisibilityConverter}}" Width="20" Height="20" />
+              <materialDesign:PackIcon Kind="CloseCircle" Foreground="Red" Visibility="{Binding IsJoinedRoom, Converter={StaticResource InverseBooleanToVisibilityConverter}}" Width="20" Height="20" />
+              <TextBlock Text="방 접속" FontSize="14" VerticalAlignment="Center" Margin="5,0,0,0"/>
+            </StackPanel>
+          </StackPanel>
+        </materialDesign:Card>
+        <ListView Grid.Row="1" ItemsSource="{Binding PatInfos}" Margin="10">
+          <ListView.ItemTemplate>
+            <DataTemplate>
+              <StackPanel>
+                <TextBlock Text="{Binding Chart}" FontSize="14" />
+                <TextBlock Text="{Binding Name}" FontSize="14" />
+                <TextBlock Text="{Binding Timestamp, StringFormat='yyyy-MM-dd HH:mm:ss'}" FontSize="12" Foreground="Gray" />
+              </StackPanel>
+            </DataTemplate>
+          </ListView.ItemTemplate>
+        </ListView>
       </Grid>
       <!-- Main content here -->
 

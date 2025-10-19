@@ -6,6 +6,8 @@ using SpeechAgent.Features.Settings;
 using SpeechAgent.Messages;
 using SpeechAgent.Models;
 using SpeechAgent.Services;
+using SpeechAgent.Services.MedicSIO;
+using System.Collections.ObjectModel;
 
 namespace SpeechAgent.Features.Main
 {
@@ -14,9 +16,14 @@ namespace SpeechAgent.Features.Main
     private readonly IViewService _viewService;
     private readonly IMainService _mainService;
     private readonly ISettingsService _settingsService;
+    
     [ObservableProperty]
-    private PatientInfo _patInfo = new("", "");
-
+    private ObservableCollection<PatientInfo> _patInfos = new();
+    
+    [ObservableProperty]
+    private bool _isSIOConnected = false;
+    [ObservableProperty]
+    private bool _isJoinedRoom = false;
 
     public MainViewModel(
       IViewService viewService,
@@ -41,9 +48,22 @@ namespace SpeechAgent.Features.Main
     {
       WeakReferenceMessenger.Default.Register<PatientInfoUpdatedMessage>(this, (_r, m) =>
       {
-        PatInfo = m.Value;
-      });
+        if (PatInfos.Count > 30)
+        {
+          PatInfos.RemoveAt(PatInfos.Count - 1);
+        }
 
+        PatInfos.Insert(0, new PatientInfo(m.Value.Chart, m.Value.Name, DateTime.Now));
+        
+      });
+      WeakReferenceMessenger.Default.Register<MedicSIOConnectionChangedMessage>(this, (_r, m) =>
+      {
+        IsSIOConnected = m.Value;
+      });
+      WeakReferenceMessenger.Default.Register<MedicSIOJoinRoomChangedMessage>(this, (_r, m) =>
+      {
+        IsJoinedRoom = m.Value;
+      });
       OnConnectKeyChanged(_settingsService.ConnectKey);
     }
 

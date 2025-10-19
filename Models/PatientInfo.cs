@@ -1,4 +1,4 @@
 ﻿namespace SpeechAgent.Models
 {
-  public record PatientInfo(string Chart, string Name);
+  public record PatientInfo(string Chart, string Name, DateTime Timestamp);
 }

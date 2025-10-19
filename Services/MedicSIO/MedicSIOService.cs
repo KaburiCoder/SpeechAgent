@@ -1,14 +1,11 @@
-﻿using SocketIOClient;
-using SpeechAgent.Features.Settings;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using SocketIOClient;
+using SocketIOClient.Transport;
+using SpeechAgent.Messages;
+using SpeechAgent.Services.MedicSIO.Args;
 using SpeechAgent.Services.MedicSIO.Consts;
 using SpeechAgent.Services.MedicSIO.Dto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Navigation;
 
 namespace SpeechAgent.Services.MedicSIO
 {
@@ -21,33 +18,48 @@ namespace SpeechAgent.Services.MedicSIO
     Task<BaseResponseDto> SendPatientInfo(PatientInfoDto patientInfo);
     Task RequestRecord();
     bool IsConnected { get; }
+    bool IsRoomJoined { get; }
   }
 
   public class MedicSIOService : IMedicSIOService
   {
     SocketIOClient.SocketIO _sio;
+    bool _isRoomJoined = false;
 
     public MedicSIOService()
     {
       var sioOptions = new SocketIOOptions
       {
-        Transport = SocketIOClient.Transport.TransportProtocol.WebSocket,
+        Path = "/api/socket.io",
+        //Transport = SocketIOClient.Transport.TransportProtocol.WebSocket,
         Reconnection = true,
+        ReconnectionAttempts = int.MaxValue,
+        ReconnectionDelay = 2000,
+        ReconnectionDelayMax = 5000,      // 최대 1초까지만 증가
+        RandomizationFactor = 0.0,        // 랜덤 지연 제거
+        AutoUpgrade = false,
+        Transport = TransportProtocol.WebSocket
       };
-      _sio = new SocketIOClient.SocketIO("http://localhost:3100/agent", sioOptions);
+      // "http://localhost:3100/agent"
+      // "https://clickcns.com/agent"
+      _sio = new SocketIOClient.SocketIO("https://clickcns.com/agent", sioOptions);
 
       _sio.OnConnected += async (sender, e) =>
       {
+        WeakReferenceMessenger.Default.Send(new MedicSIOConnectionChangedMessage(true));
         await JoinRoom();
       };
       _sio.OnReconnected += async (sender, e) =>
-      {
-        await JoinRoom();
-      };
+          {
+            WeakReferenceMessenger.Default.Send(new MedicSIOConnectionChangedMessage(true));
+            await JoinRoom();
+          };
 
       // 연결 끊김 이벤트
-      _sio.OnDisconnected += (sender, e) =>
+      _sio.OnDisconnected += async (sender, e) =>
       {
+        WeakReferenceMessenger.Default.Send(new MedicSIOConnectionChangedMessage(false));
+        IsRoomJoined = false;
       };
 
       // 에러 이벤트
@@ -55,13 +67,25 @@ namespace SpeechAgent.Services.MedicSIO
       {
       });
 
-      _sio.On(EventNames.PongFromWeb, async response =>
+      _sio.On(EventNames.PingFromWeb, async response =>
       {
-        await response.CallbackAsync();
+        await response.CallbackAsync(GetRoomDto());
       });
     }
 
-    public bool IsConnected => throw new NotImplementedException();
+    public bool IsConnected => _sio.Connected;
+    public bool IsRoomJoined
+    {
+      get => _isRoomJoined;
+      private set
+      {
+        if (_isRoomJoined != value)
+        {
+          WeakReferenceMessenger.Default.Send(new MedicSIOJoinRoomChangedMessage(value));
+        }
+        _isRoomJoined = value;
+      }
+    }
 
     public Task Connect()
     {
@@ -75,21 +99,21 @@ namespace SpeechAgent.Services.MedicSIO
 
     public async Task<BaseResponseDto> JoinRoom()
     {
-      var res = await EmitWithAck<BaseResponseDto>(EventNames.JoinRoom, new JoinRoomDto { RoomId = setting.Default.CONNECT_KEY });
-
+      var res = await EmitWithAck<BaseResponseDto>(EventNames.JoinRoom, GetRoomDto());
+      IsRoomJoined = res.Success;
       return res;
     }
 
     public async Task<BaseResponseDto> LeaveRoom()
     {
-      var res = await EmitWithAck<BaseResponseDto>(EventNames.LeaveRoom);
+      var res = await EmitWithAck<BaseResponseDto>(EventNames.LeaveRoom, GetRoomDto());
 
       return res;
     }
 
     public async Task<BaseResponseDto> SendPatientInfo(PatientInfoDto patientInfo)
     {
-      var res = await EmitWithAck<BaseResponseDto>(EventNames.SendPatientInfo, patientInfo);
+      var res = await EmitWithAck<BaseResponseDto>(EventNames.SendPatientInfo, GetRoomDto(), patientInfo);
       return res;
     }
 
@@ -101,12 +125,29 @@ namespace SpeechAgent.Services.MedicSIO
     public async Task<T> EmitWithAck<T>(string eventName, params object[] data)
     {
       var tcs = new TaskCompletionSource<T>();
-      await _sio.EmitAsync(eventName, (res) =>
+      try
       {
-        tcs.SetResult(res.GetValue<T>());
-      }, data);
+        await _sio.EmitAsync(eventName, (res) =>
+        {
+          tcs.SetResult(res.GetValue<T>());
+        }, data);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex.Message);
+      }
 
       return await tcs.Task;
+    }
+
+    private RoomDto GetRoomDto()
+    {
+      var key = setting.Default.CONNECT_KEY;
+      return new RoomDto
+      {
+        RoomId = $"agent_{key}",
+        To = $"web_{key}"
+      };
     }
   }
 }

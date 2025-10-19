@@ -20,7 +20,7 @@ namespace SpeechAgent.Features.Main
     private readonly IControlSearchService _controlSearchService;
     private readonly IMedicSIOService _medicSIOService;
     private readonly DispatcherTimer _timer;
-    private PatientInfo _patientInfo = new("", "");
+    private PatientInfo _patientInfo = new("", "", DateTime.MinValue);
 
     public MainService(
       IControlSearchService controlSearchService,
@@ -48,7 +48,7 @@ namespace SpeechAgent.Features.Main
           Chart = chart,
           Name = suname
         });
-        WeakReferenceMessenger.Default.Send(new PatientInfoUpdatedMessage(_patientInfo));
+        WeakReferenceMessenger.Default.Send(new PatientInfoUpdatedMessage(new PatientInfo(chart, suname, DateTime.Now)));
       }
     }
 

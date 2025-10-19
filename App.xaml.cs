@@ -7,11 +7,10 @@ using System.Windows;
 
 namespace SpeechAgent
 {
-  public partial class App : Application
+  public partial class App : System.Windows.Application
   {
-    public new static App Current => (App)Application.Current;
+    public new static App Current => (App)System.Windows.Application.Current;
     public IServiceProvider Services { get; } = default!;
-    public MainView? MainView { get; set; }
 
     private static IServiceProvider ConfigureServices()
     {
@@ -23,6 +22,10 @@ namespace SpeechAgent
       services.AddSingleton<IControlSearchService, ControlSearchService>();
       services.AddSingleton<ISettingsService, SettingsService>();
       services.AddSingleton<IMedicSIOService, MedicSIOService>();
+      services.AddSingleton<TrayIconService>();
+
+      // Views
+      services.AddSingleton<MainView>();
 
       // ViewModels
       services.AddTransient<MainViewModel>();

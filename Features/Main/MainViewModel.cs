@@ -70,7 +70,7 @@ namespace SpeechAgent.Features.Main
     [RelayCommand]
     void ShowSettings()
     {
-      _viewService.ShowSettingsView();
+      _viewService.ShowSettingsView(View);
     }
 
     [RelayCommand]

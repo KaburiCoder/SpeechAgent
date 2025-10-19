@@ -56,7 +56,7 @@ namespace SpeechAgent.Services.MedicSIO
           };
 
       // 연결 끊김 이벤트
-      _sio.OnDisconnected += async (sender, e) =>
+      _sio.OnDisconnected += (sender, e) =>
       {
         WeakReferenceMessenger.Default.Send(new MedicSIOConnectionChangedMessage(false));
         IsRoomJoined = false;

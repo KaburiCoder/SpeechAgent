@@ -53,12 +53,25 @@ namespace SpeechAgent.Services
       if (chartLabel != null && nameLabel != null)
       {
         var edits = sortedControls.FindAll(c => c.ClassName.Contains("EDIT.app"));
-        var chartEdit = edits.FirstOrDefault(ed => ed.RECT.Left > chartLabel.RECT.Right &&
-                                Math.Abs(ed.RECT.Top - chartLabel.RECT.Top) < 5 &&
-                                Math.Abs(ed.RECT.Bottom - chartLabel.RECT.Bottom) < 5);
-        var nameEdit = edits.FirstOrDefault(ed => ed.RECT.Left > nameLabel.RECT.Right &&
-                                Math.Abs(ed.RECT.Top - nameLabel.RECT.Top) < 5 &&
-                                Math.Abs(ed.RECT.Bottom - nameLabel.RECT.Bottom) < 5);
+
+        ControlInfo? chartEdit = null;
+        ControlInfo? nameEdit = null;
+        if (edits.Count == 0)
+        {
+          // NewClick
+          chartEdit = sortedControls.Where(x => x.ClassName.StartsWith("Edit")).ElementAtOrDefault(1);
+          nameEdit = sortedControls.Where(x => x.ClassName.StartsWith("ThunderRT6TextBox")).ElementAtOrDefault(0);
+        }
+        else
+        {
+          // EClick
+          chartEdit = edits.FirstOrDefault(ed => ed.RECT.Left > chartLabel.RECT.Right &&
+                                 Math.Abs(ed.RECT.Top - chartLabel.RECT.Top) < 5 &&
+                                 Math.Abs(ed.RECT.Bottom - chartLabel.RECT.Bottom) < 5);
+          nameEdit = edits.FirstOrDefault(ed => ed.RECT.Left > nameLabel.RECT.Right &&
+                                 Math.Abs(ed.RECT.Top - nameLabel.RECT.Top) < 5 &&
+                                 Math.Abs(ed.RECT.Bottom - nameLabel.RECT.Bottom) < 5);
+        }
 
         _appControls.SetControls(chartEdit, nameEdit);
 

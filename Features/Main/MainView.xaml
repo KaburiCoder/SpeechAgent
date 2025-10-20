@@ -9,7 +9,7 @@
         Style="{StaticResource MaterialDesignWindow}"
         d:DataContext="{d:DesignInstance vm:MainViewModel}"
         mc:Ignorable="d"
-        Title="Voice Medic Agent" Height="450" Width="400"
+        Title="Voice Medic Agent" Height="450" Width="400" 
         WindowStartupLocation="CenterScreen">
   <Grid>
     <Grid.RowDefinitions>

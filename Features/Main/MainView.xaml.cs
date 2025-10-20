@@ -14,7 +14,6 @@ namespace SpeechAgent.Features.Main
     {
       InitializeComponent();
       _trayIconService = trayIconService;
-
       // 창이 로드된 후 트레이 아이콘 초기화
       Loaded += OnLoaded;
     }

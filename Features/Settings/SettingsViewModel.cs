@@ -64,7 +64,7 @@ namespace SpeechAgent.Features.Settings
     public override void Initialize()
     {
       Options = [
-        new() { Key = "eClick진료실", Value = "eClick" },
+        new() { Key = "클릭", Value = "클릭" },
       ];
 
       // Load settings

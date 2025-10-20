@@ -1,7 +1,6 @@
-using System.Drawing;
-using System.Windows;
-using System.Windows.Forms;
 using SpeechAgent.Features.Main;
+using SpeechAgent.Features.Settings;
+using System.Windows;
 
 namespace SpeechAgent.Services
 {
@@ -10,12 +9,24 @@ namespace SpeechAgent.Services
     private NotifyIcon? _notifyIcon;
     private MainView? _mainView;
     private bool _disposed = false;
+    private readonly ISettingsService _settingsService;
+
+    public TrayIconService(ISettingsService settingsService)
+    {
+      _settingsService = settingsService;      
+    }
 
     public void Initialize(MainView mainView)
     {
       _mainView = mainView;
       CreateNotifyIcon();
       SetupMainViewEvents();
+
+      // ConnectKey가 비어있지 않으면 실행 시 바로 트레이로 숨김
+      if (!string.IsNullOrWhiteSpace(_settingsService.ConnectKey))
+      {
+        HideToTray();
+      }
     }
 
     private void CreateNotifyIcon()

@@ -36,14 +36,15 @@ namespace SpeechAgent.Services
       {
         Icon = new Icon(new MemoryStream(Properties.Resources.main)), // Resources에서 main.ico 사용
         Text = "Voice Medic Agent",
-        Visible = false
+        Visible = false        
       };
 
       // 컨텍스트 메뉴 생성
       var contextMenu = new ContextMenuStrip();
 
-      var showMenuItem = new ToolStripMenuItem("보이기", null, OnShow);
-      var exitMenuItem = new ToolStripMenuItem("종료", null, OnExit);
+      var font = new System.Drawing.Font("맑은 고딕", 10F);
+      var showMenuItem = new ToolStripMenuItem("보이기", null, OnShow) { Font = font };
+      var exitMenuItem = new ToolStripMenuItem("종료", null, OnExit) { Font = font };
 
       contextMenu.Items.Add(showMenuItem);
       contextMenu.Items.Add(new ToolStripSeparator());
@@ -98,7 +99,6 @@ namespace SpeechAgent.Services
       _mainView.Show();
       _mainView.WindowState = WindowState.Normal;
       _mainView.Activate();
-      _notifyIcon.Visible = false;
     }
 
     private void OnExit(object? sender, EventArgs e)

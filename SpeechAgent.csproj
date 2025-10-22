@@ -17,6 +17,10 @@
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <ApplicationIcon>main.ico</ApplicationIcon>
+    
+    <!-- 한글 지원을 위한 설정 -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <SatelliteResourceLanguages>ko;en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>

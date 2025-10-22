@@ -36,7 +36,6 @@ namespace SpeechAgent.Services
       {
         Icon = new Icon(new MemoryStream(Properties.Resources.main)), // Resources에서 main.ico 사용
         Text = "Voice Medic Agent",
-        Visible = false        
       };
 
       // 컨텍스트 메뉴 생성

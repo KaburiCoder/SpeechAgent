@@ -24,6 +24,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Set locale to Korean
+      run: |
+        chcp 949
+        $env:LANG = "ko_KR.UTF-8"
+        $env:LC_ALL = "ko_KR.UTF-8"
+        $env:LANGUAGE = "ko"
+      shell: pwsh
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:

@@ -16,11 +16,11 @@
 
 #### Windows
 ```bash
-# 기본 버전(0.0.2)으로 배포
-deploy.bat
-
-# 특정 버전으로 배포
-deploy.bat 0.0.3
+git add .
+git commit -m ".."
+git push
+git tag v0.0.10
+git push origin v0.0.10
 ```
 
 ### 수동 배포 (기존 방법)

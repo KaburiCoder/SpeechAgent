@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <ApplicationDefinition Remove="App.xaml" />
+    <None Include=".github\workflows\deploy.yml" />
+    <Resource Include="Resources\main.ico" />
     <Page Include="App.xaml" />
     
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />

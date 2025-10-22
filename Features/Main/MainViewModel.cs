@@ -16,6 +16,7 @@ namespace SpeechAgent.Features.Main
     private readonly IViewService _viewService;
     private readonly IMainService _mainService;
     private readonly ISettingsService _settingsService;
+    private readonly IUpdateService _updateService;
     
     [ObservableProperty]
     private ObservableCollection<PatientInfo> _patInfos = new();
@@ -25,15 +26,32 @@ namespace SpeechAgent.Features.Main
     [ObservableProperty]
     private bool _isJoinedRoom = false;
 
+    [ObservableProperty]
+    private bool _isUpdateAvailable = false;
+    [ObservableProperty]
+    private string _updateVersion = string.Empty;
+
     public MainViewModel(
       IViewService viewService,
       IMainService mainService,
-      ISettingsService settingsService)
+      ISettingsService settingsService,
+      IUpdateService updateService)
     {
       this._viewService = viewService;
       this._mainService = mainService;
       this._settingsService = settingsService;
+      this._updateService = updateService;
+      
       settingsService.OnConnectKeyChanged += OnConnectKeyChanged;
+      
+      // 업데이트 이벤트 구독
+      _updateService.UpdateAvailable += OnUpdateAvailable;
+    }
+
+    private void OnUpdateAvailable(object? sender, UpdateAvailableEventArgs e)
+    {
+      IsUpdateAvailable = true;
+      UpdateVersion = e.NewVersion;
     }
 
     private async void OnConnectKeyChanged(string connectKey)
@@ -71,6 +89,12 @@ namespace SpeechAgent.Features.Main
     void ShowSettings()
     {
       _viewService.ShowSettingsView(View);
+    }
+
+    [RelayCommand]
+    async Task CheckForUpdates()
+    {
+      await _updateService.CheckForUpdatesAsync();
     }
 
     [RelayCommand]

@@ -23,15 +23,6 @@ deploy.bat
 deploy.bat 0.0.3
 ```
 
-#### Linux/macOS
-```bash
-# 기본 버전(0.0.2)으로 배포
-./deploy.sh
-
-# 특정 버전으로 배포
-./deploy.sh 0.0.3
-```
-
 ### 수동 배포 (기존 방법)
 
 https://docs.velopack.io/getting-started/csharp?platform=wpf

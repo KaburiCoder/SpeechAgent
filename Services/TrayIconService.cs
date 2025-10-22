@@ -1,5 +1,6 @@
 using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
+using System.IO;
 using System.Windows;
 
 namespace SpeechAgent.Services
@@ -13,7 +14,7 @@ namespace SpeechAgent.Services
 
     public TrayIconService(ISettingsService settingsService)
     {
-      _settingsService = settingsService;      
+      _settingsService = settingsService;
     }
 
     public void Initialize(MainView mainView)
@@ -33,7 +34,7 @@ namespace SpeechAgent.Services
     {
       _notifyIcon = new NotifyIcon
       {
-        Icon = SystemIcons.Application, // 기본 아이콘 사용, 필요시 커스텀 아이콘으로 변경
+        Icon = new Icon(new MemoryStream(Properties.Resources.main)), // Resources에서 main.ico 사용
         Text = "Voice Medic Agent",
         Visible = false
       };

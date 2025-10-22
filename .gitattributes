@@ -1,7 +1,26 @@
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
-* text=auto
+* text=auto eol=crlf
+
+###############################################################################
+# 한글 지원을 위한 UTF-8 인코딩 설정
+###############################################################################
+*.cs text eol=crlf encoding=utf-8
+*.xaml text eol=crlf encoding=utf-8
+*.resx text eol=crlf encoding=utf-8
+*.csproj text eol=crlf encoding=utf-8
+*.sln text eol=crlf encoding=utf-8
+*.config text eol=crlf encoding=utf-8
+*.json text eol=crlf encoding=utf-8
+*.xml text eol=crlf encoding=utf-8
+*.md text eol=crlf encoding=utf-8
+*.txt text eol=crlf encoding=utf-8
+*.yml text eol=crlf encoding=utf-8
+*.yaml text eol=crlf encoding=utf-8
+
+# 특별히 한글이 포함된 파일들은 UTF-8 BOM 사용
+Services/TrayIconService.cs text eol=crlf encoding=utf-8-bom
 
 ###############################################################################
 # Set default behavior for command prompt diff.
@@ -40,9 +59,19 @@
 #
 # image files are treated as binary by default.
 ###############################################################################
-#*.jpg   binary
-#*.png   binary
-#*.gif   binary
+*.jpg   binary
+*.png   binary
+*.gif   binary
+*.ico   binary
+*.bmp   binary
+
+# 바이너리 파일들
+*.dll   binary
+*.exe   binary
+*.zip   binary
+*.7z    binary
+*.rar   binary
+*.pdf   binary
 
 ###############################################################################
 # diff behavior for common document formats

@@ -47,8 +47,33 @@ jobs:
         # 환경 변수 설정
         echo "LANG=ko_KR.UTF-8" >> $env:GITHUB_ENV
         echo "LC_ALL=ko_KR.UTF-8" >> $env:GITHUB_ENV
+        echo "CHCP=65001" >> $env:GITHUB_ENV
+        
+        # 코드 페이지를 UTF-8로 설정
+        chcp 65001
         
         echo "Korean locale and UTF-8 encoding configured"
+      shell: pwsh
+
+    # UTF-8 인코딩 확인 및 재설정
+    - name: Verify and set file encodings
+      run: |
+        # TrayIconService.cs 파일을 UTF-8 BOM으로 다시 저장
+        $filePath = "Services/TrayIconService.cs"
+        if (Test-Path $filePath) {
+          $content = Get-Content $filePath -Raw -Encoding UTF8
+          $utf8BOM = New-Object System.Text.UTF8Encoding $true
+          [System.IO.File]::WriteAllText($filePath, $content, $utf8BOM)
+          echo "TrayIconService.cs re-saved with UTF-8 BOM"
+        }
+        
+        # 모든 C# 파일의 인코딩 확인
+        Get-ChildItem -Path . -Filter "*.cs" -Recurse | ForEach-Object {
+          $content = Get-Content $_.FullName -Raw -Encoding UTF8
+          $utf8 = New-Object System.Text.UTF8Encoding $false
+          [System.IO.File]::WriteAllText($_.FullName, $content, $utf8)
+        }
+        echo "All C# files verified for UTF-8 encoding"
       shell: pwsh
 
     - name: Install Velopack CLI

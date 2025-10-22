@@ -6,7 +6,6 @@ using SpeechAgent.Features.Settings;
 using SpeechAgent.Messages;
 using SpeechAgent.Models;
 using SpeechAgent.Services;
-using SpeechAgent.Services.MedicSIO;
 using System.Collections.ObjectModel;
 
 namespace SpeechAgent.Features.Main
@@ -17,19 +16,14 @@ namespace SpeechAgent.Features.Main
     private readonly IMainService _mainService;
     private readonly ISettingsService _settingsService;
     private readonly IUpdateService _updateService;
-    
+
     [ObservableProperty]
     private ObservableCollection<PatientInfo> _patInfos = new();
-    
+
     [ObservableProperty]
     private bool _isSIOConnected = false;
     [ObservableProperty]
     private bool _isJoinedRoom = false;
-
-    [ObservableProperty]
-    private bool _isUpdateAvailable = false;
-    [ObservableProperty]
-    private string _updateVersion = string.Empty;
 
     public MainViewModel(
       IViewService viewService,
@@ -41,17 +35,8 @@ namespace SpeechAgent.Features.Main
       this._mainService = mainService;
       this._settingsService = settingsService;
       this._updateService = updateService;
-      
-      settingsService.OnConnectKeyChanged += OnConnectKeyChanged;
-      
-      // 업데이트 이벤트 구독
-      _updateService.UpdateAvailable += OnUpdateAvailable;
-    }
 
-    private void OnUpdateAvailable(object? sender, UpdateAvailableEventArgs e)
-    {
-      IsUpdateAvailable = true;
-      UpdateVersion = e.NewVersion;
+      settingsService.OnConnectKeyChanged += OnConnectKeyChanged;
     }
 
     private async void OnConnectKeyChanged(string connectKey)
@@ -72,7 +57,7 @@ namespace SpeechAgent.Features.Main
         }
 
         PatInfos.Insert(0, new PatientInfo(m.Value.Chart, m.Value.Name, DateTime.Now));
-        
+
       });
       WeakReferenceMessenger.Default.Register<MedicSIOConnectionChangedMessage>(this, (_r, m) =>
       {
@@ -89,13 +74,7 @@ namespace SpeechAgent.Features.Main
     void ShowSettings()
     {
       _viewService.ShowSettingsView(View);
-    }
-
-    [RelayCommand]
-    async Task CheckForUpdates()
-    {
-      await _updateService.CheckForUpdatesAsync();
-    }
+    } 
 
     [RelayCommand]
     void Test()

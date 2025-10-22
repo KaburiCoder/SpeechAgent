@@ -15,9 +15,6 @@ env:
   DOTNET_VERSION: '8.0'
   PROJECT_NAME: 'SpeechAgent'
   RUNTIME: 'win-x64'
-  # 한글 인코딩 설정
-  DOTNET_CLI_UI_LANGUAGE: 'ko-KR'
-  DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 'false'
 
 jobs:
   deploy:
@@ -31,50 +28,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    # 한글 로케일 및 인코딩 설정
-    - name: Set Korean locale and UTF-8 encoding
-      run: |
-        # PowerShell에서 UTF-8 인코딩 설정
-        $OutputEncoding = [Console]::OutputEncoding = [Text.Encoding]::UTF8
-        [Console]::InputEncoding = [Text.Encoding]::UTF8
-        
-        # 한국어 문화권 설정
-        $culture = [System.Globalization.CultureInfo]::CreateSpecificCulture("ko-KR")
-        [System.Threading.Thread]::CurrentThread.CurrentCulture = $culture
-        [System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture
-        
-        # 환경 변수 설정
-        echo "LANG=ko_KR.UTF-8" >> $env:GITHUB_ENV
-        echo "LC_ALL=ko_KR.UTF-8" >> $env:GITHUB_ENV
-        echo "CHCP=65001" >> $env:GITHUB_ENV
-        
-        # 코드 페이지를 UTF-8로 설정
-        chcp 65001
-        
-        echo "Korean locale and UTF-8 encoding configured"
-      shell: pwsh
-
-    # UTF-8 인코딩 확인 및 재설정
-    - name: Verify and set file encodings
-      run: |
-        # TrayIconService.cs 파일을 UTF-8 BOM으로 다시 저장
-        $filePath = "Services/TrayIconService.cs"
-        if (Test-Path $filePath) {
-          $content = Get-Content $filePath -Raw -Encoding UTF8
-          $utf8BOM = New-Object System.Text.UTF8Encoding $true
-          [System.IO.File]::WriteAllText($filePath, $content, $utf8BOM)
-          echo "TrayIconService.cs re-saved with UTF-8 BOM"
-        }
-        
-        # 모든 C# 파일의 인코딩 확인
-        Get-ChildItem -Path . -Filter "*.cs" -Recurse | ForEach-Object {
-          $content = Get-Content $_.FullName -Raw -Encoding UTF8
-          $utf8 = New-Object System.Text.UTF8Encoding $false
-          [System.IO.File]::WriteAllText($_.FullName, $content, $utf8)
-        }
-        echo "All C# files verified for UTF-8 encoding"
-      shell: pwsh
 
     - name: Install Velopack CLI
       run: dotnet tool install -g vpk
@@ -96,8 +49,8 @@ jobs:
         $version = "${{ steps.version.outputs.VERSION }}"
         $csprojPath = "${{ env.PROJECT_NAME }}.csproj"
         
-        # csproj 파일에서 VersionPrefix 업데이트 (UTF-8 인코딩으로)
-        $content = Get-Content $csprojPath -Raw -Encoding UTF8
+        # csproj 파일에서 VersionPrefix 업데이트
+        $content = Get-Content $csprojPath -Raw
         $updatedContent = $content -replace '<VersionPrefix>.*</VersionPrefix>', "<VersionPrefix>$version</VersionPrefix>"
         Set-Content $csprojPath -Value $updatedContent -Encoding UTF8
         
@@ -116,10 +69,7 @@ jobs:
           --output ./publish `
           /p:PublishSingleFile=true `
           /p:IncludeAllContentForSelfExtract=true `
-          /p:IncludeNativeLibrariesForSelfExtract=true `
-          /p:InvariantGlobalization=false `
-          /p:SatelliteResourceLanguages=ko
-      shell: pwsh
+          /p:IncludeNativeLibrariesForSelfExtract=true
 
     - name: Create Velopack package
       run: |

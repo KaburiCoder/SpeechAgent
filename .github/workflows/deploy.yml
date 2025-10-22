@@ -52,7 +52,7 @@ jobs:
         # csproj 파일에서 VersionPrefix 업데이트
         $content = Get-Content $csprojPath -Raw
         $updatedContent = $content -replace '<VersionPrefix>.*</VersionPrefix>', "<VersionPrefix>$version</VersionPrefix>"
-        Set-Content $csprojPath -Value $updatedContent
+        Set-Content $csprojPath -Value $updatedContent -Encoding UTF8
         
         echo "Updated version to: $version"
       shell: pwsh

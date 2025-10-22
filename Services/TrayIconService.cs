@@ -88,8 +88,7 @@ namespace SpeechAgent.Services
       _mainView.Hide();
       _notifyIcon.Visible = true;
 
-      // 트레이로 최소화되었음을 알리는 풍선 팁
-      _notifyIcon.ShowBalloonTip(2000, "Voice Medic Agent", "트레이로 최소화되었습니다.", ToolTipIcon.Info);
+      _notifyIcon.ShowBalloonTip(1500, "Voice Medic Agent", "Minimized to tray.", ToolTipIcon.Info);
     }
 
     private void OnShow(object? sender, EventArgs e)

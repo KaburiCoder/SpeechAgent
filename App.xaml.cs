@@ -43,6 +43,7 @@ namespace SpeechAgent
     public App()
     {
       Services = ConfigureServices();
+      SettingsMigrationHelper.MigrateUserSettingsIfNeeded();
     }       
 
     [STAThread]

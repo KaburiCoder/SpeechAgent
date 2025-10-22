@@ -1,4 +1,6 @@
-﻿namespace SpeechAgent.Features.Settings
+﻿using System.Configuration;
+
+namespace SpeechAgent.Features.Settings
 {
 
   public interface ISettingsService
@@ -38,10 +40,23 @@
       }
 
       setting.Default.Save();
-      
+
       if (previousConnectKey != setting.Default.CONNECT_KEY)
         OnConnectKeyChanged?.Invoke(setting.Default.CONNECT_KEY);
       OnSettingChanged?.Invoke(this);
+    }
+  }
+
+  public static class SettingsMigrationHelper
+  {
+    public static void MigrateUserSettingsIfNeeded()
+    {
+      if (setting.Default.UpgradeRequired)
+      {
+        setting.Default.Upgrade();
+        setting.Default.UpgradeRequired = false;
+        setting.Default.Save();
+      }
     }
   }
 }

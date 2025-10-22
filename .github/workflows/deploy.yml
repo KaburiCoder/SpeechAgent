@@ -15,6 +15,9 @@ env:
   DOTNET_VERSION: '8.0'
   PROJECT_NAME: 'SpeechAgent'
   RUNTIME: 'win-x64'
+  # 한글 인코딩 설정 - EUC-KR로 변경
+  DOTNET_CLI_UI_LANGUAGE: 'ko-KR'
+  DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 'false'
 
 jobs:
   deploy:
@@ -28,6 +31,58 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    # 한글 로케일 및 EUC-KR 인코딩 설정
+    - name: Set Korean locale and EUC-KR encoding
+      run: |
+        # EUC-KR 인코딩 설정 (코드 페이지 949)
+        chcp 949
+        
+        # 한국어 문화권 설정
+        $culture = [System.Globalization.CultureInfo]::CreateSpecificCulture("ko-KR")
+        [System.Threading.Thread]::CurrentThread.CurrentCulture = $culture
+        [System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture
+        
+        # 환경 변수 설정
+        echo "LANG=ko_KR.EUC-KR" >> $env:GITHUB_ENV
+        echo "LC_ALL=ko_KR.EUC-KR" >> $env:GITHUB_ENV
+        echo "CHCP=949" >> $env:GITHUB_ENV
+        
+        # PowerShell에서 EUC-KR 인코딩 설정
+        $OutputEncoding = [System.Text.Encoding]::GetEncoding(949)
+        [Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding(949)
+        [Console]::InputEncoding = [System.Text.Encoding]::GetEncoding(949)
+        
+        echo "Korean locale and EUC-KR encoding configured"
+      shell: pwsh
+
+    # EUC-KR 인코딩 확인 및 재설정
+    - name: Verify and set file encodings to EUC-KR
+      run: |
+        # TrayIconService.cs 파일을 EUC-KR으로 다시 저장
+        $filePath = "Services/TrayIconService.cs"
+        if (Test-Path $filePath) {
+          $content = Get-Content $filePath -Raw -Encoding UTF8
+          $euckr = [System.Text.Encoding]::GetEncoding(949)
+          [System.IO.File]::WriteAllText($filePath, $content, $euckr)
+          echo "TrayIconService.cs re-saved with EUC-KR encoding"
+        }
+        
+        # 한글이 포함된 C# 파일들을 EUC-KR로 변환
+        $koreanFiles = @(
+          "Services/TrayIconService.cs"
+        )
+        
+        foreach ($file in $koreanFiles) {
+          if (Test-Path $file) {
+            $content = Get-Content $file -Raw -Encoding UTF8
+            $euckr = [System.Text.Encoding]::GetEncoding(949)
+            [System.IO.File]::WriteAllText($file, $content, $euckr)
+            echo "$file converted to EUC-KR"
+          }
+        }
+        echo "Korean files verified for EUC-KR encoding"
+      shell: pwsh
 
     - name: Install Velopack CLI
       run: dotnet tool install -g vpk
@@ -49,8 +104,8 @@ jobs:
         $version = "${{ steps.version.outputs.VERSION }}"
         $csprojPath = "${{ env.PROJECT_NAME }}.csproj"
         
-        # csproj 파일에서 VersionPrefix 업데이트
-        $content = Get-Content $csprojPath -Raw
+        # csproj 파일에서 VersionPrefix 업데이트 (EUC-KR 인코딩 고려)
+        $content = Get-Content $csprojPath -Raw -Encoding UTF8
         $updatedContent = $content -replace '<VersionPrefix>.*</VersionPrefix>', "<VersionPrefix>$version</VersionPrefix>"
         Set-Content $csprojPath -Value $updatedContent -Encoding UTF8
         
@@ -69,7 +124,10 @@ jobs:
           --output ./publish `
           /p:PublishSingleFile=true `
           /p:IncludeAllContentForSelfExtract=true `
-          /p:IncludeNativeLibrariesForSelfExtract=true
+          /p:IncludeNativeLibrariesForSelfExtract=true `
+          /p:InvariantGlobalization=false `
+          /p:SatelliteResourceLanguages=ko
+      shell: pwsh
 
     - name: Create Velopack package
       run: |

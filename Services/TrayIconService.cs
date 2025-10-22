@@ -39,7 +39,7 @@ namespace SpeechAgent.Services
         Visible = true,
       };
 
-      // 컨텍스트 메뉴 생성 - 한글 텍스트 명시적 설정
+      // 컨텍스트 메뉴 생성
       var contextMenu = new ContextMenuStrip();
       var showMenuItem = new ToolStripMenuItem("보이기", null, OnShow);
       var exitMenuItem = new ToolStripMenuItem("종료", null, OnExit);

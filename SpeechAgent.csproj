@@ -17,18 +17,20 @@
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <ApplicationIcon>main.ico</ApplicationIcon>
-    
-    <!-- 한글 지원을 위한 설정 -->
-    <InvariantGlobalization>false</InvariantGlobalization>
-    <SatelliteResourceLanguages>ko;en</SatelliteResourceLanguages>
+    <!-- 기본 UI 문화권: en-US로 설정 (언어 중립 주 어셈블리 생성) -->
+    <UICulture>en-US</UICulture>
   </PropertyGroup>
 
   <ItemGroup>
+    <Resource Update="**\*.resx">
+      <UICulture>ko-KR</UICulture>
+      <!-- 리소스 파일에 적용 -->
+    </Resource>
     <ApplicationDefinition Remove="App.xaml" />
     <None Include=".github\workflows\deploy.yml" />
     <Resource Include="Resources\main.ico" />
     <Page Include="App.xaml" />
-    
+
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="MaterialDesignThemes" Version="5.3.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />

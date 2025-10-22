@@ -17,4 +17,9 @@ namespace SpeechAgent.Messages
   {
     public MedicSIOJoinRoomChangedMessage(bool value) : base(value) { }
   }
+
+  public class WebPingReceivedMessage : ValueChangedMessage<DateTime>
+  {
+    public WebPingReceivedMessage(DateTime value) : base(value) { }
+  }
 }

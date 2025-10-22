@@ -68,7 +68,11 @@ namespace SpeechAgent.Services.MedicSIO
       });
 
       _sio.On(EventNames.PingFromWeb, async response =>
-      {
+      { 
+        await App.Current.Dispatcher.InvokeAsync(() =>
+        {
+          WeakReferenceMessenger.Default.Send(new WebPingReceivedMessage(DateTime.Now));
+        });
         await response.CallbackAsync(GetRoomDto());
       });
     }

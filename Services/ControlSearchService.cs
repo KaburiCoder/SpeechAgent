@@ -49,34 +49,32 @@ namespace SpeechAgent.Services
          .FirstOrDefault(c => c.Text.StartsWith("차트"));
       var nameLabel = sortedControls
         .FirstOrDefault(c => c.Text.StartsWith("이름") || c.Text.StartsWith("수진자명"));
+      var edits = sortedControls.FindAll(c => c.ClassName.Contains("EDIT.app"));
 
-      if (chartLabel != null && nameLabel != null)
+      ControlInfo? chartEdit = null;
+      ControlInfo? nameEdit = null;
+      if (edits.Count == 0)
       {
-        var edits = sortedControls.FindAll(c => c.ClassName.Contains("EDIT.app"));
-
-        ControlInfo? chartEdit = null;
-        ControlInfo? nameEdit = null;
-        if (edits.Count == 0)
-        {
-          // NewClick
-          chartEdit = sortedControls.Where(x => x.ClassName.StartsWith("Edit")).ElementAtOrDefault(1);
-          nameEdit = sortedControls.Where(x => x.ClassName.StartsWith("ThunderRT6TextBox")).ElementAtOrDefault(0);
-        }
-        else
-        {
-          // EClick
-          chartEdit = edits.FirstOrDefault(ed => ed.RECT.Left > chartLabel.RECT.Right &&
+        // NewClick
+        chartEdit = sortedControls.Where(x => x.ClassName.StartsWith("Edit")).ElementAtOrDefault(1);
+        nameEdit = sortedControls.Where(x => x.ClassName.StartsWith("ThunderRT6TextBox")).ElementAtOrDefault(0);
+      }
+      else if (chartLabel != null && nameLabel != null)
+      {
+        chartEdit = edits.FirstOrDefault(ed => ed.RECT.Left > chartLabel.RECT.Right &&
                                  Math.Abs(ed.RECT.Top - chartLabel.RECT.Top) < 5 &&
                                  Math.Abs(ed.RECT.Bottom - chartLabel.RECT.Bottom) < 5);
-          nameEdit = edits.FirstOrDefault(ed => ed.RECT.Left > nameLabel.RECT.Right &&
-                                 Math.Abs(ed.RECT.Top - nameLabel.RECT.Top) < 5 &&
-                                 Math.Abs(ed.RECT.Bottom - nameLabel.RECT.Bottom) < 5);
-        }
+        nameEdit = edits.FirstOrDefault(ed => ed.RECT.Left > nameLabel.RECT.Right &&
+                               Math.Abs(ed.RECT.Top - nameLabel.RECT.Top) < 5 &&
+                               Math.Abs(ed.RECT.Bottom - nameLabel.RECT.Bottom) < 5);
+      }
 
+      if (chartEdit != null)
+      {
         _appControls.SetControls(chartEdit, nameEdit);
 
         return _appControls;
-      }
+      }     
 
       return null;
     }

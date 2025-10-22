@@ -7,6 +7,7 @@ using SpeechAgent.Messages;
 using SpeechAgent.Models;
 using SpeechAgent.Services;
 using System.Collections.ObjectModel;
+using System.Windows.Threading;
 
 namespace SpeechAgent.Features.Main
 {
@@ -15,7 +16,7 @@ namespace SpeechAgent.Features.Main
     private readonly IViewService _viewService;
     private readonly IMainService _mainService;
     private readonly ISettingsService _settingsService;
-    private readonly IUpdateService _updateService;
+    private readonly DispatcherTimer _pingTimer;
 
     [ObservableProperty]
     private ObservableCollection<PatientInfo> _patInfos = new();
@@ -25,18 +26,74 @@ namespace SpeechAgent.Features.Main
     [ObservableProperty]
     private bool _isJoinedRoom = false;
 
+    [ObservableProperty]
+    private DateTime? _lastPingTime = null;
+    [ObservableProperty]
+    private bool _isPingHealthy = false;
+    [ObservableProperty]
+    private string _pingStatusText = "연결 대기 중";
+
     public MainViewModel(
       IViewService viewService,
       IMainService mainService,
-      ISettingsService settingsService,
-      IUpdateService updateService)
+      ISettingsService settingsService)
     {
       this._viewService = viewService;
       this._mainService = mainService;
       this._settingsService = settingsService;
-      this._updateService = updateService;
 
       settingsService.OnConnectKeyChanged += OnConnectKeyChanged;
+
+      // Ping 상태 체크용 타이머 (1초마다)
+      _pingTimer = new DispatcherTimer
+      {
+        Interval = TimeSpan.FromSeconds(1)
+      };
+      _pingTimer.Tick += OnPingTimerTick;
+      _pingTimer.Start();
+    }
+
+    private void OnWebPingReceived(DateTime pingTime)
+    {
+      LastPingTime = pingTime;
+      UpdatePingStatus();
+    }
+
+    private void OnPingTimerTick(object? sender, EventArgs e)
+    {
+      UpdatePingStatus();
+    }
+
+    private void UpdatePingStatus()
+    {
+      if (LastPingTime == null)
+      {
+        IsPingHealthy = false;
+        PingStatusText = "연결 대기 중";
+        return;
+      }
+
+      var elapsed = DateTime.Now - LastPingTime.Value;
+      var secondsElapsed = (int)elapsed.TotalSeconds;
+
+      if (secondsElapsed <= 10)
+      {
+        IsPingHealthy = true;
+        PingStatusText = $"{secondsElapsed}초 전";
+      }
+      else
+      {
+        IsPingHealthy = false;
+        if (secondsElapsed < 60)
+        {
+          PingStatusText = $"{secondsElapsed}초 전";
+        }
+        else
+        {
+          var minutesElapsed = (int)elapsed.TotalMinutes;
+          PingStatusText = $"{minutesElapsed}분 전";
+        }
+      }
     }
 
     private async void OnConnectKeyChanged(string connectKey)
@@ -67,6 +124,10 @@ namespace SpeechAgent.Features.Main
       {
         IsJoinedRoom = m.Value;
       });
+      WeakReferenceMessenger.Default.Register<WebPingReceivedMessage>(this, (_r, m) =>
+      {
+        OnWebPingReceived(m.Value);
+      });
       OnConnectKeyChanged(_settingsService.ConnectKey);
     }
 
@@ -74,7 +135,7 @@ namespace SpeechAgent.Features.Main
     void ShowSettings()
     {
       _viewService.ShowSettingsView(View);
-    } 
+    }
 
     [RelayCommand]
     void Test()

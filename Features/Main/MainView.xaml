@@ -73,17 +73,17 @@
                   Foreground="White">
             <materialDesign:PackIcon Kind="CogOutline" Width="18" Height="18" />
           </Button>
-          
+
           <!-- Tray 버튼 -->
           <Button Grid.Column="3" 
                   Click="CloseButton_Click"
-                  ToolTip="Tray로 이동"
-                  Width="35" Height="35"
+                  ToolTip="Tray로"
                   Margin="0,0,10,0"
+                  Width="35" Height="35"
                   Style="{StaticResource MaterialDesignIconButton}"
                   Foreground="White">
             <materialDesign:PackIcon Kind="WindowMinimize" Width="16" Height="16" />
-          </Button>          
+          </Button>         
         </Grid>
       </Border>
 
@@ -102,6 +102,7 @@
                 Margin="0,0,0,10">
           <Grid>
             <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -130,7 +131,7 @@
             </Grid>
             
             <!-- 방 접속 상태 -->
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="1" Margin="0,0,0,6">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -150,6 +151,36 @@
                          FontSize="13" 
                          VerticalAlignment="Center"
                          Foreground="#424242"/>
+            </Grid>
+
+            <!-- 웹 Ping 상태 -->
+            <Grid Grid.Row="2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              
+              <Ellipse Grid.Column="0" 
+                       Width="8" Height="8" 
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0">
+                <Ellipse.Fill>
+                  <SolidColorBrush Color="{Binding IsPingHealthy, Converter={StaticResource BooleanToStringConverter}, ConverterParameter='#4CAF50,#F44336'}"/>
+                </Ellipse.Fill>
+              </Ellipse>
+              
+              <TextBlock Grid.Column="1" 
+                         Text="웹 연결" 
+                         FontSize="13" 
+                         VerticalAlignment="Center"
+                         Foreground="#424242"/>
+
+              <TextBlock Grid.Column="2" 
+                         Text="{Binding PingStatusText}" 
+                         FontSize="11" 
+                         VerticalAlignment="Center"
+                         Foreground="#9E9E9E"/>
             </Grid>
           </Grid>
         </Border>

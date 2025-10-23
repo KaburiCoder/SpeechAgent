@@ -5,6 +5,7 @@ using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Services;
 using SpeechAgent.Services.MedicSIO;
+using SpeechAgent.Utils;
 using System.Windows;
 using Velopack;
 
@@ -48,7 +49,7 @@ namespace SpeechAgent
     {
       if (_mutex.WaitOne(TimeSpan.Zero, true) == false)
       {
-        System.Windows.MessageBox.Show("이미 실행 중입니다.");
+        Msg.Show("이미 실행 중입니다.");
         return;
       }
 

@@ -17,15 +17,11 @@
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <ApplicationIcon>main.ico</ApplicationIcon>
-    <!-- 기본 UI 문화권: en-US로 설정 (언어 중립 주 어셈블리 생성) -->
-    <UICulture>en-US</UICulture>
+    
+    <UICulture>ko-KR</UICulture>
   </PropertyGroup>
 
   <ItemGroup>
-    <Resource Update="**\*.resx">
-      <UICulture>ko-KR</UICulture>
-      <!-- 리소스 파일에 적용 -->
-    </Resource>
     <ApplicationDefinition Remove="App.xaml" />
     <None Include=".github\workflows\deploy.yml" />
     <Resource Include="Resources\main.ico" />

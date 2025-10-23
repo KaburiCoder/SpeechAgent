@@ -54,35 +54,7 @@ jobs:
         [Console]::InputEncoding = [System.Text.Encoding]::GetEncoding(949)
         
         echo "Korean locale and EUC-KR encoding configured"
-      shell: pwsh
-
-    # EUC-KR 인코딩 확인 및 재설정
-    - name: Verify and set file encodings to EUC-KR
-      run: |
-        # TrayIconService.cs 파일을 EUC-KR으로 다시 저장
-        $filePath = "Services/TrayIconService.cs"
-        if (Test-Path $filePath) {
-          $content = Get-Content $filePath -Raw -Encoding UTF8
-          $euckr = [System.Text.Encoding]::GetEncoding(949)
-          [System.IO.File]::WriteAllText($filePath, $content, $euckr)
-          echo "TrayIconService.cs re-saved with EUC-KR encoding"
-        }
-        
-        # 한글이 포함된 C# 파일들을 EUC-KR로 변환
-        $koreanFiles = @(
-          "Services/TrayIconService.cs"
-        )
-        
-        foreach ($file in $koreanFiles) {
-          if (Test-Path $file) {
-            $content = Get-Content $file -Raw -Encoding UTF8
-            $euckr = [System.Text.Encoding]::GetEncoding(949)
-            [System.IO.File]::WriteAllText($file, $content, $euckr)
-            echo "$file converted to EUC-KR"
-          }
-        }
-        echo "Korean files verified for EUC-KR encoding"
-      shell: pwsh
+      shell: pwsh      
 
     - name: Install Velopack CLI
       run: dotnet tool install -g vpk

@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ApplicationDefinition Remove="App.xaml" />
-    <None Include=".github\workflows\deploy.yml" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

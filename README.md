@@ -19,8 +19,8 @@
 git add .
 git commit -m ".."
 git push
-git tag v0.0.19
-git push origin v0.0.19
+git tag v0.0.20
+git push origin v0.0.20
 ```
 
 ### 수동 배포 (기존 방법)

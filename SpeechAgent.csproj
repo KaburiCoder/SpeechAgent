@@ -16,9 +16,7 @@
     <SelfContained>true</SelfContained>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <ApplicationIcon>main.ico</ApplicationIcon>
-    
-    <UICulture>ko-KR</UICulture>
+    <ApplicationIcon>main.ico</ApplicationIcon>    
   </PropertyGroup>
 
   <ItemGroup>

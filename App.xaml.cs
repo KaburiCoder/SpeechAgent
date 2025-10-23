@@ -3,6 +3,7 @@ using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Services;
 using SpeechAgent.Services.MedicSIO;
+using System.Globalization;
 using System.Windows;
 using Velopack;
 using Velopack.Sources;
@@ -40,14 +41,20 @@ namespace SpeechAgent
       return services.BuildServiceProvider();
     }
 
-    public App()
-    {
-      Services = ConfigureServices();
-    }       
+    [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    private static extern bool SetConsoleOutputCP(uint wCodePageID);
 
     [STAThread]
     public static void Main()
     {
+      // UTF-8 코드 페이지 설정 (CP65001)
+      SetConsoleOutputCP(65001);
+
+      // 한국어 로케일 설정
+      CultureInfo koKr = new("ko-KR");
+      Thread.CurrentThread.CurrentCulture = koKr;
+      Thread.CurrentThread.CurrentUICulture = koKr;
+
       // Velopack을 진입점에서 가장 먼저 실행
       VelopackApp.Build().Run();
 
@@ -55,6 +62,11 @@ namespace SpeechAgent
       var app = new App();
       app.InitializeComponent();
       app.Run();
+    }
+
+    public App()
+    {
+      Services = ConfigureServices();
     }
 
     private async void Application_Startup(object sender, StartupEventArgs e)

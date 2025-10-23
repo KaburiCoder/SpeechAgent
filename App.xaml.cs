@@ -28,6 +28,7 @@ namespace SpeechAgent
       services.AddSingleton<IMedicSIOService, MedicSIOService>();
       services.AddSingleton<TrayIconService>();
       services.AddSingleton<IUpdateService, UpdateService>();
+      services.AddSingleton<IAutoStartService, AutoStartService>();
 
       // Views
       services.AddSingleton<MainView>();

@@ -7,7 +7,7 @@ namespace SpeechAgent.Features.Settings
   public interface ISettingsService
   {
     event Action<ISettingsService>? OnSettingChanged;
-    event Action<string> OnConnectKeyChanged;
+  event Action<string> OnConnectKeyChanged;
     string ConnectKey { get; }
     string AppName { get; }
     void LoadSettings();
@@ -44,15 +44,15 @@ namespace SpeechAgent.Features.Settings
       LocalSettings? currentSetting = null;
       string? previousConnectKey = dbSetting?.ConnectKey;
 
-      currentSetting = dbSetting == null ? new LocalSettings() : dbSetting;
+  currentSetting = dbSetting == null ? new LocalSettings() : dbSetting;
 
       if (connectKey != null)
         currentSetting.ConnectKey = connectKey.Trim();
-      if (appName != null)
+   if (appName != null)
         currentSetting.TargetAppName = appName.Trim();
 
       if (dbSetting == null)
-        db.LocalSettings.Add(currentSetting);
+ db.LocalSettings.Add(currentSetting);
 
       db.SaveChanges();
 

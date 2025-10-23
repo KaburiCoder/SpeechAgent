@@ -32,7 +32,7 @@ namespace SpeechAgent.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LocalSettings");
+                    b.ToTable("LocalSettings", (string)null);
                 });
 #pragma warning restore 612, 618
         }

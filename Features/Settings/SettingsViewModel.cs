@@ -67,7 +67,7 @@ namespace SpeechAgent.Features.Settings
         new() { Key = "클릭", Value = "클릭" },
       ];
 
-      // Load settings
+      _settingsService.LoadSettings(); 
       ConnectKey = _settingsService.ConnectKey;
       AppName = _settingsService.AppName;
     }

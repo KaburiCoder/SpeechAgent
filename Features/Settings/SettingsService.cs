@@ -1,4 +1,7 @@
-﻿namespace SpeechAgent.Features.Settings
+﻿using SpeechAgent.Database;
+using SpeechAgent.Database.Schemas;
+
+namespace SpeechAgent.Features.Settings
 {
 
   public interface ISettingsService
@@ -7,14 +10,14 @@
     event Action<string> OnConnectKeyChanged;
     string ConnectKey { get; }
     string AppName { get; }
-
+    void LoadSettings();
     void UpdateSettings(string connectKey = "", string appName = "");
   }
 
   public class SettingsService : ISettingsService
   {
-    public string ConnectKey => setting.Default.CONNECT_KEY;
-    public string AppName => setting.Default.APP_NAME;
+    public string ConnectKey { get; private set; } = "";
+    public string AppName { get; private set; } = "";
 
     public SettingsService()
     {
@@ -23,38 +26,40 @@
     public event Action<ISettingsService>? OnSettingChanged;
     public event Action<string> OnConnectKeyChanged = default!;
 
+    public void LoadSettings()
+    {
+      using var db = new AppDbContext();
+
+      LocalSettings? dbSetting = db.LocalSettings.FirstOrDefault();
+      ConnectKey = dbSetting?.ConnectKey ?? string.Empty;
+      AppName = dbSetting?.TargetAppName ?? string.Empty;
+    }
+
     public void UpdateSettings(string? connectKey = null, string? appName = null)
     {
-      string previousConnectKey = setting.Default.CONNECT_KEY;
+      using var db = new AppDbContext();
+
+      // EF Core에서 ConnectKey 불러오기
+      LocalSettings? dbSetting = db.LocalSettings.FirstOrDefault();
+      LocalSettings? currentSetting = null;
+      string? previousConnectKey = dbSetting?.ConnectKey;
+
+      currentSetting = dbSetting == null ? new LocalSettings() : dbSetting;
 
       if (connectKey != null)
-      {
-        setting.Default.CONNECT_KEY = connectKey.Trim();
-      }
-
+        currentSetting.ConnectKey = connectKey.Trim();
       if (appName != null)
-      {
-        setting.Default.APP_NAME = appName;
-      }
+        currentSetting.TargetAppName = appName.Trim();
 
-      setting.Default.Save();
+      if (dbSetting == null)
+        db.LocalSettings.Add(currentSetting);
 
-      if (previousConnectKey != setting.Default.CONNECT_KEY)
-        OnConnectKeyChanged?.Invoke(setting.Default.CONNECT_KEY);
+      db.SaveChanges();
+
+      if (dbSetting?.ConnectKey != currentSetting.ConnectKey)
+        OnConnectKeyChanged?.Invoke(currentSetting.ConnectKey);
+
       OnSettingChanged?.Invoke(this);
-    }
-  }
-
-  public static class SettingsMigrationHelper
-  {
-    public static void MigrateUserSettingsIfNeeded()
-    {
-      if (setting.Default.UpgradeRequired)
-      {
-        setting.Default.Upgrade();
-        setting.Default.UpgradeRequired = false;
-        setting.Default.Save();
-      }
     }
   }
 }

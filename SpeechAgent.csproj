@@ -22,6 +22,11 @@
   <ItemGroup>
     <ApplicationDefinition Remove="App.xaml" />
     <None Include=".github\workflows\deploy.yml" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.10" />
     <Resource Include="Resources\main.ico" />
     <Page Include="App.xaml" />
 
@@ -40,11 +45,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="setting.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>setting.settings</DependentUpon>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -52,13 +52,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="setting.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>setting.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
 
 </Project>

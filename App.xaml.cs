@@ -1,12 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using SpeechAgent.Database;
 using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Services;
 using SpeechAgent.Services.MedicSIO;
-using System.Globalization;
 using System.Windows;
 using Velopack;
-using Velopack.Sources;
 
 namespace SpeechAgent
 {
@@ -41,19 +41,21 @@ namespace SpeechAgent
       return services.BuildServiceProvider();
     }
 
-    [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
-    private static extern bool SetConsoleOutputCP(uint wCodePageID);
+    static Mutex _mutex = new(true, "SpeechAgent_UniqueMutexName");
 
     [STAThread]
     public static void Main()
     {
-      // UTF-8 코드 페이지 설정 (CP65001)
-      SetConsoleOutputCP(65001);
+      if (_mutex.WaitOne(TimeSpan.Zero, true) == false)
+      {
+        System.Windows.MessageBox.Show("이미 실행 중입니다.");
+        return;
+      }
 
-      // 한국어 로케일 설정
-      CultureInfo koKr = new("ko-KR");
-      Thread.CurrentThread.CurrentCulture = koKr;
-      Thread.CurrentThread.CurrentUICulture = koKr;
+      using (var context = new AppDbContext())
+      {
+        context.Database.Migrate();
+      }
 
       // Velopack을 진입점에서 가장 먼저 실행
       VelopackApp.Build().Run();
@@ -76,6 +78,10 @@ namespace SpeechAgent
       await updateService.CheckForUpdatesAsync();
       updateService.UpdateError += OnUpdateError;
       updateService.StartPeriodicCheck();
+
+      // 설정 로드
+      var settingsService = Services.GetRequiredService<ISettingsService>();
+      settingsService.LoadSettings();
 
       var viewService = Services.GetRequiredService<IViewService>();
       viewService.ShowMainView();

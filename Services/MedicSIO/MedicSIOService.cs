@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using SocketIOClient;
 using SocketIOClient.Transport;
+using SpeechAgent.Features.Settings;
 using SpeechAgent.Messages;
 using SpeechAgent.Services.MedicSIO.Args;
 using SpeechAgent.Services.MedicSIO.Consts;
@@ -25,9 +26,12 @@ namespace SpeechAgent.Services.MedicSIO
   {
     SocketIOClient.SocketIO _sio;
     bool _isRoomJoined = false;
+    private readonly ISettingsService _settingsService;
 
-    public MedicSIOService()
+    public MedicSIOService(ISettingsService settingsService)
     {
+      _settingsService = settingsService;
+
       var sioOptions = new SocketIOOptions
       {
         Path = "/api/socket.io",
@@ -146,7 +150,8 @@ namespace SpeechAgent.Services.MedicSIO
 
     private RoomDto GetRoomDto()
     {
-      var key = setting.Default.CONNECT_KEY;
+      string key = _settingsService.ConnectKey;
+
       return new RoomDto
       {
         RoomId = $"agent_{key}",

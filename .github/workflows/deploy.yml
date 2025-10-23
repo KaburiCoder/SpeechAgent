@@ -3,8 +3,8 @@ name: Deploy SpeechAgent with Velopack
 on:
   push:
     tags:
-      - 'v*'  # v1.0.0, v0.0.2 등의 태그가 푸시될 때 실행
-  workflow_dispatch:  # 수동 실행도 가능하게 함
+      - 'v*'
+  workflow_dispatch:
     inputs:
       version:
         description: 'Version to deploy (e.g., 0.0.2)'
@@ -15,7 +15,6 @@ env:
   DOTNET_VERSION: '8.0'
   PROJECT_NAME: 'SpeechAgent'
   RUNTIME: 'win-x64'
-  # 한글 인코딩 설정 - EUC-KR로 변경
   DOTNET_CLI_UI_LANGUAGE: 'ko-KR'
   DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 'false'
 
@@ -32,28 +31,17 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    # 한글 로케일 및 EUC-KR 인코딩 설정
-    - name: Set Korean locale and EUC-KR encoding
+    - name: Set Korean locale with UTF-8 encoding
       run: |
-        # EUC-KR 인코딩 설정 (코드 페이지 949)
-        chcp 949
-        
-        # 한국어 문화권 설정
         $culture = [System.Globalization.CultureInfo]::CreateSpecificCulture("ko-KR")
         [System.Threading.Thread]::CurrentThread.CurrentCulture = $culture
         [System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture
-        
-        # 환경 변수 설정
-        echo "LANG=ko_KR.EUC-KR" >> $env:GITHUB_ENV
-        echo "LC_ALL=ko_KR.EUC-KR" >> $env:GITHUB_ENV
-        echo "CHCP=949" >> $env:GITHUB_ENV
-        
-        # PowerShell에서 EUC-KR 인코딩 설정
-        $OutputEncoding = [System.Text.Encoding]::GetEncoding(949)
-        [Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding(949)
-        [Console]::InputEncoding = [System.Text.Encoding]::GetEncoding(949)
-        
-        echo "Korean locale and EUC-KR encoding configured"
+        echo "LANG=ko_KR.UTF-8" >> $env:GITHUB_ENV
+        echo "LC_ALL=ko_KR.UTF-8" >> $env:GITHUB_ENV
+        $OutputEncoding = [System.Text.Encoding]::UTF8
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+        [Console]::InputEncoding = [System.Text.Encoding]::UTF8
+        echo "Korean locale with UTF-8 encoding configured"
       shell: pwsh      
 
     - name: Install Velopack CLI
@@ -75,12 +63,9 @@ jobs:
       run: |
         $version = "${{ steps.version.outputs.VERSION }}"
         $csprojPath = "${{ env.PROJECT_NAME }}.csproj"
-        
-        # csproj 파일에서 VersionPrefix 업데이트 (EUC-KR 인코딩 고려)
         $content = Get-Content $csprojPath -Raw -Encoding UTF8
         $updatedContent = $content -replace '<VersionPrefix>.*</VersionPrefix>', "<VersionPrefix>$version</VersionPrefix>"
         Set-Content $csprojPath -Value $updatedContent -Encoding UTF8
-        
         echo "Updated version to: $version"
       shell: pwsh
 
@@ -98,8 +83,18 @@ jobs:
           /p:IncludeAllContentForSelfExtract=true `
           /p:IncludeNativeLibrariesForSelfExtract=true `
           /p:InvariantGlobalization=false `
-          /p:SatelliteResourceLanguages=ko
+          /p:SatelliteResourceLanguages=ko-KR `
+          /p:GenerateSatelliteAssembliesForUICulture=true `
+          /p:UICulture=ko-KR `
+          --verbosity detailed > publish.log
       shell: pwsh
+
+    - name: Upload publish log
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: publish-log
+        path: publish.log
 
     - name: Create Velopack package
       run: |
@@ -117,7 +112,6 @@ jobs:
       run: |
         $version = "${{ steps.version.outputs.VERSION }}"
         $tagName = "v$version"
-        
         vpk upload github `
           --repoUrl ${{ github.server_url }}/${{ github.repository }} `
           --publish `

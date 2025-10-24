@@ -27,13 +27,13 @@
                         BlurRadius="10" 
                         Opacity="0.18"/>
     </Border.Effect>
-    
+
     <Grid>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      
+
       <!-- 커스텀 타이틀바 -->
       <Border Grid.Row="0" 
           Background="#2196F3" 
@@ -45,7 +45,7 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          
+
           <!-- 앱 아이콘 -->
           <materialDesign:PackIcon Grid.Column="0" 
                                    Kind="CogOutline" 
@@ -53,7 +53,7 @@
                                    Foreground="White" 
                                    VerticalAlignment="Center" 
                                    Margin="10,0,6,0"/>
-    
+
           <!-- 타이틀 -->
           <TextBlock Grid.Column="1" 
                      Text="Voice Medic Settings" 
@@ -93,7 +93,7 @@
                         Text="{Binding ConnectKey, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
           </Border>
-    
+
           <!-- 앱 선택 섹션 -->
           <Border Background="#F8F9FA" 
                   CornerRadius="5" 
@@ -140,14 +140,14 @@
               </CheckBox>
             </StackPanel>
           </Border>
- 
+
           <!-- 버튼 영역 -->
           <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            
+
             <Button Grid.Column="0" 
                    Margin="0,0,3,0" 
                    Height="32"
@@ -164,7 +164,7 @@
                           VerticalAlignment="Center"/>
               </StackPanel>
             </Button>
-         
+
             <Button Grid.Column="1" 
                    Margin="3,0,0,0" 
                    Height="32"
@@ -182,6 +182,10 @@
               </StackPanel>
             </Button>
           </Grid>
+          
+          <Button Command="{Binding TestCommand}">
+            테스트
+          </Button>
         </StackPanel>
       </Grid>
     </Grid>

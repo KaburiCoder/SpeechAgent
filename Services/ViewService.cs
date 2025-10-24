@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
+using SpeechAgent.Features.Settings.FindWin;
 using System.Windows;
 
 namespace SpeechAgent.Services
@@ -9,10 +10,12 @@ namespace SpeechAgent.Services
   {
     void ShowMainView();
     void ShowSettingsView(Window parent);
+    void ShowFindWinView(Window parent);
   }
 
   public class ViewService : IViewService
   {
+
     public void ShowMainView()
     {
       var mainView = App.Current.Services.GetRequiredService<MainView>();
@@ -31,6 +34,13 @@ namespace SpeechAgent.Services
       var settings = viewModelFactory.CreateViewModel<SettingsView, SettingsViewModel>(parent);
 
       settings.View.ShowDialog();
+    }
+
+    public void ShowFindWinView(Window parent)
+    {
+      var viewModelFactory = App.Current.Services.GetRequiredService<IViewModelFactory>();
+      var findWin = viewModelFactory.CreateViewModel<FindWinView, FindWinViewModel>(parent);
+      findWin.View.ShowDialog();
     }
   }
 }

@@ -13,15 +13,19 @@ namespace SpeechAgent.Features.Settings
 
   partial class SettingsViewModel : BaseViewModel
   {
-    public SettingsViewModel(ISettingsService settingsService, IAutoStartService autoStartService)
+    public SettingsViewModel(
+      ISettingsService settingsService,
+      IAutoStartService autoStartService,
+      IViewService viewService)
     {
       this._settingsService = settingsService;
       this._autoStartService = autoStartService;
+      this._viewService = viewService;
     }
 
     private readonly ISettingsService _settingsService;
     private readonly IAutoStartService _autoStartService;
-
+    private readonly IViewService _viewService;
     [ObservableProperty]
     private List<Option> options = [];
 
@@ -43,6 +47,12 @@ namespace SpeechAgent.Features.Settings
       _autoStartService.SetAutoStart(AutoStartEnabled);
 
       View.Close();
+    }
+
+    [RelayCommand]
+    void Test()
+    {
+      _viewService.ShowFindWinView(View);
     }
 
     [RelayCommand]

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SpeechAgent.Database;
 using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
+using SpeechAgent.Features.Settings.FindWin;
 using SpeechAgent.Services;
 using SpeechAgent.Services.MedicSIO;
 using SpeechAgent.Utils;
@@ -36,6 +37,7 @@ namespace SpeechAgent
       // ViewModels
       services.AddTransient<MainViewModel>();
       services.AddTransient<SettingsViewModel>();
+      services.AddTransient<FindWinViewModel>();
 
       // Services
       services.AddTransient<IMainService, MainService>();

@@ -15,7 +15,6 @@ namespace SpeechAgent.Features.Settings
   {
     public SettingsViewModel(ISettingsService settingsService, IAutoStartService autoStartService)
     {
-      PropertyChanged += OnPropertyChanged;
       this._settingsService = settingsService;
       this._autoStartService = autoStartService;
     }
@@ -27,7 +26,7 @@ namespace SpeechAgent.Features.Settings
     private List<Option> options = [];
 
     [ObservableProperty]
-    private string appName = "";
+    private string targetAppName = "";
 
     [ObservableProperty]
     private string connectKey = "";
@@ -39,44 +38,30 @@ namespace SpeechAgent.Features.Settings
     void SaveSettings()
     {
       // Save settings
-      _settingsService.UpdateSettings(
-        connectKey: ConnectKey,
-      appName: AppName);
-
-  // Apply auto start setting
+      _settingsService.UpdateSettings(connectKey: ConnectKey, targetAppName: TargetAppName);
+      // Apply auto start setting
       _autoStartService.SetAutoStart(AutoStartEnabled);
+
+      View.Close();
     }
 
     [RelayCommand]
     void Close()
     {
-  View.Close();
-    }
-
-    private void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-  {
-      if (e.PropertyName == nameof(AppName))
-  {
-        OnSelectedValueChanged();
-      }
-    }
-
-private void OnSelectedValueChanged()
-    {
-      // Handle value change here
-Console.WriteLine($"Selected value changed to: {AppName}");
+      View.Close();
     }
 
     public override void Initialize()
     {
       Options = [
-   new() { Key = "클릭", Value = "클릭" },
- ];
+        new() { Key = "사용안함", Value = "" },
+        new() { Key = "클릭", Value = "클릭" },
+      ];
 
-    _settingsService.LoadSettings(); 
-      ConnectKey = _settingsService.ConnectKey;
-      AppName = _settingsService.AppName;
-      
+      _settingsService.LoadSettings();
+      ConnectKey = _settingsService.Settings.ConnectKey;
+      TargetAppName = _settingsService.Settings.TargetAppName;
+
       // Load auto start status from registry
       AutoStartEnabled = _autoStartService.IsAutoStartEnabled();
     }

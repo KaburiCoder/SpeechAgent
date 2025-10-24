@@ -8,18 +8,9 @@ using System.Threading.Tasks;
 
 namespace SpeechAgent.Messages
 {
-  public class MedicSIOConnectionChangedMessage : ValueChangedMessage<bool>
-  {
-    public MedicSIOConnectionChangedMessage(bool value) : base(value) { }
-  }
+  public class MedicSIOConnectionChangedMessage(bool value) : ValueChangedMessage<bool>(value) { }
 
-  public class MedicSIOJoinRoomChangedMessage : ValueChangedMessage<bool>
-  {
-    public MedicSIOJoinRoomChangedMessage(bool value) : base(value) { }
-  }
+  public class MedicSIOJoinRoomChangedMessage(bool value) : ValueChangedMessage<bool>(value) { }
 
-  public class WebPingReceivedMessage : ValueChangedMessage<DateTime>
-  {
-    public WebPingReceivedMessage(DateTime value) : base(value) { }
-  }
+  public class WebPingReceivedMessage(DateTime value) : ValueChangedMessage<DateTime>(value) { }
 }

@@ -3,7 +3,4 @@ using SpeechAgent.Models;
 
 namespace SpeechAgent.Messages;
 
-public class PatientInfoUpdatedMessage : ValueChangedMessage<PatientInfo>
-{
-  public PatientInfoUpdatedMessage(PatientInfo patientInfo) : base(patientInfo) { }
-}
+public class PatientInfoUpdatedMessage(PatientInfo patientInfo) : ValueChangedMessage<PatientInfo>(patientInfo) { }

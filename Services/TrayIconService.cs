@@ -24,7 +24,7 @@ namespace SpeechAgent.Services
       SetupMainViewEvents();
 
       // ConnectKey가 비어있지 않으면 실행 시 바로 트레이로 숨김
-      if (!string.IsNullOrWhiteSpace(_settingsService.ConnectKey))
+      if (!string.IsNullOrWhiteSpace(_settingsService.Settings.ConnectKey))
       {
         HideToTray();
       }

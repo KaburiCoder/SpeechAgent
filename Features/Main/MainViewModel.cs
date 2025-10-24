@@ -2,11 +2,14 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using SpeechAgent.Bases;
+using SpeechAgent.Database.Schemas;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Messages;
 using SpeechAgent.Models;
 using SpeechAgent.Services;
+using SpeechAgent.Services.MedicSIO;
 using System.Collections.ObjectModel;
+using System.Diagnostics.Eventing.Reader;
 using System.Windows.Threading;
 
 namespace SpeechAgent.Features.Main
@@ -16,6 +19,7 @@ namespace SpeechAgent.Features.Main
     private readonly IViewService _viewService;
     private readonly IMainService _mainService;
     private readonly ISettingsService _settingsService;
+    private readonly IMedicSIOService _medicSIOService;
     private readonly DispatcherTimer _pingTimer;
 
     [ObservableProperty]
@@ -36,13 +40,13 @@ namespace SpeechAgent.Features.Main
     public MainViewModel(
       IViewService viewService,
       IMainService mainService,
-      ISettingsService settingsService)
+      ISettingsService settingsService,
+      IMedicSIOService medicSIOService)
     {
       this._viewService = viewService;
       this._mainService = mainService;
       this._settingsService = settingsService;
-
-      settingsService.OnConnectKeyChanged += OnConnectKeyChanged;
+      this._medicSIOService = medicSIOService;
 
       // Ping 상태 체크용 타이머 (1초마다)
       _pingTimer = new DispatcherTimer
@@ -96,12 +100,17 @@ namespace SpeechAgent.Features.Main
       }
     }
 
-    private async void OnConnectKeyChanged(string connectKey)
+    private async void OnConnectKeyChanged(LocalSettings settings)
     {
-      if (string.IsNullOrWhiteSpace(connectKey))
-        await _mainService.StopReadChartTimer();
+      if (string.IsNullOrWhiteSpace(settings.TargetAppName))
+        _mainService.StopReadChartTimer();
       else
-        await _mainService.StartReadChartTimer();
+        _mainService.StartReadChartTimer();
+
+      if (string.IsNullOrWhiteSpace(settings.ConnectKey))
+        await _medicSIOService.DisConnect();
+      else
+        await _medicSIOService.Connect();
     }
 
     public override void Initialize()
@@ -128,20 +137,17 @@ namespace SpeechAgent.Features.Main
       {
         OnWebPingReceived(m.Value);
       });
-      OnConnectKeyChanged(_settingsService.ConnectKey);
+      WeakReferenceMessenger.Default.Register<LocalSettingsChangedMessage>(this, (_r, m) =>
+      {
+        OnConnectKeyChanged(m.Value.Settings);
+      });
+      OnConnectKeyChanged(_settingsService.Settings);
     }
 
     [RelayCommand]
     void ShowSettings()
     {
       _viewService.ShowSettingsView(View);
-    }
-
-    [RelayCommand]
-    void Test()
-    {
-      _mainService.StopReadChartTimer();
-      _mainService.StartReadChartTimer();
     }
   }
 }

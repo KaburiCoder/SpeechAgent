@@ -6,7 +6,10 @@ using SpeechAgent.Messages;
 using SpeechAgent.Services.MedicSIO.Args;
 using SpeechAgent.Services.MedicSIO.Consts;
 using SpeechAgent.Services.MedicSIO.Dto;
+using System.Diagnostics;
+using System.IO;
 using System.Net.Sockets;
+using System.Text.Json.Serialization;
 
 namespace SpeechAgent.Services.MedicSIO
 {
@@ -44,8 +47,6 @@ namespace SpeechAgent.Services.MedicSIO
         AutoUpgrade = false,
         Transport = TransportProtocol.WebSocket
       };
-      // "http://localhost:3100/agent"
-      // "https://clickcns.com/agent"
       _sio = new SocketIOClient.SocketIO("https://clickcns.com/agent", sioOptions);
 
       _sio.OnConnected += async (sender, e) =>
@@ -53,6 +54,7 @@ namespace SpeechAgent.Services.MedicSIO
         WeakReferenceMessenger.Default.Send(new MedicSIOConnectionChangedMessage(true));
         await JoinRoom();
       };
+
       _sio.OnReconnected += async (sender, e) =>
           {
             WeakReferenceMessenger.Default.Send(new MedicSIOConnectionChangedMessage(true));
@@ -72,13 +74,30 @@ namespace SpeechAgent.Services.MedicSIO
       });
 
       _sio.On(EventNames.PingFromWeb, async response =>
-      { 
+      {
         await App.Current.Dispatcher.InvokeAsync(() =>
         {
           WeakReferenceMessenger.Default.Send(new WebPingReceivedMessage(DateTime.Now));
         });
-        await response.CallbackAsync(GetRoomDto());
+        await response.CallbackAsync(new PingFromWebDto { TargetAppName = _settingsService.Settings.TargetAppName });
       });
+
+      _sio.On(EventNames.ReceiveAudio, response =>
+      {
+        var data = response.GetValue<ReceiveAudioArgs>();
+        // data.OpusBuffer 를 파일로 저장
+        File.WriteAllBytes("c:\\output.webm", data.OpusBuffer);
+        Debug.WriteLine($"ReceiveAudio: {data}");
+        //App.Current.Dispatcher.Invoke(() =>
+        //{
+        //  WeakReferenceMessenger.Default.Send(new StartRecordRequestedMessage());
+        //});
+      });
+    }
+    public class ReceiveAudioArgs
+    {
+      [JsonPropertyName("opusBuffer")]
+      public byte[] OpusBuffer { get; set; } = Array.Empty<byte>();
     }
 
     public bool IsConnected => _sio.Connected;
@@ -150,7 +169,7 @@ namespace SpeechAgent.Services.MedicSIO
 
     private RoomDto GetRoomDto()
     {
-      string key = _settingsService.ConnectKey;
+      string key = _settingsService.Settings.ConnectKey;
 
       return new RoomDto
       {

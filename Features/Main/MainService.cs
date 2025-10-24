@@ -11,8 +11,8 @@ namespace SpeechAgent.Features.Main
 {
   public interface IMainService
   {
-    Task StartReadChartTimer();
-    Task StopReadChartTimer();
+    void StartReadChartTimer();
+    void StopReadChartTimer();
   }
 
   public class MainService : IMainService
@@ -27,10 +27,19 @@ namespace SpeechAgent.Features.Main
       IMedicSIOService medicSIOService)
     {
       _controlSearchService = controlSearchService;
-      _medicSIOService = medicSIOService; 
+      _medicSIOService = medicSIOService;
       _timer = new DispatcherTimer();
       _timer.Interval = TimeSpan.FromSeconds(1); // 1초 간격
       _timer.Tick += Timer_Tick;
+
+      WeakReferenceMessenger.Default.Register<LocalSettingsChangedMessage>(this, (r, m) =>
+      {
+        bool isNoneTargetApp = string.IsNullOrWhiteSpace(m.Value.Settings.TargetAppName);
+        if (isNoneTargetApp)
+          _timer.Stop();
+        else
+          _timer.Start();
+      });
     }
 
     private async void Timer_Tick(object? sender, EventArgs e)
@@ -52,15 +61,13 @@ namespace SpeechAgent.Features.Main
       }
     }
 
-    public async Task StartReadChartTimer()
+    public void StartReadChartTimer()
     {
-      await _medicSIOService.Connect();
       _timer.Start();
     }
 
-    public async Task StopReadChartTimer()
+    public void StopReadChartTimer()
     {
-      await _medicSIOService.DisConnect();
       _timer.Stop();
     }
   }

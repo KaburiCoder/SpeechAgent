@@ -7,8 +7,8 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:vm="clr-namespace:SpeechAgent.Features.Settings"
         d:DataContext="{d:DesignInstance vm:SettingsViewModel}"
-        mc:Ignorable="d"        
-        Title="Voice Medic Settings" Height="500" Width="450"
+        mc:Ignorable="d" 
+        Title="Voice Medic Settings" Height="420" Width="370"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -17,15 +17,15 @@
 
   <!-- 전체 윈도우를 위한 둥근 테두리와 그림자 -->
   <Border Background="White" 
-          CornerRadius="12" 
+          CornerRadius="8" 
           BorderBrush="#E0E0E0" 
           BorderThickness="1">
     <Border.Effect>
       <DropShadowEffect Color="#000000" 
                         Direction="270" 
-                        ShadowDepth="4" 
-                        BlurRadius="15" 
-                        Opacity="0.2"/>
+                        ShadowDepth="3" 
+                        BlurRadius="10" 
+                        Opacity="0.18"/>
     </Border.Effect>
     
     <Grid>
@@ -37,9 +37,9 @@
       <!-- 커스텀 타이틀바 -->
       <Border Grid.Row="0" 
           Background="#2196F3" 
-          CornerRadius="12,12,0,0" 
+          CornerRadius="8,8,0,0" 
           MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-        <Grid Height="45">
+        <Grid Height="36">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
@@ -49,15 +49,15 @@
           <!-- 앱 아이콘 -->
           <materialDesign:PackIcon Grid.Column="0" 
                                    Kind="CogOutline" 
-                                   Width="24" Height="24" 
+                                   Width="20" Height="20" 
                                    Foreground="White" 
                                    VerticalAlignment="Center" 
-                                   Margin="15,0,10,0"/>
+                                   Margin="10,0,6,0"/>
     
           <!-- 타이틀 -->
           <TextBlock Grid.Column="1" 
                      Text="Voice Medic Settings" 
-                     FontSize="16" 
+                     FontSize="14" 
                      FontWeight="Medium" 
                      Foreground="White" 
                      VerticalAlignment="Center"/>
@@ -66,83 +66,81 @@
           <Button Grid.Column="2" 
                   Click="CloseButton_Click"
                   ToolTip="닫기"
-                  Margin="0,0,10,0"
-                  Width="35" Height="35"
+                  Margin="0,0,6,0"
+                  Width="28" Height="28"
                   Style="{StaticResource MaterialDesignIconButton}"
                   Foreground="White">
-            <materialDesign:PackIcon Kind="Close" Width="18" Height="18" />
+            <materialDesign:PackIcon Kind="Close" Width="15" Height="15" />
           </Button>
         </Grid>
       </Border>
 
       <!-- 메인 콘텐츠 영역 -->
-      <Grid Grid.Row="1" Margin="20">
+      <Grid Grid.Row="1" Margin="12">
         <StackPanel>
           <!-- 연결 키 섹션 -->
           <Border Background="#F8F9FA" 
-                  CornerRadius="8" 
-                  Padding="15" 
-                  Margin="0,0,0,15">
+                  CornerRadius="5" 
+                  Padding="10" 
+                  Margin="0,0,0,10">
             <StackPanel>
               <TextBlock Text="연결 키" 
-                         FontSize="14" 
+                         FontSize="12" 
                          FontWeight="SemiBold"
                          Foreground="#424242"
-                         Margin="0,0,0,10"/>
+                         Margin="0,0,0,6"/>
               <TextBox materialDesign:HintAssist.Hint="Connect Key를 입력하세요" 
-                        Style="{StaticResource MaterialDesignOutlinedTextBox}" 
                         Text="{Binding ConnectKey, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
           </Border>
     
           <!-- 앱 선택 섹션 -->
           <Border Background="#F8F9FA" 
-                  CornerRadius="8" 
-                  Padding="15" 
-                  Margin="0,0,0,15">
+                  CornerRadius="5" 
+                  Padding="10" 
+                  Margin="0,0,0,10">
             <StackPanel>
               <TextBlock Text="앱 선택" 
-                         FontSize="14" 
+                         FontSize="12" 
                          FontWeight="SemiBold"
                          Foreground="#424242"
-                         Margin="0,0,0,10"/>
+                         Margin="0,0,0,6"/>
               <ComboBox materialDesign:HintAssist.Hint="앱을 선택하세요" 
-                        Style="{StaticResource MaterialDesignOutlinedComboBox}"
                         ItemsSource="{Binding Options}" 
                         DisplayMemberPath="Key" 
                         SelectedValuePath="Value" 
-                        SelectedValue="{Binding AppName}"/>
+                        SelectedValue="{Binding TargetAppName}"/>
             </StackPanel>
           </Border>
 
           <!-- 자동 시작 섹션 -->
           <Border Background="#F8F9FA" 
-                  CornerRadius="8" 
-                  Padding="15" 
-                  Margin="0,0,0,20">
+                  CornerRadius="5" 
+                  Padding="10" 
+                  Margin="0,0,0,12">
             <StackPanel>
               <TextBlock Text="시스템 설정" 
-                         FontSize="14" 
+                         FontSize="12" 
                          FontWeight="SemiBold"
                          Foreground="#424242"
-                         Margin="0,0,0,10"/>
+                         Margin="0,0,0,6"/>
               <CheckBox IsChecked="{Binding AutoStartEnabled}"
                         Style="{StaticResource MaterialDesignCheckBox}">
                 <StackPanel Orientation="Horizontal">
                   <materialDesign:PackIcon Kind="WindowRestore" 
-                                           Width="16" Height="16" 
+                                           Width="14" Height="14" 
                                            VerticalAlignment="Center"
-                                           Margin="0,0,8,0"
+                                           Margin="0,0,6,0"
                                            Foreground="#616161"/>
                   <TextBlock Text="윈도우 시작 시 자동 실행" 
-                             FontSize="13"
+                             FontSize="12"
                              Foreground="#424242"
                              VerticalAlignment="Center"/>
                 </StackPanel>
               </CheckBox>
             </StackPanel>
           </Border>
-  
+ 
           <!-- 버튼 영역 -->
           <Grid>
             <Grid.ColumnDefinitions>
@@ -151,35 +149,35 @@
             </Grid.ColumnDefinitions>
             
             <Button Grid.Column="0" 
-                   Margin="0,0,5,0" 
-                   Height="40"
+                   Margin="0,0,3,0" 
+                   Height="32"
                    Style="{StaticResource MaterialDesignRaisedButton}"
-                   materialDesign:ButtonAssist.CornerRadius="8"
+                   materialDesign:ButtonAssist.CornerRadius="6"
                    Command="{Binding SaveSettingsCommand}">
               <StackPanel Orientation="Horizontal">
                 <materialDesign:PackIcon Kind="ContentSave" 
-                                         Width="18" Height="18" 
+                                         Width="15" Height="15" 
                                          VerticalAlignment="Center"/>
                 <TextBlock Text="저장" 
-                          Margin="8,0,0,0" 
-                          FontSize="14"
+                          Margin="6,0,0,0" 
+                          FontSize="13"
                           VerticalAlignment="Center"/>
               </StackPanel>
             </Button>
          
             <Button Grid.Column="1" 
-                   Margin="5,0,0,0" 
-                   Height="40"
+                   Margin="3,0,0,0" 
+                   Height="32"
                    Style="{StaticResource MaterialDesignOutlinedButton}"
-                   materialDesign:ButtonAssist.CornerRadius="8"
+                   materialDesign:ButtonAssist.CornerRadius="6"
                    Command="{Binding CloseCommand}">
               <StackPanel Orientation="Horizontal">
                 <materialDesign:PackIcon Kind="Close" 
-                                         Width="18" Height="18" 
+                                         Width="15" Height="15" 
                                          VerticalAlignment="Center"/>
                 <TextBlock Text="닫기" 
-                          Margin="8,0,0,0" 
-                          FontSize="14"
+                          Margin="6,0,0,0" 
+                          FontSize="13"
                           VerticalAlignment="Center"/>
               </StackPanel>
             </Button>

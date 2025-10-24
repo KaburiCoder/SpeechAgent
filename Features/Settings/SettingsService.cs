@@ -1,38 +1,31 @@
-﻿using SpeechAgent.Database;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using SpeechAgent.Database;
 using SpeechAgent.Database.Schemas;
+using SpeechAgent.Messages;
+using SpeechAgent.Utils;
 
 namespace SpeechAgent.Features.Settings
 {
 
   public interface ISettingsService
   {
-    event Action<ISettingsService>? OnSettingChanged;
-  event Action<string> OnConnectKeyChanged;
-    string ConnectKey { get; }
-    string AppName { get; }
+    LocalSettings Settings { get; }
     void LoadSettings();
-    void UpdateSettings(string connectKey = "", string appName = "");
+    void UpdateSettings(string connectKey = "", string targetAppName = "");
   }
 
   public class SettingsService : ISettingsService
   {
-    public string ConnectKey { get; private set; } = "";
-    public string AppName { get; private set; } = "";
 
-    public SettingsService()
-    {
-    }
-
-    public event Action<ISettingsService>? OnSettingChanged;
-    public event Action<string> OnConnectKeyChanged = default!;
+    public LocalSettings Settings { get; private set; } = new();
 
     public void LoadSettings()
     {
       using var db = new AppDbContext();
 
       LocalSettings? dbSetting = db.LocalSettings.FirstOrDefault();
-      ConnectKey = dbSetting?.ConnectKey ?? string.Empty;
-      AppName = dbSetting?.TargetAppName ?? string.Empty;
+
+      Settings = dbSetting?.DeepCopy() ?? new LocalSettings();      
     }
 
     public void UpdateSettings(string? connectKey = null, string? appName = null)
@@ -44,22 +37,23 @@ namespace SpeechAgent.Features.Settings
       LocalSettings? currentSetting = null;
       string? previousConnectKey = dbSetting?.ConnectKey;
 
-  currentSetting = dbSetting == null ? new LocalSettings() : dbSetting;
+      currentSetting = dbSetting == null ? new LocalSettings() : dbSetting;
+      LocalSettings previousSettings = currentSetting.DeepCopy();
 
       if (connectKey != null)
         currentSetting.ConnectKey = connectKey.Trim();
-   if (appName != null)
+      if (appName != null)
         currentSetting.TargetAppName = appName.Trim();
 
       if (dbSetting == null)
- db.LocalSettings.Add(currentSetting);
+        db.LocalSettings.Add(currentSetting);
 
       db.SaveChanges();
 
-      if (dbSetting?.ConnectKey != currentSetting.ConnectKey)
-        OnConnectKeyChanged?.Invoke(currentSetting.ConnectKey);
+      // Settings 속성 업데이트
+      Settings = currentSetting.DeepCopy();
 
-      OnSettingChanged?.Invoke(this);
+      WeakReferenceMessenger.Default.Send(new LocalSettingsChangedMessage(new LocalSettingsChangeData(currentSetting, previousSettings)));
     }
   }
 }

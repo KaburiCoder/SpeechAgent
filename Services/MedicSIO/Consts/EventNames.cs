@@ -16,6 +16,8 @@ namespace SpeechAgent.Services.MedicSIO.Consts
 
     #region Receive Events
     public const string PingFromWeb = "pingFromWeb";
+
+    public const string ReceiveAudio = "receiveAudio";
     #endregion
   }
 }

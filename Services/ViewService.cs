@@ -11,6 +11,7 @@ namespace SpeechAgent.Services
     void ShowMainView();
     void ShowSettingsView(Window parent);
     void ShowFindWinView(Window parent);
+    void ShowFindWinImageView(Window parent);
   }
 
   public class ViewService : IViewService
@@ -31,16 +32,23 @@ namespace SpeechAgent.Services
     public void ShowSettingsView(Window parent)
     {
       var viewModelFactory = App.Current.Services.GetRequiredService<IViewModelFactory>();
-      var settings = viewModelFactory.CreateViewModel<SettingsView, SettingsViewModel>(parent);
+   var settings = viewModelFactory.CreateViewModel<SettingsView, SettingsViewModel>(parent);
 
       settings.View.ShowDialog();
-    }
+  }
 
     public void ShowFindWinView(Window parent)
     {
-      var viewModelFactory = App.Current.Services.GetRequiredService<IViewModelFactory>();
+ var viewModelFactory = App.Current.Services.GetRequiredService<IViewModelFactory>();
       var findWin = viewModelFactory.CreateViewModel<FindWinView, FindWinViewModel>(parent);
-      findWin.View.ShowDialog();
+  findWin.View.ShowDialog();
+    }
+
+    public void ShowFindWinImageView(Window parent)
+    {
+  var viewModelFactory = App.Current.Services.GetRequiredService<IViewModelFactory>();
+      var findWinImage = viewModelFactory.CreateViewModel<FindWinImageView, FindWinImageViewModel>(parent);
+      findWinImage.View.ShowDialog();
     }
   }
 }

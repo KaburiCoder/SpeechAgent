@@ -38,6 +38,7 @@ namespace SpeechAgent
       services.AddTransient<MainViewModel>();
       services.AddTransient<SettingsViewModel>();
       services.AddTransient<FindWinViewModel>();
+      services.AddTransient<FindWinImageViewModel>();
 
       // Services
       services.AddTransient<IMainService, MainService>();

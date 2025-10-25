@@ -4,7 +4,7 @@ using SpeechAgent.Models;
 
 namespace SpeechAgent.Features.Settings.FindWin.Models
 {
-  internal class WindowInfo
+  public class WindowInfo
   {
     public IntPtr Handle { get; set; }
     public string Title { get; set; } = string.Empty;

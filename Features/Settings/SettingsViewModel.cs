@@ -58,6 +58,12 @@ namespace SpeechAgent.Features.Settings
     [ObservableProperty]
     private string nameIndex = "";
 
+    [ObservableProperty]
+    private string customImageClass = "";
+
+    [ObservableProperty]
+    private string customImageRect = "";
+
     public bool IsCustomSelected => SelectedOption?.Value == "[사용자 정의]";
 
     partial void OnSelectedOptionChanged(Option value)
@@ -70,7 +76,16 @@ namespace SpeechAgent.Features.Settings
     {
       TargetAppName = SelectedOption?.Value ?? "";
       // Save settings
-      _settingsService.UpdateSettings(connectKey: ConnectKey, targetAppName: TargetAppName, customExeTitle: ExeTitle, customChartClass: ChartClass, customChartIndex: ChartIndex, customNameClass: NameClass, customNameIndex: NameIndex);
+      _settingsService.UpdateSettings(
+        connectKey: ConnectKey, 
+        targetAppName: TargetAppName, 
+        customExeTitle: ExeTitle, 
+        customChartClass: ChartClass, 
+        customChartIndex: ChartIndex, 
+        customNameClass: NameClass, 
+        customNameIndex: NameIndex,
+        customImageClass: CustomImageClass,
+        customImageRect: CustomImageRect);
       // Apply auto start setting
       _autoStartService.SetAutoStart(AutoStartEnabled);
 
@@ -81,6 +96,12 @@ namespace SpeechAgent.Features.Settings
     void FindControl()
     {
       _viewService.ShowFindWinView(View);
+    }
+
+    [RelayCommand]
+    void FindImageControl()
+    {
+      _viewService.ShowFindWinImageView(View);
     }
 
     [RelayCommand]
@@ -105,6 +126,8 @@ namespace SpeechAgent.Features.Settings
       ChartIndex = _settingsService.Settings.CustomChartIndex;
       NameClass = _settingsService.Settings.CustomNameClass;
       NameIndex = _settingsService.Settings.CustomNameIndex;
+      CustomImageClass = _settingsService.Settings.CustomImageClass;
+      CustomImageRect = _settingsService.Settings.CustomImageRect;
 
       SelectedOption = Options.FirstOrDefault(o => o.Value == TargetAppName) ?? Options[0];
 
@@ -118,6 +141,12 @@ namespace SpeechAgent.Features.Settings
         ChartIndex = m.Value.ChartIndex;
         NameClass = m.Value.NameClass;
         NameIndex = m.Value.NameIndex;
+      });
+
+      WeakReferenceMessenger.Default.Register<SendToSettingsImageMessage>(this, (r, m) =>
+      {
+        CustomImageClass = m.Value.CustomImageClass;
+        CustomImageRect = m.Value.CustomImageRect;
       });
     }
   }

@@ -10,8 +10,8 @@ using SpeechAgent.Database;
 namespace SpeechAgent.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251023011102_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251025043040_InitCreate")]
+    partial class InitCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,6 +26,34 @@ namespace SpeechAgent.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ConnectKey")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CustomChartClass")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CustomChartIndex")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CustomExeTitle")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CustomImageClass")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CustomImageRect")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CustomNameClass")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CustomNameIndex")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

@@ -5,7 +5,7 @@
 namespace SpeechAgent.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,7 +17,14 @@ namespace SpeechAgent.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     ConnectKey = table.Column<string>(type: "TEXT", nullable: false),
-                    TargetAppName = table.Column<string>(type: "TEXT", nullable: false)
+                    TargetAppName = table.Column<string>(type: "TEXT", nullable: false),
+                    CustomExeTitle = table.Column<string>(type: "TEXT", nullable: false),
+                    CustomChartClass = table.Column<string>(type: "TEXT", nullable: false),
+                    CustomChartIndex = table.Column<string>(type: "TEXT", nullable: false),
+                    CustomNameClass = table.Column<string>(type: "TEXT", nullable: false),
+                    CustomNameIndex = table.Column<string>(type: "TEXT", nullable: false),
+                    CustomImageClass = table.Column<string>(type: "TEXT", nullable: false),
+                    CustomImageRect = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

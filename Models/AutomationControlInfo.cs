@@ -12,5 +12,11 @@ namespace SpeechAgent.Models
     public string Text { get; set; } = string.Empty;
     public System.Drawing.Rectangle BoundingRectangle { get; set; }
     public int Index { get; set; }
+
+    // WPF 바인딩을 위한 속성들
+    public int RectLeft => BoundingRectangle.Left;
+    public int RectTop => BoundingRectangle.Top;
+    public int RectWidth => BoundingRectangle.Width;
+    public int RectHeight => BoundingRectangle.Height;
   }
 }

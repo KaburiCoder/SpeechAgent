@@ -19,18 +19,18 @@ namespace SpeechAgent.Features.Settings
       ISettingsService settingsService,
       IAutoStartService autoStartService,
       IViewService viewService)
-{
+    {
       this._settingsService = settingsService;
       this._autoStartService = autoStartService;
-   this._viewService = viewService;
+      this._viewService = viewService;
     }
 
     private readonly ISettingsService _settingsService;
     private readonly IAutoStartService _autoStartService;
     private readonly IViewService _viewService;
-    
- [ObservableProperty]
-private List<Option> options = [];
+
+    [ObservableProperty]
+    private List<Option> options = [];
 
     [ObservableProperty]
     private Option selectedOption;
@@ -50,13 +50,13 @@ private List<Option> options = [];
     [ObservableProperty]
     private string chartClass = "";
 
-[ObservableProperty]
+    [ObservableProperty]
     private string chartIndex = "";
 
     [ObservableProperty]
     private string nameClass = "";
 
- [ObservableProperty]
+    [ObservableProperty]
     private string nameIndex = "";
 
     [ObservableProperty]
@@ -65,9 +65,6 @@ private List<Option> options = [];
     [ObservableProperty]
     private string customImageRect = "";
 
-    [ObservableProperty]
-    private bool useAutomation = false;
-
     public bool IsCustomSelected => SelectedOption?.Value == "[사용자 정의]";
     public bool IsCustomImageSelected => SelectedOption?.Value == "[사용자 정의(이미지)]";
 
@@ -75,7 +72,7 @@ private List<Option> options = [];
     {
       OnPropertyChanged(nameof(IsCustomSelected));
       OnPropertyChanged(nameof(IsCustomImageSelected));
-  }
+    }
 
     [RelayCommand]
     void SaveSettings()
@@ -83,16 +80,15 @@ private List<Option> options = [];
       TargetAppName = SelectedOption?.Value ?? "";
       // Save settings
       _settingsService.UpdateSettings(
-        connectKey: ConnectKey, 
-        targetAppName: TargetAppName, 
-        customExeTitle: ExeTitle, 
-        customChartClass: ChartClass, 
- customChartIndex: ChartIndex, 
-        customNameClass: NameClass, 
+        connectKey: ConnectKey,
+        targetAppName: TargetAppName,
+        customExeTitle: ExeTitle,
+        customChartClass: ChartClass,
+        customChartIndex: ChartIndex,
+        customNameClass: NameClass,
    customNameIndex: NameIndex,
     customImageName: CustomImageName,
-        customImageRect: CustomImageRect,
-        useAutomation: UseAutomation);
+        customImageRect: CustomImageRect);
       // Apply auto start setting
       _autoStartService.SetAutoStart(AutoStartEnabled);
 
@@ -112,9 +108,9 @@ private List<Option> options = [];
     }
 
     [RelayCommand]
-void Close()
+    void Close()
     {
-  View.Close();
+      View.Close();
     }
 
     public override void Initialize()
@@ -135,8 +131,7 @@ void Close()
       NameClass = _settingsService.Settings.CustomNameClass;
       NameIndex = _settingsService.Settings.CustomNameIndex;
       CustomImageName = _settingsService.Settings.CustomImageName;
-    CustomImageRect = _settingsService.Settings.CustomImageRect;
-      UseAutomation = _settingsService.Settings.UseAutomation;
+      CustomImageRect = _settingsService.Settings.CustomImageRect;
 
       SelectedOption = Options.FirstOrDefault(o => o.Value == TargetAppName) ?? Options[0];
 
@@ -147,16 +142,16 @@ void Close()
       {
         ExeTitle = m.Value.ExeTitle;
         ChartClass = m.Value.ChartClass;
- ChartIndex = m.Value.ChartIndex;
-    NameClass = m.Value.NameClass;
+        ChartIndex = m.Value.ChartIndex;
+        NameClass = m.Value.NameClass;
         NameIndex = m.Value.NameIndex;
       });
 
       WeakReferenceMessenger.Default.Register<SendToSettingsImageMessage>(this, (r, m) =>
       {
         CustomImageName = m.Value.CustomImageName;
-      CustomImageRect = m.Value.CustomImageRect;
-   });
+        CustomImageRect = m.Value.CustomImageRect;
+      });
     }
   }
 }

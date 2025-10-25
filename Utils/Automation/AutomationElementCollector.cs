@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows.Automation;
 
 namespace SpeechAgent.Utils.Automation
@@ -10,7 +11,7 @@ namespace SpeechAgent.Utils.Automation
     {
       _elements.Clear();
       var targetWindow = FindWindow(windowTitle);
-   if (targetWindow != null)
+      if (targetWindow != null)
       {
         EnumerateElements(targetWindow);
       }
@@ -26,7 +27,7 @@ namespace SpeechAgent.Utils.Automation
     {
       var rootElement = AutomationElement.RootElement;
       AutomationElement? targetWindow = null;
-      
+
       var windows = rootElement.FindAll(
         TreeScope.Children,
   new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window));
@@ -34,17 +35,17 @@ namespace SpeechAgent.Utils.Automation
       foreach (AutomationElement window in windows)
       {
         try
-   {
+        {
           if (window.Current.Name.Contains(windowTitle))
           {
-   targetWindow = window;
-        break;
+            targetWindow = window;
+            break;
           }
         }
         catch (ElementNotAvailableException)
- {
- // 무시
-    }
+        {
+          // 무시
+        }
       }
 
       return targetWindow;
@@ -54,13 +55,13 @@ namespace SpeechAgent.Utils.Automation
     {
       try
       {
- _elements.Add(element);
+        _elements.Add(element);
 
         TreeWalker walker = TreeWalker.RawViewWalker;
-   AutomationElement? child = walker.GetFirstChild(element);
-        
-    while (child != null)
- {
+        AutomationElement? child = walker.GetFirstChild(element);
+
+        while (child != null)
+        {
           EnumerateElements(child);
           child = walker.GetNextSibling(child);
         }
@@ -68,7 +69,7 @@ namespace SpeechAgent.Utils.Automation
       catch (ElementNotAvailableException)
       {
         // 무시
-  }
+      }
     }
 
     public List<AutomationElement> GetElements()
@@ -83,11 +84,11 @@ namespace SpeechAgent.Utils.Automation
     {
       try
       {
- return AutomationElement.FromHandle(handle);
+        return AutomationElement.FromHandle(handle);
       }
       catch
       {
-  return null;
+        return null;
       }
     }
 
@@ -95,7 +96,7 @@ namespace SpeechAgent.Utils.Automation
     {
       var rootElement = AutomationElement.RootElement;
       var windows = new List<AutomationElement>();
-      
+
       var allWindows = rootElement.FindAll(
         TreeScope.Children,
         new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window));
@@ -106,19 +107,19 @@ namespace SpeechAgent.Utils.Automation
         {
           if (window.Current.Name.Contains(windowTitle))
           {
-     windows.Add(window);
- }
+            windows.Add(window);
+          }
         }
         catch (ElementNotAvailableException)
         {
           // 무시
- }
+        }
       }
 
       return windows;
     }
 
-  public List<AutomationElement> GetAllWindows()
+    public List<AutomationElement> GetAllWindows()
     {
       var rootElement = AutomationElement.RootElement;
       var windows = new List<AutomationElement>();
@@ -129,22 +130,23 @@ namespace SpeechAgent.Utils.Automation
 
       foreach (AutomationElement window in allWindows)
       {
-     try
+        try
         {
           // 빈 창이나 숨겨진 창 제외
-          if (!string.IsNullOrEmpty(window.Current.Name) && 
+          if (!string.IsNullOrEmpty(window.Current.Name) &&
     window.Current.BoundingRectangle.Width > 0)
           {
- windows.Add(window);
+            windows.Add(window);
+            Debug.Print($"Found window: {window.Current.Name}");
           }
         }
-    catch (ElementNotAvailableException)
+        catch (ElementNotAvailableException)
         {
           // 무시
         }
       }
 
       return windows;
- }
+    }
   }
 }

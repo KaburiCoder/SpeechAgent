@@ -24,7 +24,6 @@ namespace SpeechAgent
       // Singletons
       services.AddSingleton<IViewService, ViewService>();
       services.AddSingleton<IViewModelFactory, ViewModelFactory>();
-      services.AddSingleton<IControlSearchService, ControlSearchService>();
       services.AddSingleton<IAutomationControlSearchService, AutomationControlSearchService>();
       services.AddSingleton<ISettingsService, SettingsService>();
       services.AddSingleton<IMedicSIOService, MedicSIOService>();

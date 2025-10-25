@@ -75,6 +75,25 @@ namespace SpeechAgent.Utils.Automation
         }
       }
 
+      // 클래스별로 그룹화하여 Index 재설정
+      var grouped = _foundControls.GroupBy(c => c.ClassName);
+      foreach (var group in grouped)
+      {
+        int index = 0;
+        foreach (var control in group)
+        {
+          control.Index = index++;
+        }
+      }
+
+      _foundControls.Sort((a, b) =>
+      {
+        int topComparison = a.BoundingRectangle.Left.CompareTo(b.BoundingRectangle.Left);
+        if (topComparison != 0)
+          return topComparison;
+        return a.BoundingRectangle.Top.CompareTo(b.BoundingRectangle.Top);
+      });
+
       return _foundControls;
     }
 

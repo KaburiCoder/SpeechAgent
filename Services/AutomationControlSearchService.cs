@@ -7,6 +7,7 @@ namespace SpeechAgent.Services
 {
   public interface IAutomationControlSearchService
   {
+    void Clear();
     AutomationAppControls? FindChartAndNameControls();
   }
 
@@ -60,17 +61,6 @@ namespace SpeechAgent.Services
       var controls = _searcher.FoundControls.Count != 0
         ? _searcher.FoundControls
         : _searcher.SearchControls();
-
-      // 클래스별로 그룹화하여 Index 재설정
-      var grouped = controls.GroupBy(c => c.ClassName);
-      foreach (var group in grouped)
-      {
-        int index = 0;
-        foreach (var control in group)
-        {
-          control.Index = index++;
-        }
-      }
 
       AutomationAppControls? result = null;
       if (settings.TargetAppName == "[사용자 정의]")
@@ -191,6 +181,12 @@ namespace SpeechAgent.Services
         appControls.SetControls(chartTextBox, nameTextBox);
         return appControls;
       }
+    }
+
+    public void Clear()
+    {      
+      _searcher.ClearFoundControls();
+      _appControls.ClearControls();
     }
   }
 

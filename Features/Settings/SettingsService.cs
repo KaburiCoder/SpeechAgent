@@ -11,7 +11,7 @@ namespace SpeechAgent.Features.Settings
   {
     LocalSettings Settings { get; }
     void LoadSettings();
-    void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartClass = null, string? customChartIndex = null, string? customNameClass = null, string? customNameIndex = null, string? customImageName = null, string? customImageRect = null, bool? useAutomation = null);
+    void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartClass = null, string? customChartIndex = null, string? customNameClass = null, string? customNameIndex = null, string? customImageName = null, string? customImageRect = null);
   }
 
   public class SettingsService : ISettingsService
@@ -28,7 +28,7 @@ namespace SpeechAgent.Features.Settings
       Settings = dbSetting?.DeepCopy() ?? new LocalSettings();      
     }
 
-    public void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartClass = null, string? customChartIndex = null, string? customNameClass = null, string? customNameIndex = null, string? customImageName = null, string? customImageRect = null, bool? useAutomation = null)
+    public void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartClass = null, string? customChartIndex = null, string? customNameClass = null, string? customNameIndex = null, string? customImageName = null, string? customImageRect = null)
     {
       using var db = new AppDbContext();
 
@@ -58,8 +58,6 @@ namespace SpeechAgent.Features.Settings
         currentSetting.CustomImageName = customImageName.Trim();
       if (customImageRect != null)
         currentSetting.CustomImageRect = customImageRect.Trim();
-      if (useAutomation.HasValue)
-        currentSetting.UseAutomation = useAutomation.Value;
 
       if (dbSetting == null)
         db.LocalSettings.Add(currentSetting);

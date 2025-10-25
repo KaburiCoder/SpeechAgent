@@ -1,4 +1,4 @@
-Ôªøusing CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using SpeechAgent.Bases;
@@ -6,9 +6,8 @@ using SpeechAgent.Features.Settings.FindWin.Models;
 using SpeechAgent.Features.Settings.FindWin.Services;
 using SpeechAgent.Messages;
 using SpeechAgent.Models;
-using SpeechAgent.Utils;
+using SpeechAgent.Utils.Automation;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
@@ -17,16 +16,10 @@ namespace SpeechAgent.Features.Settings.FindWin
   partial class FindWinViewModel : BaseViewModel
   {
     private readonly WindowCaptureService _captureService;
-    private ControlSearcher _searcher = new();
+    private readonly AutomationControlSearcher _automationSearcher;
 
     [ObservableProperty]
     private ObservableCollection<WindowInfo> _windows = new();
-
-    [ObservableProperty]
-    private ObservableCollection<ControlInfo> _controls = new();
-
-    [ObservableProperty]
-    private ObservableCollection<ControlInfo> _searchedControls = new();
 
     [ObservableProperty]
     private WindowInfo? _selectedWindow;
@@ -35,88 +28,36 @@ namespace SpeechAgent.Features.Settings.FindWin
     private bool _isLoading;
 
     [ObservableProperty]
+    private ObservableCollection<AutomationControlInfo> _searchedControls = new();
+
+    [ObservableProperty]
+    private AutomationControlInfo? _selectedControlInfo;
+
+    [ObservableProperty]
     private string _searchText = string.Empty;
 
+    [ObservableProperty]
     private bool _isChartNumberSelected = true;
-    public bool IsChartNumberSelected
-    {
-      get => _isChartNumberSelected;
-      set
-      {
-        if (SetProperty(ref _isChartNumberSelected, value) && value)
-        {
-          IsPatientNameSelected = false;
-        }
-      }
-    }
 
+    [ObservableProperty]
     private bool _isPatientNameSelected;
-    public bool IsPatientNameSelected
-    {
-      get => _isPatientNameSelected;
-      set
-      {
-        if (SetProperty(ref _isPatientNameSelected, value) && value)
-        {
-          IsChartNumberSelected = false;
-        }
-      }
-    }
 
+    [ObservableProperty]
     private string _chartNumberClassName = string.Empty;
-    public string ChartNumberClassName
-    {
-      get => _chartNumberClassName;
-      set => SetProperty(ref _chartNumberClassName, value);
-    }
 
+    [ObservableProperty]
     private string _chartNumberIndex = string.Empty;
-    public string ChartNumberIndex
-    {
-      get => _chartNumberIndex;
-      set => SetProperty(ref _chartNumberIndex, value);
-    }
 
+    [ObservableProperty]
     private string _patientNameClassName = string.Empty;
-    public string PatientNameClassName
-    {
-      get => _patientNameClassName;
-      set => SetProperty(ref _patientNameClassName, value);
-    }
 
+    [ObservableProperty]
     private string _patientNameIndex = string.Empty;
-    public string PatientNameIndex
-    {
-      get => _patientNameIndex;
-      set => SetProperty(ref _patientNameIndex, value);
-    }
-
-    private ControlInfo? _selectedControlInfo;
-    public ControlInfo? SelectedControlInfo
-    {
-      get => _selectedControlInfo;
-      set
-      {
-        if (SetProperty(ref _selectedControlInfo, value) && value != null)
-        {
-          if (IsChartNumberSelected)
-          {
-            ChartNumberClassName = value.ClassName;
-            ChartNumberIndex = value.Index.ToString();
-          }
-          else if (IsPatientNameSelected)
-          {
-            PatientNameClassName = value.ClassName;
-            PatientNameIndex = value.Index.ToString();
-          }
-        }
-      }
-    }
-
 
     public FindWinViewModel()
     {
       _captureService = new WindowCaptureService();
+      _automationSearcher = new AutomationControlSearcher();
     }
 
     [RelayCommand]
@@ -124,9 +65,8 @@ namespace SpeechAgent.Features.Settings.FindWin
     {
       IsLoading = true;
       Windows.Clear();
-      Controls.Clear();
       SelectedWindow = null;
-      UpdateSearchedControls();
+      SearchedControls.Clear();
 
       try
       {
@@ -145,7 +85,7 @@ namespace SpeechAgent.Features.Settings.FindWin
       }
       catch (Exception ex)
       {
-        MessageBox.Show($"Ïä§Ï∫î Ï§ë Ïò§Î•òÍ∞Ä Î∞úÏÉùÌñàÏäµÎãàÎã§: {ex.Message}", "Ïò§Î•ò", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show($"Ω∫ƒµ ¡ﬂ ø¿∑˘∞° πﬂª˝«ﬂΩ¿¥œ¥Ÿ: {ex.Message}", "ø¿∑˘", MessageBoxButton.OK, MessageBoxImage.Error);
       }
       finally
       {
@@ -153,80 +93,122 @@ namespace SpeechAgent.Features.Settings.FindWin
       }
     }
 
-    private async void LoadDetailedInfo(WindowInfo windowInfo)
-    {
-      try
-      {
-        await Task.Run(() =>
-        {
-          // ÏÑ†ÌÉùÎêú ÏúàÎèÑÏö∞Ïùò Î™®Îì† ÏûêÏãù Ïª®Ìä∏Î°§ Í≤ÄÏÉâ
-          _searcher.SetHwnd(windowInfo.Handle);
-          List<ControlInfo> controls = _searcher.SearchControls();
-
-          // Ï∞æÏùÄ Ïª®Ìä∏Î°§Îì§ÏùÑ Controls Ïª¨Î†âÏÖòÏóê Ï∂îÍ∞Ä
-          App.Current.Dispatcher.Invoke(() =>
-          {
-            Controls.Clear();
-            for (int i = 0; i < controls.Count; i++)
-            {
-              controls[i].Index = i;
-              Controls.Add(controls[i]);
-            }
-
-            // ÌÅ¥ÎûòÏä§Î≥ÑÎ°ú Í∑∏Î£πÌôîÌïòÏó¨ Index Ïû¨ÏÑ§Ï†ï
-            var grouped = Controls.GroupBy(c => c.ClassName);
-            foreach (var group in grouped)
-            {
-              int index = 0;
-              foreach (var control in group)
-              {
-                control.Index = index++;
-              }
-            }
-
-            UpdateSearchedControls();
-          });
-        });
-      }
-      catch (Exception ex)
-      {
-        MessageBox.Show($"ÏÑ∏Î∂Ä Ï†ïÎ≥¥ Î°úÎìú Ï§ë Ïò§Î•òÍ∞Ä Î∞úÏÉùÌñàÏäµÎãàÎã§: {ex.Message}", "Ïò§Î•ò", MessageBoxButton.OK, MessageBoxImage.Error);
-      }
-    }
-
-    private void UpdateSearchedControls()
-    {
-      var searched = string.IsNullOrWhiteSpace(SearchText) 
-        ? Controls 
-        : Controls.Where(c => c.Text.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || c.ClassName.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
-      SearchedControls = new ObservableCollection<ControlInfo>(searched);
-    }
-
     [RelayCommand]
     internal void Search()
     {
-      UpdateSearchedControls();
+      if (string.IsNullOrWhiteSpace(SearchText))
+      {
+        // ∞ÀªˆæÓ∞° æ¯¿∏∏È ∏µÁ ƒ¡∆Æ∑— «•Ω√
+        SearchedControls.Clear();
+         
+        return;
+      }
+
+      var filtered = _automationSearcher.FoundControls
+        .Where(c => c.Text.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                   c.ClassName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+      SearchedControls.Clear();
+      foreach (var control in filtered)
+      {
+        SearchedControls.Add(control);
+      }
     }
 
     [RelayCommand]
     private void SendToSettings()
     {
-      WeakReferenceMessenger.Default.Send(new SendToSettingsMessage(SelectedWindow?.Title ?? "", ChartNumberClassName, ChartNumberIndex, PatientNameClassName, PatientNameIndex));
+      if (IsChartNumberSelected)
+      {
+        if (string.IsNullOrEmpty(ChartNumberClassName) || string.IsNullOrEmpty(ChartNumberIndex))
+        {
+          MessageBox.Show("¬˜∆Æπ¯»£¿« ≈¨∑°Ω∫∏Ì∞˙ ¿Œµ¶Ω∫∏¶ ¿‘∑¬«ÿ¡÷ººø‰.", "æÀ∏≤", MessageBoxButton.OK, MessageBoxImage.Warning);
+          return;
+        }
+      }
+
+      if (IsPatientNameSelected)
+      {
+        if (string.IsNullOrEmpty(PatientNameClassName) || string.IsNullOrEmpty(PatientNameIndex))
+        {
+          MessageBox.Show("ºˆ¡¯¿⁄∏Ì¿« ≈¨∑°Ω∫∏Ì∞˙ ¿Œµ¶Ω∫∏¶ ¿‘∑¬«ÿ¡÷ººø‰.", "æÀ∏≤", MessageBoxButton.OK, MessageBoxImage.Warning);
+          return;
+        }
+      }
+
+      WeakReferenceMessenger.Default.Send(new SendToSettingsMessage(
+        exeTitle: SelectedWindow?.Title ?? "",
+        chartClass: ChartNumberClassName,
+        chartIndex: ChartNumberIndex,
+        nameClass: PatientNameClassName,
+        nameIndex: PatientNameIndex
+      ));
 
       View.Close();
     }
 
     partial void OnSelectedWindowChanged(WindowInfo? value)
     {
+      SearchedControls.Clear();
+      SelectedControlInfo = null;
+
       if (value != null)
       {
-        LoadDetailedInfo(value);
+        IsLoading = true;
+
+        Task.Run(() =>
+        {
+          try
+          {
+            // UI Automation¿∏∑Œ ƒ¡∆Æ∑— ∞Àªˆ
+            if (_automationSearcher.FindWindowByTitle(title => title.Contains(value.Title)))
+            {
+              var controls = _automationSearcher.SearchControls();
+
+              App.Current.Dispatcher.Invoke(() =>
+              {
+                SearchedControls.Clear();
+                foreach (var control in controls)
+                {
+                  SearchedControls.Add(control);
+                }
+              });
+            }
+          }
+          catch (Exception ex)
+          {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+              MessageBox.Show($"ƒ¡∆Æ∑— ∞Àªˆ ¡ﬂ ø¿∑˘∞° πﬂª˝«ﬂΩ¿¥œ¥Ÿ: {ex.Message}", "ø¿∑˘", MessageBoxButton.OK, MessageBoxImage.Error);
+            });
+          }
+          finally
+          {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+              IsLoading = false;
+            });
+          }
+        });
       }
     }
 
-    partial void OnSearchTextChanged(string value)
+    partial void OnSelectedControlInfoChanged(AutomationControlInfo? value)
     {
-      // Ïã§ÏãúÍ∞Ñ Í≤ÄÏÉâ Ï†úÍ±∞
+      if (value != null)
+      {
+        if (IsChartNumberSelected)
+        {
+          ChartNumberClassName = value.ClassName;
+          ChartNumberIndex = value.Index.ToString();
+        }
+        else if (IsPatientNameSelected)
+        {
+          PatientNameClassName = value.ClassName;
+          PatientNameIndex = value.Index.ToString();
+        }
+      }
     }
   }
 }

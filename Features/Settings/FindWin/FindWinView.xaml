@@ -74,7 +74,7 @@
         <!-- 차트번호 -->
         <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,10,0" Background="WhiteSmoke">
           <StackPanel Orientation="Horizontal">
-            <RadioButton Content="차트번호" IsChecked="{Binding IsChartNumberSelected}" Margin="0,0,10,0" VerticalAlignment="Center" FontWeight="SemiBold"/>
+            <RadioButton Content="차트번호" IsChecked="{Binding IsChartNumberSelected}" Margin="0,0,10,0" VerticalAlignment="Center" FontWeight="SemiBold" GroupName="1"/>
             <TextBlock Text="클래스명:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
             <TextBox Text="{Binding ChartNumberClassName}" Width="120" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="12"/>
             <TextBlock Text="인덱스:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
@@ -85,7 +85,7 @@
         <!-- 수진자명 -->
         <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10" Background="WhiteSmoke">
           <StackPanel Orientation="Horizontal">
-            <RadioButton Content="수진자명" IsChecked="{Binding IsPatientNameSelected}" Margin="0,0,10,0" VerticalAlignment="Center" FontWeight="SemiBold"/>
+            <RadioButton Content="수진자명" IsChecked="{Binding IsPatientNameSelected}" Margin="0,0,10,0" VerticalAlignment="Center" FontWeight="SemiBold" GroupName="1"/>
             <TextBlock Text="클래스명:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
             <TextBox Text="{Binding PatientNameClassName}" Width="120" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="12"/>
             <TextBlock Text="인덱스:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
@@ -242,6 +242,11 @@
               <Run Text="{Binding SearchedControls.Count, Mode=OneWay}" FontWeight="Bold"/>
               <Run Text="개의 컨트롤"/>
             </TextBlock>
+            <TextBlock Text="컨트롤 검색 중..." 
+                       FontSize="12" 
+                       Foreground="Blue"
+                       Margin="0,5,0,0"
+                       Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}"/>
             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
               <TextBlock Text="텍스트 검색" 
                          FontSize="12" 
@@ -299,7 +304,7 @@
                      ScrollViewer.CanContentScroll="True"
                      VirtualizingPanel.IsVirtualizing="True"
                      VirtualizingPanel.VirtualizationMode="Recycling"
-                     SelectedItem="{Binding SelectedControlInfo}">
+                     SelectedItem="{Binding SelectedControlInfo, Mode=TwoWay}">
               <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                   <VirtualizingStackPanel/>
@@ -315,21 +320,21 @@
                           Background="White">
                     <TextBlock FontSize="12">
                       <Run Text="[" Foreground="#2196F3"/>
-                      <Run Text="{Binding Index}" Foreground="#2196F3"/>
+                      <Run Text="{Binding Index, Mode=OneWay}" Foreground="#2196F3"/>
                       <Run Text="] " Foreground="#2196F3"/>
                       <Run Text="Class: " Foreground="#333"/>
-                      <Run Text="{Binding ClassName}" Foreground="#333"/>
+                      <Run Text="{Binding ClassName, Mode=OneWay}" Foreground="#333"/>
                       <Run Text=" | Text: " Foreground="#555"/>
-                      <Run Text="{Binding Text}" Foreground="#555"/>
+                      <Run Text="{Binding Text, Mode=OneWay}" Foreground="#555"/>
                       <Run Text=" | Pos: " Foreground="#777"/>
                       <Run Text=" x:" Foreground="#777"/>
-                      <Run Text="{Binding RECT.Left}" Foreground="#777"/>
+                      <Run Text="{Binding RectLeft, Mode=OneWay}" Foreground="#777"/>
                       <Run Text=" y:" Foreground="#777"/>
-                      <Run Text="{Binding RECT.Top}" Foreground="#777"/>
+                      <Run Text="{Binding RectTop, Mode=OneWay}" Foreground="#777"/>
                       <Run Text=" w:" Foreground="#777"/>
-                      <Run Text="{Binding RECT.Width}" Foreground="#777"/>
+                      <Run Text="{Binding RectWidth, Mode=OneWay}" Foreground="#777"/>
                       <Run Text=" h:" Foreground="#777"/>
-                      <Run Text="{Binding RECT.Height}" Foreground="#777"/>
+                      <Run Text="{Binding RectHeight, Mode=OneWay}" Foreground="#777"/>
                     </TextBlock>
                   </Border>
                 </DataTemplate>

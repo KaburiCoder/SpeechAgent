@@ -197,8 +197,7 @@
                          Foreground="#424242"
                          Margin="0,0,0,6"/>
               <CheckBox IsChecked="{Binding AutoStartEnabled}"
-                        Style="{StaticResource MaterialDesignCheckBox}"
-                        Margin="0,0,0,6">
+                        Style="{StaticResource MaterialDesignCheckBox}">
                 <StackPanel Orientation="Horizontal">
                   <materialDesign:PackIcon Kind="WindowRestore" 
                                            Width="14" Height="14" 
@@ -206,20 +205,6 @@
                                            Margin="0,0,6,0"
                                            Foreground="#616161"/>
                   <TextBlock Text="윈도우 시작 시 자동 실행" 
-                             FontSize="12"
-                             Foreground="#424242"
-                             VerticalAlignment="Center"/>
-                </StackPanel>
-              </CheckBox>
-              <CheckBox IsChecked="{Binding UseAutomation}"
-                        Style="{StaticResource MaterialDesignCheckBox}">
-                <StackPanel Orientation="Horizontal">
-                  <materialDesign:PackIcon Kind="Robot" 
-                                           Width="14" Height="14" 
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,6,0"
-                                           Foreground="#616161"/>
-                  <TextBlock Text="UI Automation 사용 (권장)" 
                              FontSize="12"
                              Foreground="#424242"
                              VerticalAlignment="Center"/>

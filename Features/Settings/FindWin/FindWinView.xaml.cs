@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Input;
 
 namespace SpeechAgent.Features.Settings.FindWin
 {
@@ -12,15 +11,6 @@ namespace SpeechAgent.Features.Settings.FindWin
     {
       InitializeComponent();
       DataContext = new FindWinViewModel();
-    }
-
-    private void SearchTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-    {
-      if (e.Key == Key.Enter)
-      {
-        var viewModel = (FindWinViewModel)DataContext;
-        viewModel.Search();
-      }
     }
   }
 }

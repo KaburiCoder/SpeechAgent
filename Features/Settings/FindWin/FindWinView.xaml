@@ -228,13 +228,15 @@
                          FontSize="12" 
                          Foreground="Gray"
                          VerticalAlignment="Center"/>
-              <TextBox x:Name="SearchTextBox"
-                       Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+              <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                        Width="200" 
                        Margin="10,0,0,0" 
                        FontSize="14" 
-                       VerticalContentAlignment="Center"
-                       KeyDown="SearchTextBox_KeyDown"/>
+                       VerticalContentAlignment="Center">
+                <TextBox.InputBindings>
+                  <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                </TextBox.InputBindings>
+              </TextBox>
               <Button Content="검색" 
                       Command="{Binding SearchCommand}"
                       Width="60" 

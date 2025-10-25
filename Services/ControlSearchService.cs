@@ -1,11 +1,5 @@
 ﻿using SpeechAgent.Models;
 using SpeechAgent.Utils;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpeechAgent.Services
 {
@@ -43,21 +37,19 @@ namespace SpeechAgent.Services
         ? _searcher.FoundControls
         : _searcher.SearchControls();
 
-      var sortedControls = controls.OrderBy(c => c.RECT.Left).ThenBy(c => c.RECT.Top).ToList();
-
-      var chartLabel = sortedControls
+      var chartLabel = controls
          .FirstOrDefault(c => c.Text.StartsWith("차트"));
-      var nameLabel = sortedControls
+      var nameLabel = controls
         .FirstOrDefault(c => c.Text.StartsWith("이름") || c.Text.StartsWith("수진자명"));
-      var edits = sortedControls.FindAll(c => c.ClassName.Contains("EDIT.app"));
+      var edits = controls.FindAll(c => c.ClassName.Contains("EDIT.app"));
 
       ControlInfo? chartEdit = null;
       ControlInfo? nameEdit = null;
       if (edits.Count == 0)
       {
         // NewClick
-        chartEdit = sortedControls.Where(x => x.ClassName.StartsWith("Edit")).ElementAtOrDefault(1);
-        nameEdit = sortedControls.Where(x => x.ClassName.StartsWith("ThunderRT6TextBox")).ElementAtOrDefault(0);
+        chartEdit = controls.Where(x => x.ClassName.StartsWith("Edit")).ElementAtOrDefault(1);
+        nameEdit = controls.Where(x => x.ClassName.StartsWith("ThunderRT6TextBox")).ElementAtOrDefault(0);
       }
       else if (chartLabel != null && nameLabel != null)
       {
@@ -74,7 +66,7 @@ namespace SpeechAgent.Services
         _appControls.SetControls(chartEdit, nameEdit);
 
         return _appControls;
-      }     
+      }
 
       return null;
     }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SpeechAgent.Features.Settings.FindWin"
         mc:Ignorable="d"
-        Title="윈도우 찾기" Height="700" Width="1200"
+        Title="윈도우 찾기" Height="800" Width="1400"
   WindowStartupLocation="CenterScreen">
   <Window.Resources>
     <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
@@ -18,21 +18,82 @@
     </Grid.RowDefinitions>
 
     <!-- 상단 컨트롤 영역 -->
-    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-      <Button Content="스캔 시작" 
-          Command="{Binding StartScanCommand}"
-     Width="100" Height="35" Margin="0,0,10,0"
-       FontSize="14" FontWeight="Bold"/>
-      <Button Content="새로고침" 
-        Command="{Binding RefreshCommand}"
-            Width="100" Height="35"
-    FontSize="14"/>
-      <TextBlock Text="로딩 중..." 
-           VerticalAlignment="Center" 
-          Margin="20,0,0,0"
-           FontSize="14"
-    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}"/>
-    </StackPanel>
+    <Grid Grid.Row="0" Margin="0,0,0,10">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <!-- 왼쪽: 스캔 버튼 -->
+      <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+        <Button Content="스캔" 
+                Command="{Binding StartScanCommand}"
+                Width="120" 
+                Height="40" 
+                Margin="0,0,10,0"
+                FontSize="14" 
+                FontWeight="Bold"
+                Background="#007ACC"
+                Foreground="White"
+                BorderThickness="0">
+          <Button.Style>
+            <Style TargetType="Button">
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            CornerRadius="5">
+                      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+              <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                  <Setter Property="Background" Value="#005A9E"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                  <Setter Property="Background" Value="#004080"/>
+                </Trigger>
+              </Style.Triggers>
+            </Style>
+          </Button.Style>
+        </Button>
+        <TextBlock Text="로딩 중..." 
+                   VerticalAlignment="Center" 
+                   Margin="20,0,0,0"
+                   FontSize="14"
+                   Foreground="Gray"
+                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}"/>
+      </StackPanel>
+
+      <!-- 오른쪽: 차트번호와 수진자명 가로로 -->
+      <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+        <!-- 차트번호 -->
+        <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,10,0" Background="WhiteSmoke">
+          <StackPanel Orientation="Horizontal">
+            <RadioButton Content="차트번호" IsChecked="{Binding IsChartNumberSelected}" Margin="0,0,10,0" VerticalAlignment="Center" FontWeight="SemiBold"/>
+            <TextBlock Text="클래스명:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
+            <TextBox Text="{Binding ChartNumberClassName}" Width="120" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Text="인덱스:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
+            <TextBox Text="{Binding ChartNumberIndex}" Width="60" VerticalAlignment="Center" FontSize="12"/>
+          </StackPanel>
+        </Border>
+
+        <!-- 수진자명 -->
+        <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10" Background="WhiteSmoke">
+          <StackPanel Orientation="Horizontal">
+            <RadioButton Content="수진자명" IsChecked="{Binding IsPatientNameSelected}" Margin="0,0,10,0" VerticalAlignment="Center" FontWeight="SemiBold"/>
+            <TextBlock Text="클래스명:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
+            <TextBox Text="{Binding PatientNameClassName}" Width="120" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Text="인덱스:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
+            <TextBox Text="{Binding PatientNameIndex}" Width="60" VerticalAlignment="Center" FontSize="12"/>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </Grid>
 
     <!-- 메인 콘텐츠 영역 -->
     <Grid Grid.Row="1">
@@ -61,7 +122,7 @@
                         Margin="5" 
                         CornerRadius="5"
                         Background="White"
-                        Width="280"
+                        Width="420"
                         Cursor="Hand">
                   <Border.Style>
                     <Style TargetType="Border">
@@ -77,9 +138,9 @@
                   </Border.Style>
                   <StackPanel Margin="10">
                     <!-- 스크린샷 -->
-                    <Image Source="{Binding Screenshot}"   
-                           Stretch="Uniform" 
-                           MaxHeight="150"
+                    <Image Source="{Binding Screenshot}"                              
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           MaxHeight="238"
                            Margin="0,0,0,10"/>
                     <!-- 윈도우 정보 -->
                     <TextBlock Text="{Binding Title}" 
@@ -122,83 +183,216 @@
 
       <!-- 세부 정보 (오른쪽) -->
       <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-          <StackPanel>
-            <TextBlock Text="선택된 윈도우 정보" 
-                       FontSize="16" 
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <!-- 헤더 -->
+          <StackPanel Grid.Row="0" Margin="0,0,0,5">
+            <TextBlock Text="선택된 윈도우의 컨트롤 목록" 
+                       FontSize="18" 
                        FontWeight="Bold" 
-                       Margin="0,0,0,15"/>
-
-            <StackPanel Visibility="{Binding DetailedWindowInfo, 
-         Converter={StaticResource BoolToVisibility}}">
-              <!-- 스크린샷 -->
-              <TextBlock Text="스크린샷:" FontWeight="Bold" Margin="0,0,0,5"/>
-              <Image Source="{Binding DetailedWindowInfo.Screenshot}" 
-                     Stretch="Uniform" 
-                     MaxHeight="200"
-                     Margin="0,0,0,15"/>
-
-              <!-- 윈도우 타이틀 -->
-              <TextBlock Text="Title:" FontWeight="Bold" Margin="0,0,0,5"/>
-              <TextBlock Text="{Binding DetailedWindowInfo.Title}" 
-                         TextWrapping="Wrap" 
-                         Margin="0,0,0,10"/>
-
-              <!-- 클래스 이름 -->
-              <TextBlock Text="Class Name:" FontWeight="Bold" Margin="0,0,0,5"/>
-              <TextBlock Text="{Binding DetailedWindowInfo.ClassName}" 
-                         TextWrapping="Wrap" 
-                         Margin="0,0,0,10"/>
-
-              <!-- 프로세스 이름 -->
-              <TextBlock Text="Process Name:" FontWeight="Bold" Margin="0,0,0,5"/>
-              <TextBlock Text="{Binding DetailedWindowInfo.ProcessName}" 
-                         Margin="0,0,0,10"/>
-
-              <!-- 프로세스 ID -->
-              <TextBlock Text="Process ID:" FontWeight="Bold" Margin="0,0,0,5"/>
-              <TextBlock Text="{Binding DetailedWindowInfo.ProcessId}" 
-                         Margin="0,0,0,10"/>
-
-              <!-- 핸들 -->
-              <TextBlock Text="Window Handle:" FontWeight="Bold" Margin="0,0,0,5"/>
-              <TextBlock Text="{Binding DetailedWindowInfo.Handle}" 
-                         Margin="0,0,0,10"/>
-
-              <!-- 크기 -->
-              <TextBlock Text="Size:" FontWeight="Bold" Margin="0,0,0,5"/>
-              <TextBlock Margin="0,0,0,10">
-                <Run Text="Width: "/>
-                <Run Text="{Binding DetailedWindowInfo.Width}"/>
-                <Run Text=" x Height: "/>
-                <Run Text="{Binding DetailedWindowInfo.Height}"/>
-              </TextBlock>
-
-              <!-- 가시성 -->
-              <TextBlock Text="Visible:" FontWeight="Bold" Margin="0,0,0,5"/>
-              <TextBlock Text="{Binding DetailedWindowInfo.IsVisible}" 
-                         Margin="0,0,0,10"/>
-            </StackPanel>
-
-            <TextBlock Text="윈도우를 선택하면 세부 정보가 표시됩니다." 
+                       Margin="0,0,0,3"/>
+            <TextBlock Text="{Binding SelectedWindow.Title}" 
+                       FontSize="14" 
                        Foreground="Gray"
                        TextWrapping="Wrap"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       Margin="0,50,0,0">
-              <TextBlock.Style>
-                <Style TargetType="TextBlock">
-                  <Setter Property="Visibility" Value="Collapsed"/>
-                  <Style.Triggers>
-                    <DataTrigger Binding="{Binding DetailedWindowInfo}" Value="{x:Null}">
-                      <Setter Property="Visibility" Value="Visible"/>
-                    </DataTrigger>
-                  </Style.Triggers>
-                </Style>
-              </TextBlock.Style>
+                       Margin="0,0,0,3"/>
+            <TextBlock FontSize="12" Foreground="Gray">
+              <Run Text="총 "/>
+              <Run Text="{Binding SearchedControls.Count, Mode=OneWay}" FontWeight="Bold"/>
+              <Run Text="개의 컨트롤"/>
             </TextBlock>
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+              <TextBlock Text="텍스트 검색" 
+                         FontSize="12" 
+                         Foreground="Gray"
+                         VerticalAlignment="Center"/>
+              <TextBox x:Name="SearchTextBox" 
+                       Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                       Width="200" 
+                       Margin="10,0,0,0" 
+                       FontSize="14" 
+                       VerticalContentAlignment="Center"
+                       KeyDown="SearchTextBox_KeyDown"/>
+              <Button Content="검색" 
+                      Command="{Binding SearchCommand}"
+                      Width="60" 
+                      Height="30" 
+                      Margin="10,0,0,0"
+                      FontSize="12"
+                      Background="#007ACC"
+                      Foreground="White"
+                      BorderThickness="0">
+                <Button.Style>
+                  <Style TargetType="Button">
+                    <Setter Property="Template">
+                      <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                          <Border Background="{TemplateBinding Background}" 
+                                  BorderBrush="{TemplateBinding BorderBrush}" 
+                                  BorderThickness="{TemplateBinding BorderThickness}" 
+                                  CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                          </Border>
+                        </ControlTemplate>
+                      </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                      <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#005A9E"/>
+                      </Trigger>
+                      <Trigger Property="IsPressed" Value="True">
+                        <Setter Property="Background" Value="#004080"/>
+                      </Trigger>
+                    </Style.Triggers>
+                  </Style>
+                </Button.Style>
+              </Button>
+            </StackPanel>
           </StackPanel>
-        </ScrollViewer>
+
+          <!-- 컨트롤 목록 -->
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ListBox ItemsSource="{Binding SearchedControls}" 
+                     BorderThickness="0" 
+                     Background="Transparent"
+                     ScrollViewer.CanContentScroll="True"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.VirtualizationMode="Recycling"
+                     SelectedItem="{Binding SelectedControlInfo}">
+              <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <VirtualizingStackPanel/>
+                </ItemsPanelTemplate>
+              </ListBox.ItemsPanel>
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <Border BorderBrush="#E0E0E0" 
+                          BorderThickness="1" 
+                          CornerRadius="3"
+                          Margin="0,0,0,3" 
+                          Padding="6"
+                          Background="White">
+                    <Grid>
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                      </Grid.RowDefinitions>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+
+                      <!-- Index -->
+                      <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                                 FontWeight="Bold" 
+                                 FontSize="16"
+                                 Foreground="#2196F3"
+                                 Margin="0,0,0,4">
+                        <Run Text="["/>
+                        <Run Text="{Binding Index}"/>
+                        <Run Text="]"/>
+                      </TextBlock>
+
+                      <!-- ClassName -->
+                      <TextBlock Grid.Row="1" Grid.Column="0" 
+                                 Text="Class:" 
+                                 FontWeight="SemiBold" 
+                                 FontSize="12"
+                                 VerticalAlignment="Top"
+                                 Margin="0,0,2,2"/>
+                      <TextBlock Grid.Row="1" Grid.Column="1" 
+                                 Text="{Binding ClassName}" 
+                                 FontSize="14"
+                                 Foreground="#333"
+                                 Margin="0,0,0,2"/>
+
+                      <!-- Text -->
+                      <TextBlock Grid.Row="2" Grid.Column="0" 
+                                 Text="Text:" 
+                                 FontWeight="SemiBold" 
+                                 FontSize="12"
+                                 VerticalAlignment="Top"
+                                 Margin="0,0,2,2"/>
+                      <TextBlock Grid.Row="2" Grid.Column="1" 
+                                 Text="{Binding Text}" 
+                                 FontSize="14"
+                                 Foreground="#555"
+                                 Margin="0,0,0,2"/>
+
+                      <!-- HWND -->
+                      <TextBlock Grid.Row="3" Grid.Column="0" 
+                                 Text="HWND:" 
+                                 FontWeight="SemiBold" 
+                                 FontSize="11"
+                                 Margin="0,0,2,2"/>
+                      <TextBlock Grid.Row="3" Grid.Column="1" 
+                                 Text="{Binding Hwnd}" 
+                                 FontSize="11"
+                                 Foreground="#777"
+                                 Margin="0,0,0,2"/>
+
+                      <!-- RECT -->
+                      <TextBlock Grid.Row="4" Grid.Column="0" 
+                                 Text="RECT:" 
+                                 FontWeight="SemiBold" 
+                                 FontSize="11"
+                                 VerticalAlignment="Top"
+                                 Margin="0,0,2,0"/>
+                      <TextBlock Grid.Row="4" Grid.Column="1" FontSize="11" Foreground="#777">
+                        <Run Text="L:"/>
+                        <Run Text="{Binding RECT.Left}"/>
+                        <Run Text=" T:"/>
+                        <Run Text="{Binding RECT.Top}"/>
+                        <Run Text=" W:"/>
+                        <Run Text="{Binding RECT.Width}"/>
+                        <Run Text=" H:"/>
+                        <Run Text="{Binding RECT.Height}"/>
+                      </TextBlock>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+              <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                  <Setter Property="Template">
+                    <Setter.Value>
+                      <ControlTemplate TargetType="ListBoxItem">
+                        <ContentPresenter/>
+                      </ControlTemplate>
+                    </Setter.Value>
+                  </Setter>
+                </Style>
+              </ListBox.ItemContainerStyle>
+            </ListBox>
+          </ScrollViewer>
+
+          <!-- 빈 상태 메시지 -->
+          <TextBlock Grid.Row="1"
+                     Text="윈도우를 선택하면 컨트롤 목록이 표시됩니다." 
+                     Foreground="Gray"
+                     FontSize="13"
+                     TextWrapping="Wrap"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center">
+            <TextBlock.Style>
+              <Style TargetType="TextBlock">
+                <Setter Property="Visibility" Value="Collapsed"/>
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding SearchedControls.Count}" Value="0">
+                    <Setter Property="Visibility" Value="Visible"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </TextBlock.Style>
+          </TextBlock>
+        </Grid>
       </Border>
     </Grid>
   </Grid>

@@ -17,7 +17,7 @@ namespace SpeechAgent.Features.Settings.FindWin.Services
 
       User32.EnumWindows((hWnd, lParam) =>
       {
-        if (!User32.IsWindowVisible(hWnd))
+        if (!User32.IsWindowVisible(hWnd) || User32.IsIconic(hWnd))
           return true;
 
         int length = User32.GetWindowTextLength(hWnd);
@@ -75,22 +75,20 @@ namespace SpeechAgent.Features.Settings.FindWin.Services
         if (width <= 0 || height <= 0)
           return null;
 
-        var hdcSrc = User32.GetWindowDC(hWnd);
-        var hdcDest = Gdi32.CreateCompatibleDC(hdcSrc);
-        var hBitmap = Gdi32.CreateCompatibleBitmap(hdcSrc, width, height);
-        var hOld = Gdi32.SelectObject(hdcDest, hBitmap);
+        var hdcScreen = User32.GetDC(IntPtr.Zero);
+        var hdcMem = Gdi32.CreateCompatibleDC(hdcScreen);
+        var hBitmap = Gdi32.CreateCompatibleBitmap(hdcScreen, width, height);
+        var hOld = Gdi32.SelectObject(hdcMem, hBitmap);
 
-        Gdi32.BitBlt(hdcDest, 0, 0, width, height, hdcSrc, 0, 0, Gdi32.RasterOperationMode.SRCCOPY);
+        User32.PrintWindow(hWnd, hdcMem, 0);
 
-        Gdi32.SelectObject(hdcDest, hOld);
-        Gdi32.DeleteDC(hdcDest);
-        User32.ReleaseDC(hWnd, hdcSrc);
+        Gdi32.SelectObject(hdcMem, hOld);
+        Gdi32.DeleteDC(hdcMem);
+        User32.ReleaseDC(IntPtr.Zero, hdcScreen);
 
         var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
-         (IntPtr)hBitmap.DangerousGetHandle(),
-      IntPtr.Zero,
-        Int32Rect.Empty,
-          BitmapSizeOptions.FromEmptyOptions());
+         (IntPtr)hBitmap.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty,
+         BitmapSizeOptions.FromEmptyOptions());
 
         Gdi32.DeleteObject(hBitmap);
 

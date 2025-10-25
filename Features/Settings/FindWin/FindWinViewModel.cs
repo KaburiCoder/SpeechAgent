@@ -1,62 +1,130 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using SpeechAgent.Bases;
 using SpeechAgent.Features.Settings.FindWin.Models;
 using SpeechAgent.Features.Settings.FindWin.Services;
+using SpeechAgent.Models;
+using SpeechAgent.Utils;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
 namespace SpeechAgent.Features.Settings.FindWin
 {
-  internal class FindWinViewModel : BaseViewModel
+  partial class FindWinViewModel : BaseViewModel
   {
     private readonly WindowCaptureService _captureService;
+    private ControlSearcher _searcher = new();
+
+    [ObservableProperty]
+    private ObservableCollection<WindowInfo> _windows = new();
+
+    [ObservableProperty]
+    private ObservableCollection<ControlInfo> _controls = new();
+
+    [ObservableProperty]
+    private ObservableCollection<ControlInfo> _searchedControls = new();
+
+    [ObservableProperty]
     private WindowInfo? _selectedWindow;
-    private WindowInfo? _detailedWindowInfo;
+
+    [ObservableProperty]
     private bool _isLoading;
 
-    public ObservableCollection<WindowInfo> Windows { get; } = new();
+    [ObservableProperty]
+    private string _searchText = string.Empty;
 
-    public WindowInfo? SelectedWindow
+    private bool _isChartNumberSelected = true;
+    public bool IsChartNumberSelected
     {
-      get => _selectedWindow;
+      get => _isChartNumberSelected;
       set
       {
-        if (SetProperty(ref _selectedWindow, value) && value != null)
+        if (SetProperty(ref _isChartNumberSelected, value) && value)
         {
-          LoadDetailedInfo(value);
+          IsPatientNameSelected = false;
         }
       }
     }
 
-    public WindowInfo? DetailedWindowInfo
+    private bool _isPatientNameSelected;
+    public bool IsPatientNameSelected
     {
-      get => _detailedWindowInfo;
-      set => SetProperty(ref _detailedWindowInfo, value);
+      get => _isPatientNameSelected;
+      set
+      {
+        if (SetProperty(ref _isPatientNameSelected, value) && value)
+        {
+          IsChartNumberSelected = false;
+        }
+      }
     }
 
-    public bool IsLoading
+    private string _chartNumberClassName = string.Empty;
+    public string ChartNumberClassName
     {
-      get => _isLoading;
-      set => SetProperty(ref _isLoading, value);
+      get => _chartNumberClassName;
+      set => SetProperty(ref _chartNumberClassName, value);
     }
 
-    public IRelayCommand StartScanCommand { get; }
-    public IRelayCommand RefreshCommand { get; }
+    private string _chartNumberIndex = string.Empty;
+    public string ChartNumberIndex
+    {
+      get => _chartNumberIndex;
+      set => SetProperty(ref _chartNumberIndex, value);
+    }
+
+    private string _patientNameClassName = string.Empty;
+    public string PatientNameClassName
+    {
+      get => _patientNameClassName;
+      set => SetProperty(ref _patientNameClassName, value);
+    }
+
+    private string _patientNameIndex = string.Empty;
+    public string PatientNameIndex
+    {
+      get => _patientNameIndex;
+      set => SetProperty(ref _patientNameIndex, value);
+    }
+
+    private ControlInfo? _selectedControlInfo;
+    public ControlInfo? SelectedControlInfo
+    {
+      get => _selectedControlInfo;
+      set
+      {
+        if (SetProperty(ref _selectedControlInfo, value) && value != null)
+        {
+          if (IsChartNumberSelected)
+          {
+            ChartNumberClassName = value.ClassName;
+            ChartNumberIndex = value.Index.ToString();
+          }
+          else if (IsPatientNameSelected)
+          {
+            PatientNameClassName = value.ClassName;
+            PatientNameIndex = value.Index.ToString();
+          }
+        }
+      }
+    }
+
 
     public FindWinViewModel()
     {
       _captureService = new WindowCaptureService();
-      StartScanCommand = new RelayCommand(StartScan);
-      RefreshCommand = new RelayCommand(RefreshWindows);
     }
 
-    private async void StartScan()
+    [RelayCommand]
+    private async Task StartScan()
     {
       IsLoading = true;
       Windows.Clear();
-      DetailedWindowInfo = null;
+      Controls.Clear();
       SelectedWindow = null;
+      UpdateSearchedControls();
 
       try
       {
@@ -65,12 +133,12 @@ namespace SpeechAgent.Features.Settings.FindWin
           var windows = _captureService.GetWindowsWithScreenshots();
 
           App.Current.Dispatcher.Invoke(() =>
-                  {
-                    foreach (var window in windows)
-                    {
-                      Windows.Add(window);
-                    }
-                  });
+          {
+            foreach (var window in windows)
+            {
+              Windows.Add(window);
+            }
+          });
         });
       }
       catch (Exception ex)
@@ -83,29 +151,72 @@ namespace SpeechAgent.Features.Settings.FindWin
       }
     }
 
-    private async void RefreshWindows()
-    {
-      StartScan();
-    }
-
     private async void LoadDetailedInfo(WindowInfo windowInfo)
     {
       try
       {
         await Task.Run(() =>
         {
-          var detailedInfo = _captureService.GetDetailedWindowInfo(windowInfo.Handle);
+          // 선택된 윈도우의 모든 자식 컨트롤 검색
+          _searcher.SetHwnd(windowInfo.Handle);
+          List<ControlInfo> controls = _searcher.SearchControls();
 
+          // 찾은 컨트롤들을 Controls 컬렉션에 추가
           App.Current.Dispatcher.Invoke(() =>
-                  {
-                    DetailedWindowInfo = detailedInfo;
-                  });
+          {
+            Controls.Clear();
+            for (int i = 0; i < controls.Count; i++)
+            {
+              controls[i].Index = i;
+              Controls.Add(controls[i]);
+            }
+
+            // 클래스별로 그룹화하여 Index 재설정
+            var grouped = Controls.GroupBy(c => c.ClassName);
+            foreach (var group in grouped)
+            {
+              int index = 0;
+              foreach (var control in group)
+              {
+                control.Index = index++;
+              }
+            }
+
+            UpdateSearchedControls();
+          });
         });
       }
       catch (Exception ex)
       {
         MessageBox.Show($"세부 정보 로드 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
       }
+    }
+
+    private void UpdateSearchedControls()
+    {
+      var searched = string.IsNullOrWhiteSpace(SearchText) 
+        ? Controls 
+        : Controls.Where(c => c.Text.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || c.ClassName.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+      SearchedControls = new ObservableCollection<ControlInfo>(searched);
+    }
+
+    [RelayCommand]
+    internal void Search()
+    {
+      UpdateSearchedControls();
+    }
+
+    partial void OnSelectedWindowChanged(WindowInfo? value)
+    {
+      if (value != null)
+      {
+        LoadDetailedInfo(value);
+      }
+    }
+
+    partial void OnSearchTextChanged(string value)
+    {
+      // 실시간 검색 제거
     }
   }
 }

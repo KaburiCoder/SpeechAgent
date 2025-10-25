@@ -53,11 +53,25 @@ namespace SpeechAgent.Utils
       return text.Trim();
     }
 
+    public void SetHwnd(HWND hwnd)
+    {
+      _hwnd = hwnd;
+    }
+
     public List<ControlInfo> SearchControls()
     {
       _foundControls.Clear();
       if (_hwnd == IntPtr.Zero) return _foundControls;
       User32.EnumChildWindows(_hwnd, EnumChildProc, IntPtr.Zero);
+
+      _foundControls.Sort((a, b) =>
+      {
+        int leftComparison = a.RECT.Left.CompareTo(b.RECT.Left);
+        if (leftComparison != 0)
+          return leftComparison;
+        return a.RECT.Top.CompareTo(b.RECT.Top);
+      });
+
       return _foundControls;
     }
 

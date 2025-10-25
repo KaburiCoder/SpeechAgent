@@ -8,5 +8,6 @@ namespace SpeechAgent.Models
     public RECT RECT { get; set; }
     public string ClassName { get; set; } = string.Empty;
     public string Text { get; set; } = string.Empty;
+    public int Index { get; set; }
   }
 }

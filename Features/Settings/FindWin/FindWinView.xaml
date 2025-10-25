@@ -92,6 +92,43 @@
             <TextBox Text="{Binding PatientNameIndex}" Width="60" VerticalAlignment="Center" FontSize="12"/>
           </StackPanel>
         </Border>
+
+        <!-- 설정으로 전송 버튼 -->
+        <Button Content="설정으로 전송" 
+                Command="{Binding SendToSettingsCommand}"
+                Width="120" 
+                Height="40" 
+                Margin="10,0,0,0"
+                FontSize="14" 
+                FontWeight="Bold"
+                Background="#28A745"
+                Foreground="White"
+                BorderThickness="0">
+          <Button.Style>
+            <Style TargetType="Button">
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            CornerRadius="5">
+                      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+              <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                  <Setter Property="Background" Value="#218838"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                  <Setter Property="Background" Value="#1E7E34"/>
+                </Trigger>
+              </Style.Triggers>
+            </Style>
+          </Button.Style>
+        </Button>
       </StackPanel>
     </Grid>
 

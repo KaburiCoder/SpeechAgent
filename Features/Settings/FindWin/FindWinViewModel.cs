@@ -1,8 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using SpeechAgent.Bases;
 using SpeechAgent.Features.Settings.FindWin.Models;
 using SpeechAgent.Features.Settings.FindWin.Services;
+using SpeechAgent.Messages;
 using SpeechAgent.Models;
 using SpeechAgent.Utils;
 using System.Collections.ObjectModel;
@@ -204,6 +206,14 @@ namespace SpeechAgent.Features.Settings.FindWin
     internal void Search()
     {
       UpdateSearchedControls();
+    }
+
+    [RelayCommand]
+    private void SendToSettings()
+    {
+      WeakReferenceMessenger.Default.Send(new SendToSettingsMessage(SelectedWindow?.Title ?? "", ChartNumberClassName, ChartNumberIndex, PatientNameClassName, PatientNameIndex));
+
+      View.Close();
     }
 
     partial void OnSelectedWindowChanged(WindowInfo? value)

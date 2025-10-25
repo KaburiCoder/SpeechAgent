@@ -11,7 +11,7 @@ namespace SpeechAgent.Features.Settings
   {
     LocalSettings Settings { get; }
     void LoadSettings();
-    void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? exeTitle = null, string? chartClass = null, string? chartIndex = null, string? nameClass = null, string? nameIndex = null);
+    void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartClass = null, string? customChartIndex = null, string? customNameClass = null, string? customNameIndex = null);
   }
 
   public class SettingsService : ISettingsService
@@ -28,7 +28,7 @@ namespace SpeechAgent.Features.Settings
       Settings = dbSetting?.DeepCopy() ?? new LocalSettings();      
     }
 
-    public void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? exeTitle = null, string? chartClass = null, string? chartIndex = null, string? nameClass = null, string? nameIndex = null)
+    public void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartClass = null, string? customChartIndex = null, string? customNameClass = null, string? customNameIndex = null)
     {
       using var db = new AppDbContext();
 
@@ -44,16 +44,16 @@ namespace SpeechAgent.Features.Settings
         currentSetting.ConnectKey = connectKey.Trim();
       if (targetAppName != null)
         currentSetting.TargetAppName = targetAppName.Trim();
-      if (exeTitle != null)
-        currentSetting.CustomExeTitle = exeTitle.Trim();
-      if (chartClass != null)
-        currentSetting.CustomChartClass = chartClass.Trim();
-      if (chartIndex != null)
-        currentSetting.CustomChartIndex = chartIndex.Trim();
-      if (nameClass != null)
-        currentSetting.CustomNameClass = nameClass.Trim();
-      if (nameIndex != null)
-        currentSetting.CustomNameIndex = nameIndex.Trim();
+      if (customExeTitle != null)
+        currentSetting.CustomExeTitle = customExeTitle.Trim();
+      if (customChartClass != null)
+        currentSetting.CustomChartClass = customChartClass.Trim();
+      if (customChartIndex != null)
+        currentSetting.CustomChartIndex = customChartIndex.Trim();
+      if (customNameClass != null)
+        currentSetting.CustomNameClass = customNameClass.Trim();
+      if (customNameIndex != null)
+        currentSetting.CustomNameIndex = customNameIndex.Trim();
 
       if (dbSetting == null)
         db.LocalSettings.Add(currentSetting);

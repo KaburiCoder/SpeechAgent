@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using SpeechAgent.Bases;
+using SpeechAgent.Messages;
 using SpeechAgent.Services;
 
 namespace SpeechAgent.Features.Settings
@@ -68,7 +70,7 @@ namespace SpeechAgent.Features.Settings
     {
       TargetAppName = SelectedOption?.Value ?? "";
       // Save settings
-      _settingsService.UpdateSettings(connectKey: ConnectKey, targetAppName: TargetAppName, exeTitle: ExeTitle, chartClass: ChartClass, chartIndex: ChartIndex, nameClass: NameClass, nameIndex: NameIndex);
+      _settingsService.UpdateSettings(connectKey: ConnectKey, targetAppName: TargetAppName, customExeTitle: ExeTitle, customChartClass: ChartClass, customChartIndex: ChartIndex, customNameClass: NameClass, customNameIndex: NameIndex);
       // Apply auto start setting
       _autoStartService.SetAutoStart(AutoStartEnabled);
 
@@ -108,6 +110,15 @@ namespace SpeechAgent.Features.Settings
 
       // Load auto start status from registry
       AutoStartEnabled = _autoStartService.IsAutoStartEnabled();
+
+      WeakReferenceMessenger.Default.Register<SendToSettingsMessage>(this, (r, m) =>
+      {
+        ExeTitle = m.Value.ExeTitle;
+        ChartClass = m.Value.ChartClass;
+        ChartIndex = m.Value.ChartIndex;
+        NameClass = m.Value.NameClass;
+        NameIndex = m.Value.NameIndex;
+      });
     }
   }
 }

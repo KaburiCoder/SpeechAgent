@@ -1,11 +1,11 @@
 <Window x:Class="SpeechAgent.Features.Settings.FindWin.FindWinImageView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:SpeechAgent.Features.Settings.FindWin"
         xmlns:controls="clr-namespace:SpeechAgent.Features.Settings.FindWin.Controls"
-        mc:Ignorable="d" 
+        mc:Ignorable="d"
         Title="Image Control Finder" Height="800" Width="1400"
         WindowStartupLocation="CenterScreen">
   <Window.Resources>
@@ -27,12 +27,12 @@
 
       <!-- Left: Scan Button -->
       <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-        <Button Content="스캔" 
+        <Button Content="스캔"
                 Command="{Binding StartScanCommand}"
-                Width="120" 
-                Height="40" 
+                Width="120"
+                Height="40"
                 Margin="0,0,10,0"
-                FontSize="14" 
+                FontSize="14"
                 FontWeight="Bold"
                 Background="#007ACC"
                 Foreground="White"
@@ -42,9 +42,9 @@
               <Setter Property="Template">
                 <Setter.Value>
                   <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}" 
-                            BorderBrush="{TemplateBinding BorderBrush}" 
-                            BorderThickness="{TemplateBinding BorderThickness}" 
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="5">
                       <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
@@ -62,8 +62,8 @@
             </Style>
           </Button.Style>
         </Button>
-        <TextBlock Text="로딩 중..." 
-                   VerticalAlignment="Center" 
+        <TextBlock Text="로딩 중..."
+                   VerticalAlignment="Center"
                    Margin="20,0,0,0"
                    FontSize="14"
                    Foreground="Gray"
@@ -71,13 +71,13 @@
       </StackPanel>
 
       <!-- Right: Send to Settings Button -->
-      <Button Grid.Column="1" 
-              Content="설정으로 전송" 
+      <Button Grid.Column="1"
+              Content="설정으로 전송"
               Command="{Binding SendToSettingsCommand}"
-              Width="120" 
-              Height="40" 
+              Width="120"
+              Height="40"
               HorizontalAlignment="Right"
-              FontSize="14" 
+              FontSize="14"
               FontWeight="Bold"
               Background="#28A745"
               Foreground="White"
@@ -87,9 +87,9 @@
             <Setter Property="Template">
               <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                  <Border Background="{TemplateBinding Background}" 
-                          BorderBrush="{TemplateBinding BorderBrush}" 
-                          BorderThickness="{TemplateBinding BorderThickness}" 
+                  <Border Background="{TemplateBinding Background}"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
                           CornerRadius="5">
                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                   </Border>
@@ -123,18 +123,18 @@
                                   SelectedWindow="{Binding SelectedWindow, Mode=TwoWay}"/>
 
       <!-- Splitter -->
-      <GridSplitter Grid.Column="1" 
-                    Width="5" 
-                    HorizontalAlignment="Stretch" 
+      <GridSplitter Grid.Column="1"
+                    Width="5"
+                    HorizontalAlignment="Stretch"
                     Background="LightGray"/>
 
       <!-- Image Settings (Right) -->
       <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel>
-            <TextBlock Text="이미지 기반 설정" 
-                       FontSize="18" 
-                       FontWeight="Bold" 
+            <TextBlock Text="이미지 기반 설정"
+                       FontSize="18"
+                       FontWeight="Bold"
                        Margin="0,0,0,10"/>
 
             <!-- Selected Window Info -->
@@ -151,7 +151,7 @@
 
             <!-- Name Input -->
             <TextBlock Text="이미지 이름:" Margin="0,0,0,5" FontWeight="SemiBold"/>
-            <TextBox Text="{Binding CustomImageName, UpdateSourceTrigger=PropertyChanged}" 
+            <TextBox Text="{Binding CustomImageName, UpdateSourceTrigger=PropertyChanged}"
                      Margin="0,0,0,10"
                      Height="30"/>
 
@@ -192,7 +192,7 @@
             <!-- Original Image -->
             <TextBlock Text="원본 이미지:" FontWeight="SemiBold" Margin="0,0,0,5"/>
             <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Margin="0,0,0,10" Height="200">
-              <Image Source="{Binding SelectedWindowImage}" 
+              <Image Source="{Binding SelectedWindowImage}"
                      Stretch="Uniform"
                      RenderOptions.BitmapScalingMode="HighQuality"/>
             </Border>
@@ -201,10 +201,10 @@
             <TextBlock Text="잘라진 영역 미리보기:" FontWeight="SemiBold" Margin="0,0,0,5"/>
             <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Height="150">
               <Grid>
-                <Image Source="{Binding CroppedImage}" 
+                <Image Source="{Binding CroppedImage}"
                        Stretch="Uniform"
                        RenderOptions.BitmapScalingMode="HighQuality"/>
-                <TextBlock Text="영역을 지정하면 자동으로 미리보기가 표시됩니다" 
+                <TextBlock Text="영역을 지정하면 자동으로 미리보기가 표시됩니다"
                            Foreground="Gray"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center">

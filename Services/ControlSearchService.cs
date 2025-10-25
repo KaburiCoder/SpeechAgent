@@ -1,4 +1,5 @@
-﻿using SpeechAgent.Features.Settings;
+﻿using SpeechAgent.Database.Schemas;
+using SpeechAgent.Features.Settings;
 using SpeechAgent.Models;
 using SpeechAgent.Utils;
 
@@ -64,61 +65,89 @@ namespace SpeechAgent.Services
         }
       }
 
-      ControlInfo? chartEdit = null;
-      ControlInfo? nameEdit = null;
-
-      // 설정에서 사용자 정의인지 확인
+      AppControls? result = null;
       if (settings.TargetAppName == "[사용자 정의]")
       {
-        // 사용자 정의 설정 사용
-        if (!string.IsNullOrEmpty(settings.CustomChartClass) && !string.IsNullOrEmpty(settings.CustomChartIndex))
-        {
-          var chartControls = controls.Where(c => c.ClassName == settings.CustomChartClass).ToList();
-          if (int.TryParse(settings.CustomChartIndex, out int chartIndex) && chartIndex < chartControls.Count)
-          {
-            chartEdit = chartControls[chartIndex];
-          }
-        }
-        if (!string.IsNullOrEmpty(settings.CustomNameClass) && !string.IsNullOrEmpty(settings.CustomNameIndex))
-        {
-          var nameControls = controls.Where(c => c.ClassName == settings.CustomNameClass).ToList();
-          if (int.TryParse(settings.CustomNameIndex, out int nameIndex) && nameIndex < nameControls.Count)
-          {
-            nameEdit = nameControls[nameIndex];
-          }
-        }
+        result = FindCustomControls(controls, settings);
       }
       else
       {
-        // 기존 로직
-        var chartLabel = controls
-           .FirstOrDefault(c => c.Text.StartsWith("차트"));
-        var nameLabel = controls
-          .FirstOrDefault(c => c.Text.StartsWith("이름") || c.Text.StartsWith("수진자명"));
-        var edits = controls.FindAll(c => c.ClassName.Contains("EDIT.app"));
+        result = FindDefaultControls(controls);
+      }
 
-        if (edits.Count == 0)
+      if (result != null && result.ChartTextBox != null)
+      {
+        _appControls.SetControls(result.ChartTextBox, result.NameTextBox);
+        return _appControls;
+      }
+
+      return null;
+    }
+
+    private AppControls? FindCustomControls(List<ControlInfo> controls, LocalSettings settings)
+    {
+      ControlInfo? chartEdit = null;
+      ControlInfo? nameEdit = null;
+
+      if (!string.IsNullOrEmpty(settings.CustomChartClass) && !string.IsNullOrEmpty(settings.CustomChartIndex))
+      {
+        var chartControls = controls.Where(c => c.ClassName == settings.CustomChartClass).ToList();
+        if (int.TryParse(settings.CustomChartIndex, out int chartIndex) && chartIndex < chartControls.Count)
         {
-          // NewClick
-          chartEdit = controls.Where(x => x.ClassName.StartsWith("Edit")).ElementAtOrDefault(1);
-          nameEdit = controls.Where(x => x.ClassName.StartsWith("ThunderRT6TextBox")).ElementAtOrDefault(0);
+          chartEdit = chartControls[chartIndex];
         }
-        else if (chartLabel != null && nameLabel != null)
+      }
+      if (!string.IsNullOrEmpty(settings.CustomNameClass) && !string.IsNullOrEmpty(settings.CustomNameIndex))
+      {
+        var nameControls = controls.Where(c => c.ClassName == settings.CustomNameClass).ToList();
+        if (int.TryParse(settings.CustomNameIndex, out int nameIndex) && nameIndex < nameControls.Count)
         {
-          chartEdit = edits.FirstOrDefault(ed => ed.RECT.Left > chartLabel.RECT.Right &&
-                                   Math.Abs(ed.RECT.Top - chartLabel.RECT.Top) < 5 &&
-                                   Math.Abs(ed.RECT.Bottom - chartLabel.RECT.Bottom) < 5);
-          nameEdit = edits.FirstOrDefault(ed => ed.RECT.Left > nameLabel.RECT.Right &&
-                                 Math.Abs(ed.RECT.Top - nameLabel.RECT.Top) < 5 &&
-                                 Math.Abs(ed.RECT.Bottom - nameLabel.RECT.Bottom) < 5);
+          nameEdit = nameControls[nameIndex];
         }
       }
 
       if (chartEdit != null)
       {
-        _appControls.SetControls(chartEdit, nameEdit);
+        var appControls = new AppControls();
+        appControls.SetControls(chartEdit, nameEdit);
+        return appControls;
+      }
 
-        return _appControls;
+      return null;
+    }
+
+    private AppControls? FindDefaultControls(List<ControlInfo> controls)
+    {
+      ControlInfo? chartEdit = null;
+      ControlInfo? nameEdit = null;
+
+      var chartLabel = controls
+         .FirstOrDefault(c => c.Text.StartsWith("차트"));
+      var nameLabel = controls
+        .FirstOrDefault(c => c.Text.StartsWith("이름") || c.Text.StartsWith("수진자명"));
+      var edits = controls.FindAll(c => c.ClassName.Contains("EDIT.app"));
+
+      if (edits.Count == 0)
+      {
+        // NewClick
+        chartEdit = controls.Where(x => x.ClassName.StartsWith("Edit")).ElementAtOrDefault(1);
+        nameEdit = controls.Where(x => x.ClassName.StartsWith("ThunderRT6TextBox")).ElementAtOrDefault(0);
+      }
+      else if (chartLabel != null && nameLabel != null)
+      {
+        chartEdit = edits.FirstOrDefault(ed => ed.RECT.Left > chartLabel.RECT.Right &&
+                                 Math.Abs(ed.RECT.Top - chartLabel.RECT.Top) < 5 &&
+                                 Math.Abs(ed.RECT.Bottom - chartLabel.RECT.Bottom) < 5);
+        nameEdit = edits.FirstOrDefault(ed => ed.RECT.Left > nameLabel.RECT.Right &&
+                               Math.Abs(ed.RECT.Top - nameLabel.RECT.Top) < 5 &&
+                               Math.Abs(ed.RECT.Bottom - nameLabel.RECT.Bottom) < 5);
+      }
+
+      if (chartEdit != null)
+      {
+        var appControls = new AppControls();
+        appControls.SetControls(chartEdit, nameEdit);
+        return appControls;
       }
 
       return null;

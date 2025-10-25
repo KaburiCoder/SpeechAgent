@@ -1,5 +1,8 @@
 using SpeechAgent.Features.Settings.FindWin.Models;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
@@ -68,32 +71,66 @@ namespace SpeechAgent.Features.Settings.FindWin.Services
         if (!User32.IsWindow(hWnd))
           return null;
 
-        User32.GetWindowRect(hWnd, out var rect);
+        // DWM을 사용하여 정확한 윈도우 크기 가져오기 (그림자 제외)
+        RECT rect;
+        var result = DwmApi.DwmGetWindowAttribute(new HWND(hWnd), DwmApi.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out rect);
+
+        // DWM이 실패하면 일반 GetWindowRect 사용
+        if (result.Failed)
+        {
+          User32.GetWindowRect(hWnd, out rect);
+        }
+
         int width = rect.Width;
         int height = rect.Height;
 
         if (width <= 0 || height <= 0)
           return null;
 
-        var hdcScreen = User32.GetDC(IntPtr.Zero);
-        var hdcMem = Gdi32.CreateCompatibleDC(hdcScreen);
-        var hBitmap = Gdi32.CreateCompatibleBitmap(hdcScreen, width, height);
-        var hOld = Gdi32.SelectObject(hdcMem, hBitmap);
+        // 비트맵 생성
+        using (Bitmap bitmap = new Bitmap(width, height))
+        {
+          using (Graphics graphics = Graphics.FromImage(bitmap))
+          {
+            var hdc = graphics.GetHdc();
+            Gdi32.SafeHDC safeHdc = new Gdi32.SafeHDC(hdc, false);
 
-        User32.PrintWindow(hWnd, hdcMem, 0);
+            // PrintWindow를 사용하여 윈도우 내용 캡처
+            User32.PrintWindow(new HWND(hWnd), safeHdc, User32.PW.PW_RENDERFULLCONTENT);
 
-        Gdi32.SelectObject(hdcMem, hOld);
-        Gdi32.DeleteDC(hdcMem);
-        User32.ReleaseDC(IntPtr.Zero, hdcScreen);
+            graphics.ReleaseHdc(hdc);
+          }
 
-        var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
-         (IntPtr)hBitmap.DangerousGetHandle(), IntPtr.Zero, Int32Rect.Empty,
-         BitmapSizeOptions.FromEmptyOptions());
+          // Bitmap을 BitmapSource로 변환
+          return BitmapToBitmapSource(bitmap);
+        }
+      }
+      catch
+      {
+        return null;
+      }
+    }
 
-        Gdi32.DeleteObject(hBitmap);
+    private BitmapSource? BitmapToBitmapSource(Bitmap bitmap)
+    {
+      if (bitmap == null) return null;
 
-        bitmapSource.Freeze();
-        return bitmapSource;
+      try
+      {
+        using (var memoryStream = new MemoryStream())
+        {
+          bitmap.Save(memoryStream, ImageFormat.Png);
+          memoryStream.Position = 0;
+
+          BitmapImage bitmapImage = new BitmapImage();
+          bitmapImage.BeginInit();
+          bitmapImage.StreamSource = memoryStream;
+          bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+          bitmapImage.EndInit();
+          bitmapImage.Freeze(); // 스레드 간 공유를 위해 Freeze
+
+          return bitmapImage;
+        }
       }
       catch
       {

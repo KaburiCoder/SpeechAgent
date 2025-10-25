@@ -8,7 +8,7 @@
         xmlns:vm="clr-namespace:SpeechAgent.Features.Settings"
         d:DataContext="{d:DesignInstance vm:SettingsViewModel}"
         mc:Ignorable="d" 
-        Title="Voice Medic Settings" Height="420" Width="370"
+        Title="Voice Medic Settings" Height="600" Width="400"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None"
         AllowsTransparency="True"

@@ -26,5 +26,10 @@ namespace SpeechAgent.Features.Settings
     {
       this.Close();
     }
+
+    private void Index_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+      e.Handled = !int.TryParse(e.Text, out _);
+    }
   }
 }

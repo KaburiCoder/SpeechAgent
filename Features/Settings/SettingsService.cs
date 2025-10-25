@@ -11,7 +11,7 @@ namespace SpeechAgent.Features.Settings
   {
     LocalSettings Settings { get; }
     void LoadSettings();
-    void UpdateSettings(string connectKey = "", string targetAppName = "");
+    void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? exeTitle = null, string? chartClass = null, string? chartIndex = null, string? nameClass = null, string? nameIndex = null);
   }
 
   public class SettingsService : ISettingsService
@@ -28,7 +28,7 @@ namespace SpeechAgent.Features.Settings
       Settings = dbSetting?.DeepCopy() ?? new LocalSettings();      
     }
 
-    public void UpdateSettings(string? connectKey = null, string? appName = null)
+    public void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? exeTitle = null, string? chartClass = null, string? chartIndex = null, string? nameClass = null, string? nameIndex = null)
     {
       using var db = new AppDbContext();
 
@@ -42,8 +42,18 @@ namespace SpeechAgent.Features.Settings
 
       if (connectKey != null)
         currentSetting.ConnectKey = connectKey.Trim();
-      if (appName != null)
-        currentSetting.TargetAppName = appName.Trim();
+      if (targetAppName != null)
+        currentSetting.TargetAppName = targetAppName.Trim();
+      if (exeTitle != null)
+        currentSetting.CustomExeTitle = exeTitle.Trim();
+      if (chartClass != null)
+        currentSetting.CustomChartClass = chartClass.Trim();
+      if (chartIndex != null)
+        currentSetting.CustomChartIndex = chartIndex.Trim();
+      if (nameClass != null)
+        currentSetting.CustomNameClass = nameClass.Trim();
+      if (nameIndex != null)
+        currentSetting.CustomNameIndex = nameIndex.Trim();
 
       if (dbSetting == null)
         db.LocalSettings.Add(currentSetting);

@@ -30,6 +30,9 @@ namespace SpeechAgent.Features.Settings
     private List<Option> options = [];
 
     [ObservableProperty]
+    private Option selectedOption;
+
+    [ObservableProperty]
     private string targetAppName = "";
 
     [ObservableProperty]
@@ -38,11 +41,34 @@ namespace SpeechAgent.Features.Settings
     [ObservableProperty]
     private bool autoStartEnabled = false;
 
+    [ObservableProperty]
+    private string exeTitle = "";
+
+    [ObservableProperty]
+    private string chartClass = "";
+
+    [ObservableProperty]
+    private string chartIndex = "";
+
+    [ObservableProperty]
+    private string nameClass = "";
+
+    [ObservableProperty]
+    private string nameIndex = "";
+
+    public bool IsCustomSelected => SelectedOption?.Value == "[사용자 정의]";
+
+    partial void OnSelectedOptionChanged(Option value)
+    {
+      OnPropertyChanged(nameof(IsCustomSelected));
+    }
+
     [RelayCommand]
     void SaveSettings()
     {
+      TargetAppName = SelectedOption?.Value ?? "";
       // Save settings
-      _settingsService.UpdateSettings(connectKey: ConnectKey, targetAppName: TargetAppName);
+      _settingsService.UpdateSettings(connectKey: ConnectKey, targetAppName: TargetAppName, exeTitle: ExeTitle, chartClass: ChartClass, chartIndex: ChartIndex, nameClass: NameClass, nameIndex: NameIndex);
       // Apply auto start setting
       _autoStartService.SetAutoStart(AutoStartEnabled);
 
@@ -50,7 +76,7 @@ namespace SpeechAgent.Features.Settings
     }
 
     [RelayCommand]
-    void Test()
+    void FindControl()
     {
       _viewService.ShowFindWinView(View);
     }
@@ -66,11 +92,19 @@ namespace SpeechAgent.Features.Settings
       Options = [
         new() { Key = "사용안함", Value = "" },
         new() { Key = "클릭", Value = "클릭" },
+        new() { Key = "[사용자 정의]", Value = "[사용자 정의]" },
       ];
 
       _settingsService.LoadSettings();
       ConnectKey = _settingsService.Settings.ConnectKey;
       TargetAppName = _settingsService.Settings.TargetAppName;
+      ExeTitle = _settingsService.Settings.CustomExeTitle;
+      ChartClass = _settingsService.Settings.CustomChartClass;
+      ChartIndex = _settingsService.Settings.CustomChartIndex;
+      NameClass = _settingsService.Settings.CustomNameClass;
+      NameIndex = _settingsService.Settings.CustomNameIndex;
+
+      SelectedOption = Options.FirstOrDefault(o => o.Value == TargetAppName) ?? Options[0];
 
       // Load auto start status from registry
       AutoStartEnabled = _autoStartService.IsAutoStartEnabled();

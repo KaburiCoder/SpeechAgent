@@ -27,7 +27,7 @@
 
       <!-- Left: Scan Button -->
       <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-        <Button Content="Scan" 
+        <Button Content="스캔" 
                 Command="{Binding StartScanCommand}"
                 Width="120" 
                 Height="40" 
@@ -62,7 +62,7 @@
             </Style>
           </Button.Style>
         </Button>
-        <TextBlock Text="Loading..." 
+        <TextBlock Text="로딩 중..." 
                    VerticalAlignment="Center" 
                    Margin="20,0,0,0"
                    FontSize="14"
@@ -72,7 +72,7 @@
 
       <!-- Right: Send to Settings Button -->
       <Button Grid.Column="1" 
-              Content="Send to Settings" 
+              Content="설정으로 전송" 
               Command="{Binding SendToSettingsCommand}"
               Width="120" 
               Height="40" 
@@ -132,7 +132,7 @@
       <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel>
-            <TextBlock Text="Image-based Settings" 
+            <TextBlock Text="이미지 기반 설정" 
                        FontSize="18" 
                        FontWeight="Bold" 
                        Margin="0,0,0,10"/>
@@ -140,23 +140,23 @@
             <!-- Selected Window Info -->
             <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,10" Background="WhiteSmoke">
               <StackPanel>
-                <TextBlock Text="Selected Window" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <TextBlock Text="선택된 윈도우" FontWeight="SemiBold" Margin="0,0,0,5"/>
                 <TextBlock Text="{Binding SelectedWindow.Title}" TextWrapping="Wrap" Margin="0,0,0,3"/>
                 <TextBlock FontSize="11" Foreground="Gray">
-                  <Run Text="Class: "/>
+                  <Run Text="클래스: "/>
                   <Run Text="{Binding SelectedWindow.ClassName}"/>
                 </TextBlock>
               </StackPanel>
             </Border>
 
             <!-- Name Input -->
-            <TextBlock Text="Image Name:" Margin="0,0,0,5" FontWeight="SemiBold"/>
+            <TextBlock Text="이미지 이름:" Margin="0,0,0,5" FontWeight="SemiBold"/>
             <TextBox Text="{Binding CustomImageName, UpdateSourceTrigger=PropertyChanged}" 
                      Margin="0,0,0,10"
                      Height="30"/>
 
             <!-- Region Specification -->
-            <TextBlock Text="Image Region (px):" Margin="0,0,0,5" FontWeight="SemiBold"/>
+            <TextBlock Text="이미지 영역 (px):" Margin="0,0,0,5" FontWeight="SemiBold"/>
             <Grid Margin="0,0,0,10">
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -180,17 +180,17 @@
 
               <!-- Width, Height -->
               <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5,0,0">
-                <TextBlock Text="Width:" FontSize="11" Margin="0,0,0,2"/>
+                <TextBlock Text="가로:" FontSize="11" Margin="0,0,0,2"/>
                 <TextBox Text="{Binding RectWidth, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
               </StackPanel>
               <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,5,0,0">
-                <TextBlock Text="Height:" FontSize="11" Margin="0,0,0,2"/>
+                <TextBlock Text="세로:" FontSize="11" Margin="0,0,0,2"/>
                 <TextBox Text="{Binding RectHeight, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
               </StackPanel>
             </Grid>
 
             <!-- Original Image -->
-            <TextBlock Text="Original Image:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <TextBlock Text="원본 이미지:" FontWeight="SemiBold" Margin="0,0,0,5"/>
             <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Margin="0,0,0,10" Height="200">
               <Image Source="{Binding SelectedWindowImage}" 
                      Stretch="Uniform"
@@ -198,13 +198,13 @@
             </Border>
 
             <!-- Cropped Image Preview -->
-            <TextBlock Text="Cropped Region Preview:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <TextBlock Text="잘라진 영역 미리보기:" FontWeight="SemiBold" Margin="0,0,0,5"/>
             <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Height="150">
               <Grid>
                 <Image Source="{Binding CroppedImage}" 
                        Stretch="Uniform"
                        RenderOptions.BitmapScalingMode="HighQuality"/>
-                <TextBlock Text="Specify region and click Preview" 
+                <TextBlock Text="영역을 지정하면 자동으로 미리보기가 표시됩니다" 
                            Foreground="Gray"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center">
@@ -225,13 +225,13 @@
             <!-- Settings Info -->
             <Border BorderBrush="#2196F3" BorderThickness="2" CornerRadius="5" Padding="10" Margin="0,15,0,0" Background="#E3F2FD">
               <StackPanel>
-                <TextBlock Text="Current Settings" FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,5"/>
+                <TextBlock Text="현재 설정 값" FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,5"/>
                 <TextBlock FontSize="11" Foreground="#424242" TextWrapping="Wrap">
-                  <Run Text="Name: " FontWeight="SemiBold"/>
+                  <Run Text="이름: " FontWeight="SemiBold"/>
                   <Run Text="{Binding CustomImageName}"/>
                 </TextBlock>
                 <TextBlock FontSize="11" Foreground="#424242" TextWrapping="Wrap" Margin="0,2,0,0">
-                  <Run Text="Region: " FontWeight="SemiBold"/>
+                  <Run Text="영역: " FontWeight="SemiBold"/>
                   <Run Text="{Binding CustomImageRect}"/>
                 </TextBlock>
               </StackPanel>

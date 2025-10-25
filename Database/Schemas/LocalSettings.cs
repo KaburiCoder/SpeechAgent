@@ -11,7 +11,7 @@
     public string CustomNameClass { get; set; } = "";
     public string CustomNameIndex { get; set; } = "";
 
-    public string CustomImageClass { get; set; } = "";
+    public string CustomImageName { get; set; } = "";
     public string CustomImageRect { get; set; } = "";
   }
 }

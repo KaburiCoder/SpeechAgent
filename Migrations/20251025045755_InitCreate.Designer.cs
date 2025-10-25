@@ -10,7 +10,7 @@ using SpeechAgent.Database;
 namespace SpeechAgent.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251025043040_InitCreate")]
+    [Migration("20251025045755_InitCreate")]
     partial class InitCreate
     {
         /// <inheritdoc />
@@ -41,7 +41,7 @@ namespace SpeechAgent.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CustomImageClass")
+                    b.Property<string>("CustomImageName")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

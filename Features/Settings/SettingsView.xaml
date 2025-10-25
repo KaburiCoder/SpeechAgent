@@ -164,16 +164,15 @@
                   CornerRadius="5" 
                   Padding="10" 
                   Margin="0,0,0,10"
-                  Visibility="{Binding IsCustomSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                  Visibility="{Binding IsCustomImageSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
             <StackPanel>
               <TextBlock Text="사용자 이미지 설정" 
                          FontSize="12" 
                          FontWeight="SemiBold"
                          Foreground="#424242"
                          Margin="0,0,0,6"/>
-              <TextBox materialDesign:HintAssist.Hint="이미지 클래스명" 
-                        Text="{Binding CustomImageClass, UpdateSourceTrigger=PropertyChanged}"
-                        IsReadOnly="True"
+              <TextBox materialDesign:HintAssist.Hint="이미지 이름" 
+                        Text="{Binding CustomImageName, UpdateSourceTrigger=PropertyChanged}"
                         Margin="0,0,0,6"/>
               <TextBox materialDesign:HintAssist.Hint="이미지 영역 (x,y,width,height)" 
                         Text="{Binding CustomImageRect, UpdateSourceTrigger=PropertyChanged}"

@@ -11,7 +11,7 @@ namespace SpeechAgent.Features.Settings
   {
     LocalSettings Settings { get; }
     void LoadSettings();
-    void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartClass = null, string? customChartIndex = null, string? customNameClass = null, string? customNameIndex = null, string? customImageClass = null, string? customImageRect = null);
+    void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartClass = null, string? customChartIndex = null, string? customNameClass = null, string? customNameIndex = null, string? customImageName = null, string? customImageRect = null);
   }
 
   public class SettingsService : ISettingsService
@@ -28,7 +28,7 @@ namespace SpeechAgent.Features.Settings
       Settings = dbSetting?.DeepCopy() ?? new LocalSettings();      
     }
 
-    public void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartClass = null, string? customChartIndex = null, string? customNameClass = null, string? customNameIndex = null, string? customImageClass = null, string? customImageRect = null)
+    public void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartClass = null, string? customChartIndex = null, string? customNameClass = null, string? customNameIndex = null, string? customImageName = null, string? customImageRect = null)
     {
       using var db = new AppDbContext();
 
@@ -54,8 +54,8 @@ namespace SpeechAgent.Features.Settings
         currentSetting.CustomNameClass = customNameClass.Trim();
       if (customNameIndex != null)
         currentSetting.CustomNameIndex = customNameIndex.Trim();
-      if (customImageClass != null)
-        currentSetting.CustomImageClass = customImageClass.Trim();
+      if (customImageName != null)
+        currentSetting.CustomImageName = customImageName.Trim();
       if (customImageRect != null)
         currentSetting.CustomImageRect = customImageRect.Trim();
 

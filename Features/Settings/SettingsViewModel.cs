@@ -1,4 +1,4 @@
-ï»¿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using SpeechAgent.Bases;
@@ -22,12 +22,13 @@ namespace SpeechAgent.Features.Settings
     {
       this._settingsService = settingsService;
       this._autoStartService = autoStartService;
-      this._viewService = viewService;
-    }
+ this._viewService = viewService;
+  }
 
     private readonly ISettingsService _settingsService;
     private readonly IAutoStartService _autoStartService;
     private readonly IViewService _viewService;
+    
     [ObservableProperty]
     private List<Option> options = [];
 
@@ -49,7 +50,7 @@ namespace SpeechAgent.Features.Settings
     [ObservableProperty]
     private string chartClass = "";
 
-    [ObservableProperty]
+  [ObservableProperty]
     private string chartIndex = "";
 
     [ObservableProperty]
@@ -59,16 +60,18 @@ namespace SpeechAgent.Features.Settings
     private string nameIndex = "";
 
     [ObservableProperty]
-    private string customImageClass = "";
+private string customImageName = "";
 
     [ObservableProperty]
     private string customImageRect = "";
 
-    public bool IsCustomSelected => SelectedOption?.Value == "[ì‚¬ìš©ìž ì •ì˜]";
+    public bool IsCustomSelected => SelectedOption?.Value == "[»ç¿ëÀÚ Á¤ÀÇ]";
+    public bool IsCustomImageSelected => SelectedOption?.Value == "[»ç¿ëÀÚ Á¤ÀÇ(ÀÌ¹ÌÁö)]";
 
     partial void OnSelectedOptionChanged(Option value)
     {
       OnPropertyChanged(nameof(IsCustomSelected));
+      OnPropertyChanged(nameof(IsCustomImageSelected));
     }
 
     [RelayCommand]
@@ -78,18 +81,18 @@ namespace SpeechAgent.Features.Settings
       // Save settings
       _settingsService.UpdateSettings(
         connectKey: ConnectKey, 
-        targetAppName: TargetAppName, 
+  targetAppName: TargetAppName, 
         customExeTitle: ExeTitle, 
-        customChartClass: ChartClass, 
+  customChartClass: ChartClass, 
         customChartIndex: ChartIndex, 
         customNameClass: NameClass, 
-        customNameIndex: NameIndex,
-        customImageClass: CustomImageClass,
+    customNameIndex: NameIndex,
+        customImageName: CustomImageName,
         customImageRect: CustomImageRect);
       // Apply auto start setting
       _autoStartService.SetAutoStart(AutoStartEnabled);
 
-      View.Close();
+  View.Close();
     }
 
     [RelayCommand]
@@ -101,7 +104,7 @@ namespace SpeechAgent.Features.Settings
     [RelayCommand]
     void FindImageControl()
     {
-      _viewService.ShowFindWinImageView(View);
+    _viewService.ShowFindWinImageView(View);
     }
 
     [RelayCommand]
@@ -113,20 +116,21 @@ namespace SpeechAgent.Features.Settings
     public override void Initialize()
     {
       Options = [
-        new() { Key = "ì‚¬ìš©ì•ˆí•¨", Value = "" },
-        new() { Key = "í´ë¦­", Value = "í´ë¦­" },
-        new() { Key = "[ì‚¬ìš©ìž ì •ì˜]", Value = "[ì‚¬ìš©ìž ì •ì˜]" },
-      ];
+        new() { Key = "»ç¿ë¾ÈÇÔ", Value = "" },
+        new() { Key = "Å¬¸¯", Value = "Å¬¸¯" },
+        new() { Key = "[»ç¿ëÀÚ Á¤ÀÇ]", Value = "[»ç¿ëÀÚ Á¤ÀÇ]" },
+        new() { Key = "[»ç¿ëÀÚ Á¤ÀÇ(ÀÌ¹ÌÁö)]", Value = "[»ç¿ëÀÚ Á¤ÀÇ(ÀÌ¹ÌÁö)]" },
+   ];
 
-      _settingsService.LoadSettings();
+    _settingsService.LoadSettings();
       ConnectKey = _settingsService.Settings.ConnectKey;
       TargetAppName = _settingsService.Settings.TargetAppName;
       ExeTitle = _settingsService.Settings.CustomExeTitle;
       ChartClass = _settingsService.Settings.CustomChartClass;
       ChartIndex = _settingsService.Settings.CustomChartIndex;
       NameClass = _settingsService.Settings.CustomNameClass;
-      NameIndex = _settingsService.Settings.CustomNameIndex;
-      CustomImageClass = _settingsService.Settings.CustomImageClass;
+   NameIndex = _settingsService.Settings.CustomNameIndex;
+      CustomImageName = _settingsService.Settings.CustomImageName;
       CustomImageRect = _settingsService.Settings.CustomImageRect;
 
       SelectedOption = Options.FirstOrDefault(o => o.Value == TargetAppName) ?? Options[0];
@@ -135,17 +139,17 @@ namespace SpeechAgent.Features.Settings
       AutoStartEnabled = _autoStartService.IsAutoStartEnabled();
 
       WeakReferenceMessenger.Default.Register<SendToSettingsMessage>(this, (r, m) =>
-      {
-        ExeTitle = m.Value.ExeTitle;
+{
+  ExeTitle = m.Value.ExeTitle;
         ChartClass = m.Value.ChartClass;
         ChartIndex = m.Value.ChartIndex;
-        NameClass = m.Value.NameClass;
+  NameClass = m.Value.NameClass;
         NameIndex = m.Value.NameIndex;
       });
 
       WeakReferenceMessenger.Default.Register<SendToSettingsImageMessage>(this, (r, m) =>
       {
-        CustomImageClass = m.Value.CustomImageClass;
+        CustomImageName = m.Value.CustomImageName;
         CustomImageRect = m.Value.CustomImageRect;
       });
     }

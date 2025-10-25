@@ -102,6 +102,13 @@ namespace SpeechAgent.Features.Main
 
     private async void OnConnectKeyChanged(LocalSettings settings)
     {
+      if (string.IsNullOrWhiteSpace(settings.ConnectKey))
+      {
+        _mainService.StopReadChartTimer();
+        await _medicSIOService.DisConnect();
+        return;
+      }
+
       if (string.IsNullOrWhiteSpace(settings.TargetAppName))
         _mainService.StopReadChartTimer();
       else

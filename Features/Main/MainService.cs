@@ -4,7 +4,6 @@ using SpeechAgent.Models;
 using SpeechAgent.Services;
 using SpeechAgent.Services.MedicSIO;
 using SpeechAgent.Services.MedicSIO.Dto;
-using System.Diagnostics;
 using System.Windows.Threading;
 
 namespace SpeechAgent.Features.Main

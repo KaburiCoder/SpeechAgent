@@ -13,5 +13,7 @@
 
     public string CustomImageName { get; set; } = "";
     public string CustomImageRect { get; set; } = "";
+ 
+    public bool UseAutomation { get; set; } = false;
   }
 }

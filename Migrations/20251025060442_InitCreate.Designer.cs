@@ -10,7 +10,7 @@ using SpeechAgent.Database;
 namespace SpeechAgent.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251025045755_InitCreate")]
+    [Migration("20251025060442_InitCreate")]
     partial class InitCreate
     {
         /// <inheritdoc />
@@ -60,6 +60,9 @@ namespace SpeechAgent.Migrations
                     b.Property<string>("TargetAppName")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("UseAutomation")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 

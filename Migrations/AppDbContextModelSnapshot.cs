@@ -58,6 +58,9 @@ namespace SpeechAgent.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("UseAutomation")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.ToTable("LocalSettings");

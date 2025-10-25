@@ -24,7 +24,8 @@ namespace SpeechAgent.Migrations
                     CustomNameClass = table.Column<string>(type: "TEXT", nullable: false),
                     CustomNameIndex = table.Column<string>(type: "TEXT", nullable: false),
                     CustomImageName = table.Column<string>(type: "TEXT", nullable: false),
-                    CustomImageRect = table.Column<string>(type: "TEXT", nullable: false)
+                    CustomImageRect = table.Column<string>(type: "TEXT", nullable: false),
+                    UseAutomation = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

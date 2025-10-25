@@ -31,16 +31,7 @@ namespace SpeechAgent.Features.Settings.FindWin
     private ObservableCollection<AutomationControlInfo> _searchedControls = new();
 
     [ObservableProperty]
-    private AutomationControlInfo? _selectedControlInfo;
-
-    [ObservableProperty]
     private string _searchText = string.Empty;
-
-    [ObservableProperty]
-    private bool _isChartNumberSelected = true;
-
-    [ObservableProperty]
-    private bool _isPatientNameSelected;
 
     [ObservableProperty]
     private string _chartNumberClassName = string.Empty;
@@ -119,22 +110,16 @@ namespace SpeechAgent.Features.Settings.FindWin
     [RelayCommand]
     private void SendToSettings()
     {
-      if (IsChartNumberSelected)
+      if (string.IsNullOrEmpty(ChartNumberClassName) || string.IsNullOrEmpty(ChartNumberIndex))
       {
-        if (string.IsNullOrEmpty(ChartNumberClassName) || string.IsNullOrEmpty(ChartNumberIndex))
-        {
-          MessageBox.Show("차트번호의 클래스명과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
-          return;
-        }
+        MessageBox.Show("차트번호의 클래스명과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        return;
       }
 
-      if (IsPatientNameSelected)
+      if (string.IsNullOrEmpty(PatientNameClassName) || string.IsNullOrEmpty(PatientNameIndex))
       {
-        if (string.IsNullOrEmpty(PatientNameClassName) || string.IsNullOrEmpty(PatientNameIndex))
-        {
-          MessageBox.Show("수진자명의 클래스명과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
-          return;
-        }
+        MessageBox.Show("수진자명의 클래스명과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        return;
       }
 
       WeakReferenceMessenger.Default.Send(new SendToSettingsMessage(
@@ -151,7 +136,6 @@ namespace SpeechAgent.Features.Settings.FindWin
     partial void OnSelectedWindowChanged(WindowInfo? value)
     {
       SearchedControls.Clear();
-      SelectedControlInfo = null;
 
       if (value != null)
       {
@@ -194,20 +178,23 @@ namespace SpeechAgent.Features.Settings.FindWin
       }
     }
 
-    partial void OnSelectedControlInfoChanged(AutomationControlInfo? value)
+    [RelayCommand]
+    private void AssignToChart(AutomationControlInfo controlInfo)
     {
-      if (value != null)
+      if (controlInfo != null)
       {
-        if (IsChartNumberSelected)
-        {
-          ChartNumberClassName = value.ClassName;
-          ChartNumberIndex = value.Index.ToString();
-        }
-        else if (IsPatientNameSelected)
-        {
-          PatientNameClassName = value.ClassName;
-          PatientNameIndex = value.Index.ToString();
-        }
+        ChartNumberClassName = controlInfo.ClassName;
+        ChartNumberIndex = controlInfo.Index.ToString();
+      }
+    }
+
+    [RelayCommand]
+    private void AssignToName(AutomationControlInfo controlInfo)
+    {
+      if (controlInfo != null)
+      {
+        PatientNameClassName = controlInfo.ClassName;
+        PatientNameIndex = controlInfo.Index.ToString();
       }
     }
   }

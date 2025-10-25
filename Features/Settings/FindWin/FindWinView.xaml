@@ -6,9 +6,31 @@
         xmlns:local="clr-namespace:SpeechAgent.Features.Settings.FindWin"
         mc:Ignorable="d"
         Title="윈도우 찾기" Height="800" Width="1400"
-  WindowStartupLocation="CenterScreen">
+  WindowStartupLocation="CenterScreen" d:DataContext="{d:DesignInstance Type=local:FindWinViewModel}">
   <Window.Resources>
     <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    <Style x:Key="CustomButtonStyle" TargetType="Button">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}" 
+                    BorderBrush="{TemplateBinding BorderBrush}" 
+                    BorderThickness="{TemplateBinding BorderThickness}" 
+                    CornerRadius="5">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="#005A9E"/>
+        </Trigger>
+        <Trigger Property="IsPressed" Value="True">
+          <Setter Property="Background" Value="#004080"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
   </Window.Resources>
 
   <Grid Margin="10">
@@ -35,31 +57,8 @@
                 FontWeight="Bold"
                 Background="#007ACC"
                 Foreground="White"
-                BorderThickness="0">
-          <Button.Style>
-            <Style TargetType="Button">
-              <Setter Property="Template">
-                <Setter.Value>
-                  <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}" 
-                            BorderBrush="{TemplateBinding BorderBrush}" 
-                            BorderThickness="{TemplateBinding BorderThickness}" 
-                            CornerRadius="5">
-                      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                  </ControlTemplate>
-                </Setter.Value>
-              </Setter>
-              <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                  <Setter Property="Background" Value="#005A9E"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                  <Setter Property="Background" Value="#004080"/>
-                </Trigger>
-              </Style.Triggers>
-            </Style>
-          </Button.Style>
+                BorderThickness="0"
+                Style="{StaticResource CustomButtonStyle}">
         </Button>
         <TextBlock Text="로딩 중..." 
                    VerticalAlignment="Center" 
@@ -74,22 +73,22 @@
         <!-- 차트번호 -->
         <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,10,0" Background="WhiteSmoke">
           <StackPanel Orientation="Horizontal">
-            <RadioButton Content="차트번호" IsChecked="{Binding IsChartNumberSelected}" Margin="0,0,10,0" VerticalAlignment="Center" FontWeight="SemiBold" GroupName="1"/>
+            <TextBlock Text="차트번호" Margin="0,0,10,0" VerticalAlignment="Center" FontWeight="SemiBold"/>
             <TextBlock Text="클래스명:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
-            <TextBox Text="{Binding ChartNumberClassName}" Width="120" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Text="{Binding ChartNumberClassName}" Width="120" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="12" Background="WhiteSmoke" Padding="5"/>
             <TextBlock Text="인덱스:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
-            <TextBox Text="{Binding ChartNumberIndex}" Width="60" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Text="{Binding ChartNumberIndex}" Width="60" VerticalAlignment="Center" FontSize="12" Background="WhiteSmoke" Padding="5"/>
           </StackPanel>
         </Border>
 
         <!-- 수진자명 -->
         <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10" Background="WhiteSmoke">
           <StackPanel Orientation="Horizontal">
-            <RadioButton Content="수진자명" IsChecked="{Binding IsPatientNameSelected}" Margin="0,0,10,0" VerticalAlignment="Center" FontWeight="SemiBold" GroupName="1"/>
+            <TextBlock Text="수진자명" Margin="0,0,10,0" VerticalAlignment="Center" FontWeight="SemiBold"/>
             <TextBlock Text="클래스명:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
-            <TextBox Text="{Binding PatientNameClassName}" Width="120" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Text="{Binding PatientNameClassName}" Width="120" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="12" Background="WhiteSmoke" Padding="5"/>
             <TextBlock Text="인덱스:" Margin="0,0,5,0" VerticalAlignment="Center" FontSize="12"/>
-            <TextBox Text="{Binding PatientNameIndex}" Width="60" VerticalAlignment="Center" FontSize="12"/>
+            <TextBlock Text="{Binding PatientNameIndex}" Width="60" VerticalAlignment="Center" FontSize="12" Background="WhiteSmoke" Padding="5"/>
           </StackPanel>
         </Border>
 
@@ -103,31 +102,8 @@
                 FontWeight="Bold"
                 Background="#28A745"
                 Foreground="White"
-                BorderThickness="0">
-          <Button.Style>
-            <Style TargetType="Button">
-              <Setter Property="Template">
-                <Setter.Value>
-                  <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}" 
-                            BorderBrush="{TemplateBinding BorderBrush}" 
-                            BorderThickness="{TemplateBinding BorderThickness}" 
-                            CornerRadius="5">
-                      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                  </ControlTemplate>
-                </Setter.Value>
-              </Setter>
-              <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                  <Setter Property="Background" Value="#218838"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                  <Setter Property="Background" Value="#1E7E34"/>
-                </Trigger>
-              </Style.Triggers>
-            </Style>
-          </Button.Style>
+                BorderThickness="0"
+                Style="{StaticResource CustomButtonStyle}">
         </Button>
       </StackPanel>
     </Grid>
@@ -252,8 +228,8 @@
                          FontSize="12" 
                          Foreground="Gray"
                          VerticalAlignment="Center"/>
-              <TextBox x:Name="SearchTextBox" 
-                       Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+              <TextBox x:Name="SearchTextBox"
+                       Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                        Width="200" 
                        Margin="10,0,0,0" 
                        FontSize="14" 
@@ -267,31 +243,8 @@
                       FontSize="12"
                       Background="#007ACC"
                       Foreground="White"
-                      BorderThickness="0">
-                <Button.Style>
-                  <Style TargetType="Button">
-                    <Setter Property="Template">
-                      <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                          <Border Background="{TemplateBinding Background}" 
-                                  BorderBrush="{TemplateBinding BorderBrush}" 
-                                  BorderThickness="{TemplateBinding BorderThickness}" 
-                                  CornerRadius="3">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                          </Border>
-                        </ControlTemplate>
-                      </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                      <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#005A9E"/>
-                      </Trigger>
-                      <Trigger Property="IsPressed" Value="True">
-                        <Setter Property="Background" Value="#004080"/>
-                      </Trigger>
-                    </Style.Triggers>
-                  </Style>
-                </Button.Style>
+                      BorderThickness="0"
+                      Style="{StaticResource CustomButtonStyle}">
               </Button>
             </StackPanel>
           </StackPanel>
@@ -303,8 +256,7 @@
                      Background="Transparent"
                      ScrollViewer.CanContentScroll="True"
                      VirtualizingPanel.IsVirtualizing="True"
-                     VirtualizingPanel.VirtualizationMode="Recycling"
-                     SelectedItem="{Binding SelectedControlInfo, Mode=TwoWay}">
+                     VirtualizingPanel.VirtualizationMode="Recycling">
               <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                   <VirtualizingStackPanel/>
@@ -312,30 +264,50 @@
               </ListBox.ItemsPanel>
               <ListBox.ItemTemplate>
                 <DataTemplate>
-                  <Border BorderBrush="#E0E0E0" 
-                          BorderThickness="1" 
-                          CornerRadius="3"
-                          Margin="0,0,0,2" 
+                  <Border Background="White"
+                          BorderBrush="#E0E0E0"
+                          BorderThickness="1"
+                          Margin="0,0,0,2"
                           Padding="4"
-                          Background="White">
-                    <TextBlock FontSize="12">
-                      <Run Text="[" Foreground="#2196F3"/>
-                      <Run Text="{Binding Index, Mode=OneWay}" Foreground="#2196F3"/>
-                      <Run Text="] " Foreground="#2196F3"/>
-                      <Run Text="Class: " Foreground="#333"/>
-                      <Run Text="{Binding ClassName, Mode=OneWay}" Foreground="#333"/>
-                      <Run Text=" | Text: " Foreground="#555"/>
-                      <Run Text="{Binding Text, Mode=OneWay}" Foreground="#555"/>
-                      <Run Text=" | Pos: " Foreground="#777"/>
-                      <Run Text=" x:" Foreground="#777"/>
-                      <Run Text="{Binding RectLeft, Mode=OneWay}" Foreground="#777"/>
-                      <Run Text=" y:" Foreground="#777"/>
-                      <Run Text="{Binding RectTop, Mode=OneWay}" Foreground="#777"/>
-                      <Run Text=" w:" Foreground="#777"/>
-                      <Run Text="{Binding RectWidth, Mode=OneWay}" Foreground="#777"/>
-                      <Run Text=" h:" Foreground="#777"/>
-                      <Run Text="{Binding RectHeight, Mode=OneWay}" Foreground="#777"/>
-                    </TextBlock>
+                          CornerRadius="3">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                      </Grid.ColumnDefinitions>
+                      <StackPanel Grid.Column="0">
+                        <TextBlock FontSize="12" Text="{Binding DisplayText, Mode=OneWay}" TextWrapping="Wrap" Foreground="#333"/>
+                        <TextBlock FontSize="12" TextWrapping="Wrap">
+                          <Run Text="Text: " Foreground="#555"/>
+                          <Run Text="{Binding Text, Mode=OneWay}" Foreground="Blue" FontWeight="Bold"/>
+                        </TextBlock>
+                      </StackPanel>
+                      <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Margin="10,0,0,0">
+                        <Button Content="차트" 
+                                Command="{Binding DataContext.AssignToChartCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+                                CommandParameter="{Binding}"
+                                Width="40" 
+                                Height="25" 
+                                Margin="0,0,0,5"
+                                FontSize="10"
+                                Background="#007ACC"
+                                Foreground="White"
+                                BorderThickness="0"
+                                HorizontalAlignment="Center"
+                                Style="{StaticResource CustomButtonStyle}"/>
+                        <Button Content="이름" 
+                                Command="{Binding DataContext.AssignToNameCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+                                CommandParameter="{Binding}"
+                                Width="40" 
+                                Height="25" 
+                                FontSize="10"
+                                Background="#28A745"
+                                Foreground="White"
+                                BorderThickness="0"
+                                HorizontalAlignment="Center"
+                                Style="{StaticResource CustomButtonStyle}"/>
+                      </StackPanel>
+                    </Grid>
                   </Border>
                 </DataTemplate>
               </ListBox.ItemTemplate>

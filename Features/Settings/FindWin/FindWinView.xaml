@@ -310,89 +310,27 @@
                   <Border BorderBrush="#E0E0E0" 
                           BorderThickness="1" 
                           CornerRadius="3"
-                          Margin="0,0,0,3" 
-                          Padding="6"
+                          Margin="0,0,0,2" 
+                          Padding="4"
                           Background="White">
-                    <Grid>
-                      <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                      </Grid.RowDefinitions>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="70"/>
-                        <ColumnDefinition Width="*"/>
-                      </Grid.ColumnDefinitions>
-
-                      <!-- Index -->
-                      <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
-                                 FontWeight="Bold" 
-                                 FontSize="16"
-                                 Foreground="#2196F3"
-                                 Margin="0,0,0,4">
-                        <Run Text="["/>
-                        <Run Text="{Binding Index}"/>
-                        <Run Text="]"/>
-                      </TextBlock>
-
-                      <!-- ClassName -->
-                      <TextBlock Grid.Row="1" Grid.Column="0" 
-                                 Text="Class:" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="12"
-                                 VerticalAlignment="Top"
-                                 Margin="0,0,2,2"/>
-                      <TextBlock Grid.Row="1" Grid.Column="1" 
-                                 Text="{Binding ClassName}" 
-                                 FontSize="14"
-                                 Foreground="#333"
-                                 Margin="0,0,0,2"/>
-
-                      <!-- Text -->
-                      <TextBlock Grid.Row="2" Grid.Column="0" 
-                                 Text="Text:" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="12"
-                                 VerticalAlignment="Top"
-                                 Margin="0,0,2,2"/>
-                      <TextBlock Grid.Row="2" Grid.Column="1" 
-                                 Text="{Binding Text}" 
-                                 FontSize="14"
-                                 Foreground="#555"
-                                 Margin="0,0,0,2"/>
-
-                      <!-- HWND -->
-                      <TextBlock Grid.Row="3" Grid.Column="0" 
-                                 Text="HWND:" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="11"
-                                 Margin="0,0,2,2"/>
-                      <TextBlock Grid.Row="3" Grid.Column="1" 
-                                 Text="{Binding Hwnd}" 
-                                 FontSize="11"
-                                 Foreground="#777"
-                                 Margin="0,0,0,2"/>
-
-                      <!-- RECT -->
-                      <TextBlock Grid.Row="4" Grid.Column="0" 
-                                 Text="RECT:" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="11"
-                                 VerticalAlignment="Top"
-                                 Margin="0,0,2,0"/>
-                      <TextBlock Grid.Row="4" Grid.Column="1" FontSize="11" Foreground="#777">
-                        <Run Text="L:"/>
-                        <Run Text="{Binding RECT.Left}"/>
-                        <Run Text=" T:"/>
-                        <Run Text="{Binding RECT.Top}"/>
-                        <Run Text=" W:"/>
-                        <Run Text="{Binding RECT.Width}"/>
-                        <Run Text=" H:"/>
-                        <Run Text="{Binding RECT.Height}"/>
-                      </TextBlock>
-                    </Grid>
+                    <TextBlock FontSize="12">
+                      <Run Text="[" Foreground="#2196F3"/>
+                      <Run Text="{Binding Index}" Foreground="#2196F3"/>
+                      <Run Text="] " Foreground="#2196F3"/>
+                      <Run Text="Class: " Foreground="#333"/>
+                      <Run Text="{Binding ClassName}" Foreground="#333"/>
+                      <Run Text=" | Text: " Foreground="#555"/>
+                      <Run Text="{Binding Text}" Foreground="#555"/>
+                      <Run Text=" | Pos: " Foreground="#777"/>
+                      <Run Text=" x:" Foreground="#777"/>
+                      <Run Text="{Binding RECT.Left}" Foreground="#777"/>
+                      <Run Text=" y:" Foreground="#777"/>
+                      <Run Text="{Binding RECT.Top}" Foreground="#777"/>
+                      <Run Text=" w:" Foreground="#777"/>
+                      <Run Text="{Binding RECT.Width}" Foreground="#777"/>
+                      <Run Text=" h:" Foreground="#777"/>
+                      <Run Text="{Binding RECT.Height}" Foreground="#777"/>
+                    </TextBlock>
                   </Border>
                 </DataTemplate>
               </ListBox.ItemTemplate>

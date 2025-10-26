@@ -10,7 +10,6 @@ namespace SpeechAgent.Features.Settings.FindWin
     public FindWinView()
     {
       InitializeComponent();
-      DataContext = new FindWinViewModel();
     }
   }
 }

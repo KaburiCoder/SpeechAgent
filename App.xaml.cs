@@ -4,9 +4,11 @@ using SpeechAgent.Database;
 using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Features.Settings.FindWin;
+using SpeechAgent.Features.Settings.FindWin.Services;
 using SpeechAgent.Services;
 using SpeechAgent.Services.MedicSIO;
 using SpeechAgent.Utils;
+using SpeechAgent.Utils.Automation;
 using System.Windows;
 using Velopack;
 
@@ -24,7 +26,7 @@ namespace SpeechAgent
       // Singletons
       services.AddSingleton<IViewService, ViewService>();
       services.AddSingleton<IViewModelFactory, ViewModelFactory>();
-      services.AddSingleton<IAutomationControlSearchService, AutomationControlSearchService>();
+      services.AddSingleton<IPatientSearchService, PatientSearchService>();
       services.AddSingleton<ISettingsService, SettingsService>();
       services.AddSingleton<IMedicSIOService, MedicSIOService>();
       services.AddSingleton<TrayIconService>();
@@ -42,6 +44,8 @@ namespace SpeechAgent
 
       // Services
       services.AddTransient<IMainService, MainService>();
+      services.AddTransient<IWindowCaptureService, WindowCaptureService>();
+      services.AddTransient<IAutomationControlSearcher, AutomationControlSearcher>();
 
       return services.BuildServiceProvider();
     }

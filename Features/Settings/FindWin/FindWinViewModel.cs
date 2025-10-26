@@ -13,11 +13,10 @@ using MessageBox = System.Windows.MessageBox;
 
 namespace SpeechAgent.Features.Settings.FindWin
 {
-  partial class FindWinViewModel : BaseViewModel
+  partial class FindWinViewModel(
+    IWindowCaptureService _captureService,
+    IAutomationControlSearcher _automationSearcher) : BaseViewModel
   {
-    private readonly WindowCaptureService _captureService;
-    private readonly AutomationControlSearcher _automationSearcher;
-
     [ObservableProperty]
     private ObservableCollection<WindowInfo> _windows = new();
 
@@ -44,13 +43,7 @@ namespace SpeechAgent.Features.Settings.FindWin
 
     [ObservableProperty]
     private string _patientNameIndex = string.Empty;
-
-    public FindWinViewModel()
-    {
-      _captureService = new WindowCaptureService();
-      _automationSearcher = new AutomationControlSearcher();
-    }
-
+      
     [RelayCommand]
     private async Task StartScan()
     {
@@ -91,7 +84,7 @@ namespace SpeechAgent.Features.Settings.FindWin
       {
         // 검색어가 없으면 모든 컨트롤 표시
         SearchedControls.Clear();
-         
+
         return;
       }
 

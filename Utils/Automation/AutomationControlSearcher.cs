@@ -3,7 +3,19 @@ using SpeechAgent.Models;
 
 namespace SpeechAgent.Utils.Automation
 {
-  public class AutomationControlSearcher
+  public interface IAutomationControlSearcher
+  {
+    List<AutomationControlInfo> FoundControls { get; }
+    bool FindWindowByTitle(Func<string, bool> titlePredicate);
+    bool FindWindowByHandle(IntPtr handle);
+    List<AutomationControlInfo> SearchControls();
+    string GetControlText(AutomationElement element);
+    bool IsWindowValid();
+    IntPtr GetWindowHandle();
+    void ClearFoundControls();
+  }
+
+  public class AutomationControlSearcher : IAutomationControlSearcher
   {
     private AutomationElement? _targetWindow;
     private readonly List<AutomationControlInfo> _foundControls = new();
@@ -195,6 +207,21 @@ namespace SpeechAgent.Utils.Automation
     {
       _foundControls.Clear();
       _targetWindow = null;
+    }
+
+    public IntPtr GetWindowHandle()
+    {
+      if (_targetWindow == null) return 0;
+
+      try
+      {
+        return _targetWindow.Current.NativeWindowHandle;
+      }
+      catch
+      {
+        return 0;
+      }
+
     }
   }
 }

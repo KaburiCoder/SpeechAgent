@@ -1,18 +1,23 @@
 using SpeechAgent.Features.Settings.FindWin.Models;
 using System.Diagnostics;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows;
-using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Vanara.PInvoke;
 
 namespace SpeechAgent.Features.Settings.FindWin.Services
 {
-  internal class WindowCaptureService
+  public interface IWindowCaptureService
+  {
+    List<WindowInfo> GetAllWindows();
+    BitmapSource? CaptureWindow(IntPtr hWnd);
+    BitmapSource? CaptureWindow(IntPtr hWnd, Rectangle? captureRect);
+    List<WindowInfo> GetWindowsWithScreenshots();
+    WindowInfo? GetDetailedWindowInfo(IntPtr hWnd);
+  }
+
+  internal class WindowCaptureService : IWindowCaptureService
   {
     public List<WindowInfo> GetAllWindows()
     {
@@ -66,43 +71,64 @@ namespace SpeechAgent.Features.Settings.FindWin.Services
 
     public BitmapSource? CaptureWindow(IntPtr hWnd)
     {
+      return CaptureWindow(hWnd, null);
+    }
+
+    // 특정 영역을 캡처하는 오버로드
+    public BitmapSource? CaptureWindow(IntPtr hWnd, Rectangle? captureRect)
+    {
       try
       {
         if (!User32.IsWindow(hWnd))
           return null;
 
-        // DWM을 사용하여 정확한 윈도우 크기 가져오기 (그림자 제외)
         RECT rect;
-        var result = DwmApi.DwmGetWindowAttribute(new HWND(hWnd), DwmApi.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out rect);
+        var result = DwmApi.DwmGetWindowAttribute(new HWND(hWnd),
+            DwmApi.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out rect);
 
-        // DWM이 실패하면 일반 GetWindowRect 사용
         if (result.Failed)
         {
           User32.GetWindowRect(hWnd, out rect);
         }
 
-        int width = rect.Width;
-        int height = rect.Height;
+        int windowWidth = rect.Width;
+        int windowHeight = rect.Height;
 
-        if (width <= 0 || height <= 0)
+        if (windowWidth <= 0 || windowHeight <= 0)
           return null;
 
-        // 비트맵 생성
-        using (Bitmap bitmap = new Bitmap(width, height))
-        {          
-          using (Graphics graphics = Graphics.FromImage(bitmap))
+        // 전체 윈도우 캡처
+        using (Bitmap fullBitmap = new Bitmap(windowWidth, windowHeight))
+        {
+          using (Graphics graphics = Graphics.FromImage(fullBitmap))
           {
             var hdc = graphics.GetHdc();
             Gdi32.SafeHDC safeHdc = new Gdi32.SafeHDC(hdc, false);
-
-            // PrintWindow를 사용하여 윈도우 내용 캡처
             User32.PrintWindow(new HWND(hWnd), safeHdc, User32.PW.PW_RENDERFULLCONTENT);
-
             graphics.ReleaseHdc(hdc);
           }
 
-          // Bitmap을 BitmapSource로 변환
-          return BitmapToBitmapSource(bitmap);
+          // 특정 영역이 지정된 경우 해당 영역만 추출
+          if (captureRect.HasValue)
+          {
+            var crop = captureRect.Value;
+
+            // 영역이 윈도우 범위를 벗어나지 않도록 조정
+            crop.X = Math.Max(0, Math.Min(crop.X, windowWidth));
+            crop.Y = Math.Max(0, Math.Min(crop.Y, windowHeight));
+            crop.Width = Math.Min(crop.Width, windowWidth - crop.X);
+            crop.Height = Math.Min(crop.Height, windowHeight - crop.Y);
+
+            if (crop.Width <= 0 || crop.Height <= 0)
+              return null;
+
+            using (Bitmap croppedBitmap = fullBitmap.Clone(crop, fullBitmap.PixelFormat))
+            {
+              return BitmapToBitmapSource(croppedBitmap);
+            }
+          }
+
+          return BitmapToBitmapSource(fullBitmap);
         }
       }
       catch

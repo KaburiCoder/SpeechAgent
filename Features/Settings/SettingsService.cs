@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using SpeechAgent.Constants;
 using SpeechAgent.Database;
 using SpeechAgent.Database.Schemas;
 using SpeechAgent.Messages;
@@ -12,12 +13,16 @@ namespace SpeechAgent.Features.Settings
     LocalSettings Settings { get; }
     void LoadSettings();
     void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartControlType = null, string? customChartIndex = null, string? customNameControlType = null, string? customNameIndex = null, string? customImageRect = null);
+
+    bool UseCustomUserImage { get; }
   }
 
   public class SettingsService : ISettingsService
   {
 
     public LocalSettings Settings { get; private set; } = new();
+
+    public bool UseCustomUserImage => Settings.TargetAppName == AppKey.CustomUserImage;
 
     public void LoadSettings()
     {

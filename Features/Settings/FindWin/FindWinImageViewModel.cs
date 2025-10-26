@@ -12,10 +12,8 @@ using MessageBox = System.Windows.MessageBox;
 
 namespace SpeechAgent.Features.Settings.FindWin
 {
-  partial class FindWinImageViewModel : BaseViewModel
+  partial class FindWinImageViewModel(IWindowCaptureService _captureService) : BaseViewModel
   {
-    private readonly WindowCaptureService _captureService;
-
     [ObservableProperty]
     private ObservableCollection<WindowInfo> _windows = new();
 
@@ -48,12 +46,7 @@ namespace SpeechAgent.Features.Settings.FindWin
 
     [ObservableProperty]
     private BitmapSource? _croppedImage;
-
-    public FindWinImageViewModel()
-    {
-      _captureService = new WindowCaptureService();
-    }
-
+     
     [RelayCommand]
     private async Task StartScan()
     {
@@ -93,8 +86,10 @@ namespace SpeechAgent.Features.Settings.FindWin
     {
       if (SelectedWindowImage == null) return;
 
-      if (!int.TryParse(RectX, out int x) || !int.TryParse(RectY, out int y) ||
-      !int.TryParse(RectWidth, out int width) || !int.TryParse(RectHeight, out int height))
+      if (!int.TryParse(RectX, out int x) ||
+        !int.TryParse(RectY, out int y) ||
+        !int.TryParse(RectWidth, out int width) ||
+        !int.TryParse(RectHeight, out int height))
       {
         CroppedImage = null;
         CustomImageRect = string.Empty;
@@ -102,7 +97,7 @@ namespace SpeechAgent.Features.Settings.FindWin
       }
 
       if (x < 0 || y < 0 || width <= 0 || height <= 0 ||
-          x + width > SelectedWindowImage.PixelWidth ||
+        x + width > SelectedWindowImage.PixelWidth ||
         y + height > SelectedWindowImage.PixelHeight)
       {
         CroppedImage = null;
@@ -112,7 +107,7 @@ namespace SpeechAgent.Features.Settings.FindWin
 
       try
       {
-        var croppedBitmap = new CroppedBitmap(SelectedWindowImage, new System.Windows.Int32Rect(x, y, width, height));
+        var croppedBitmap = new CroppedBitmap(SelectedWindowImage, new Int32Rect(x, y, width, height));
         CroppedImage = croppedBitmap;
         CustomImageRect = $"{x},{y},{width},{height}";
       }

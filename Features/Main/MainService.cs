@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Messaging;
+using SpeechAgent.Features.Settings;
 using SpeechAgent.Messages;
 using SpeechAgent.Models;
 using SpeechAgent.Services;
@@ -16,24 +17,26 @@ namespace SpeechAgent.Features.Main
 
   public class MainService : IMainService
   {
-    private readonly IAutomationControlSearchService _automationControlSearchService;
+    private readonly IPatientSearchService _patientSearchService;
     private readonly IMedicSIOService _medicSIOService;
     private readonly DispatcherTimer _timer;
     private PatientInfo _patientInfo = new("", "", DateTime.MinValue);
 
     public MainService(
-      IAutomationControlSearchService automationControlSearchService,
-      IMedicSIOService medicSIOService)
+      IPatientSearchService patientSearchService,
+      IMedicSIOService medicSIOService,
+      ISettingsService settingsService)
     {
-      _automationControlSearchService = automationControlSearchService;
+      _patientSearchService = patientSearchService;
       _medicSIOService = medicSIOService;
+
       _timer = new DispatcherTimer();
       _timer.Interval = TimeSpan.FromSeconds(1); // 1초 간격
       _timer.Tick += Timer_Tick;
 
       WeakReferenceMessenger.Default.Register<LocalSettingsChangedMessage>(this, (r, m) =>
       {
-        _automationControlSearchService.Clear();
+        _patientSearchService.Clear();
         bool isNoneTargetApp = string.IsNullOrWhiteSpace(m.Value.Settings.TargetAppName);
         if (isNoneTargetApp)
           _timer.Stop();
@@ -44,21 +47,18 @@ namespace SpeechAgent.Features.Main
 
     private async void Timer_Tick(object? sender, EventArgs e)
     {
-      // UI Automation 사용
-      var automationControls = _automationControlSearchService.FindChartAndNameControls();
-      string chart = automationControls?.ChartTextBox?.Text ?? "";
-      string suname = automationControls?.NameTextBox?.Text ?? "";
-
+      // UI Automation 사용      
+      var patientInfo = _patientSearchService.FindPatientInfo();
       var previousPatientInfo = _patientInfo;
-      _patientInfo = _patientInfo with { Chart = chart, Name = suname };
-      if (previousPatientInfo != _patientInfo)
+      _patientInfo = patientInfo;
+      if (previousPatientInfo.Chart != _patientInfo.Chart)
       {
         var res = await _medicSIOService.SendPatientInfo(new PatientInfoDto
         {
-          Chart = chart,
-          Name = suname
+          Chart = _patientInfo.Chart,
+          Name = _patientInfo.Name
         });
-        WeakReferenceMessenger.Default.Send(new PatientInfoUpdatedMessage(new PatientInfo(chart, suname, DateTime.Now)));
+        WeakReferenceMessenger.Default.Send(new PatientInfoUpdatedMessage(_patientInfo));
       }
     }
 

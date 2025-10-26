@@ -1,34 +1,33 @@
 using SpeechAgent.Constants;
 using SpeechAgent.Database.Schemas;
+using SpeechAgent.Database.Utils;
 using SpeechAgent.Features.Settings;
+using SpeechAgent.Features.Settings.FindWin.Services;
 using SpeechAgent.Models;
 using SpeechAgent.Utils.Automation;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace SpeechAgent.Services
 {
-  public interface IAutomationControlSearchService
+  public interface IPatientSearchService
   {
     void Clear();
-    AutomationAppControls? FindChartAndNameControls();
+    PatientInfo FindPatientInfo();
   }
 
-  public class AutomationControlSearchService : IAutomationControlSearchService
+  public class PatientSearchService(
+    IAutomationControlSearcher _searcher,
+    ISettingsService _settingsService,
+    IWindowCaptureService _windowCaptureService) : IPatientSearchService
   {
-    private AutomationControlSearcher _searcher = new();
     private AutomationAppControls _appControls = new();
-    private readonly ISettingsService _settingsService;
 
-    public AutomationControlSearchService(ISettingsService settingsService)
+    private bool FindWindowByTitle(out bool isNewCreated)
     {
-      _settingsService = settingsService;
-    }
-
-    public AutomationAppControls? FindChartAndNameControls()
-    {
-      // 설정 로드
       var settings = _settingsService.Settings;
 
-      bool isNewCreated = false;
+      isNewCreated = false;
       if (!_searcher.IsWindowValid())
       {
         _searcher.ClearFoundControls();
@@ -39,37 +38,29 @@ namespace SpeechAgent.Services
         if (isCustom)
         {
           if (!_searcher.FindWindowByTitle(title => title.Contains(settings.CustomExeTitle)))
-            return null;
+            return false;
         }
         else
         {
           if (!_searcher.FindWindowByTitle(title => title.Contains("진료실[")))
-            return null;
+            return false;
         }
         isNewCreated = true;
       }
 
-      if (!isNewCreated && _appControls.ChartTextBox != null && _appControls.NameTextBox != null)
-      {
-        _appControls.ChartTextBox.Text = _searcher.GetControlText(_appControls.ChartTextBox.Element);
-        _appControls.NameTextBox.Text = _searcher.GetControlText(_appControls.NameTextBox.Element);
-        return _appControls;
-      }
+      return true;
+    }
 
-      var controls = _searcher.FoundControls.Count != 0
-        ? _searcher.FoundControls
-        : _searcher.SearchControls();
+    private AutomationAppControls? GetAppControls(List<AutomationControlInfo> controls)
+    {
+      var settings = _settingsService.Settings;
 
       AutomationAppControls? result = null;
-      if (settings.TargetAppName == "[사용자 정의]")
+      if (settings.TargetAppName == AppKey.CustomUser)
       {
         result = FindCustomControls(controls, settings);
       }
-      else if (settings.TargetAppName == "[사용자 정의(이미지)]")
-      {
-        result = FindImageBasedControls(controls, settings);
-      }
-      else if (settings.TargetAppName == "클릭")
+      else if (settings.TargetAppName == AppKey.ClickSoft)
       {
         result = FindDefaultControls(controls);
       }
@@ -116,6 +107,81 @@ namespace SpeechAgent.Services
       return null;
     }
 
+    private AutomationAppControls? FindDefaultControls(List<AutomationControlInfo> controls)
+    {
+      var chartTextBox = controls.FirstOrDefault(c => c.AutomationId.ToLower() == "txt_chart");
+      var nameTextBox = controls.FirstOrDefault(c => c.AutomationId.ToLower() == "txt_suname");
+
+      if (chartTextBox != null && nameTextBox != null)
+      {
+        // eClick
+        var appControls = new AutomationAppControls();
+        appControls.SetControls(chartTextBox, nameTextBox);
+        return appControls;
+      }
+      else
+      {
+        // newClick
+        var appControls = new AutomationAppControls();
+        chartTextBox = controls.FirstOrDefault(c => c.ClassName == "Edit" && c.Index == 1);
+        nameTextBox = controls.FirstOrDefault(c => c.ClassName == "ThunderRT6TextBox" && c.Index == 0);
+        appControls.SetControls(chartTextBox, nameTextBox);
+        return appControls;
+      }
+    }
+
+    public PatientInfo FindPatientInfo()
+    {
+      // 윈도우 타이틀로 핸들 찾기
+      if (!FindWindowByTitle(out bool isNewCreated))
+        return new PatientInfo();
+
+      if (_settingsService.UseCustomUserImage)
+      {
+        var hWnd = _searcher.GetWindowHandle();
+        BitmapSource? bitmapSource = _windowCaptureService.CaptureWindow(hWnd, captureRect: _settingsService.Settings.ParseCustomImageRect());
+        BitmapEncoder encoder = new PngBitmapEncoder();
+        if (bitmapSource != null)
+        {
+          encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+          // 파일로 저장
+          using (var fileStream = new FileStream("c:\\test.png", FileMode.Create, FileAccess.Write))
+          {
+            encoder.Save(fileStream);
+          }
+        }
+
+        return new PatientInfo();
+      }
+      else
+      {
+        // 기존 윈도우면 캐시된 컨트롤 사용
+        if (!isNewCreated && _appControls.ChartTextBox != null && _appControls.NameTextBox != null)
+        {
+          _appControls.ChartTextBox.Text = _searcher.GetControlText(_appControls.ChartTextBox.Element);
+          _appControls.NameTextBox.Text = _searcher.GetControlText(_appControls.NameTextBox.Element);
+          return CreatePatientInfo();
+        }
+        var controls = _searcher.FoundControls.Count != 0
+          ? _searcher.FoundControls
+          : _searcher.SearchControls();
+
+        // 차트, 수진자명 컨트롤 찾아서 전달
+        GetAppControls(controls);
+
+        return CreatePatientInfo();
+      }
+    }
+
+    private PatientInfo CreatePatientInfo()
+    {
+      return new PatientInfo
+      {
+        Chart = _appControls.ChartTextBox?.Text ?? "",
+        Name = _appControls.NameTextBox?.Text ?? "",
+      };
+    }
+
     private AutomationAppControls? FindImageBasedControls(List<AutomationControlInfo> controls, LocalSettings settings)
     {
       if (string.IsNullOrEmpty(settings.CustomImageRect))
@@ -127,8 +193,8 @@ namespace SpeechAgent.Services
         return null;
 
       if (!int.TryParse(parts[0], out int targetX) ||
-              !int.TryParse(parts[1], out int targetY) ||
-              !int.TryParse(parts[2], out int targetWidth) ||
+        !int.TryParse(parts[1], out int targetY) ||
+        !int.TryParse(parts[2], out int targetWidth) ||
         !int.TryParse(parts[3], out int targetHeight))
         return null;
 
@@ -158,28 +224,7 @@ namespace SpeechAgent.Services
       return null;
     }
 
-    private AutomationAppControls? FindDefaultControls(List<AutomationControlInfo> controls)
-    {
-      var chartTextBox = controls.FirstOrDefault(c => c.AutomationId.ToLower() == "txt_chart");
-      var nameTextBox = controls.FirstOrDefault(c => c.AutomationId.ToLower() == "txt_suname");
 
-      if (chartTextBox != null && nameTextBox != null)
-      {
-        // eClick
-        var appControls = new AutomationAppControls();
-        appControls.SetControls(chartTextBox, nameTextBox);
-        return appControls;
-      }
-      else
-      {
-        // newClick
-        var appControls = new AutomationAppControls();
-        chartTextBox = controls.FirstOrDefault(c => c.ClassName == "Edit" && c.Index == 1);
-        nameTextBox = controls.FirstOrDefault(c => c.ClassName == "ThunderRT6TextBox" && c.Index == 0);
-        appControls.SetControls(chartTextBox, nameTextBox);
-        return appControls;
-      }
-    }
 
     public void Clear()
     {

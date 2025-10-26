@@ -33,7 +33,7 @@ namespace SpeechAgent.Features.Settings
     private List<Option> options = [];
 
     [ObservableProperty]
-    private Option selectedOption;
+    private Option? selectedOption = null;
 
     [ObservableProperty]
     private string targetAppName = "";
@@ -48,13 +48,13 @@ namespace SpeechAgent.Features.Settings
     private string exeTitle = "";
 
     [ObservableProperty]
-    private string chartClass = "";
+    private string chartControlType = "";
 
     [ObservableProperty]
     private string chartIndex = "";
 
     [ObservableProperty]
-    private string nameClass = "";
+    private string nameControlType = "";
 
     [ObservableProperty]
     private string nameIndex = "";
@@ -83,11 +83,11 @@ namespace SpeechAgent.Features.Settings
         connectKey: ConnectKey,
         targetAppName: TargetAppName,
         customExeTitle: ExeTitle,
-        customChartClass: ChartClass,
+        customChartControlType: ChartControlType,
         customChartIndex: ChartIndex,
-        customNameClass: NameClass,
-   customNameIndex: NameIndex,
-    customImageName: CustomImageName,
+        customNameControlType: NameControlType,
+        customNameIndex: NameIndex,
+        customImageName: CustomImageName,
         customImageRect: CustomImageRect);
       // Apply auto start setting
       _autoStartService.SetAutoStart(AutoStartEnabled);
@@ -126,9 +126,9 @@ namespace SpeechAgent.Features.Settings
       ConnectKey = _settingsService.Settings.ConnectKey;
       TargetAppName = _settingsService.Settings.TargetAppName;
       ExeTitle = _settingsService.Settings.CustomExeTitle;
-      ChartClass = _settingsService.Settings.CustomChartClass;
+      ChartControlType = _settingsService.Settings.CustomChartControlType;
       ChartIndex = _settingsService.Settings.CustomChartIndex;
-      NameClass = _settingsService.Settings.CustomNameClass;
+      NameControlType = _settingsService.Settings.CustomNameControlType;
       NameIndex = _settingsService.Settings.CustomNameIndex;
       CustomImageName = _settingsService.Settings.CustomImageName;
       CustomImageRect = _settingsService.Settings.CustomImageRect;
@@ -141,9 +141,9 @@ namespace SpeechAgent.Features.Settings
       WeakReferenceMessenger.Default.Register<SendToSettingsMessage>(this, (r, m) =>
       {
         ExeTitle = m.Value.ExeTitle;
-        ChartClass = m.Value.ChartClass;
+        ChartControlType = m.Value.ChartControlType;
         ChartIndex = m.Value.ChartIndex;
-        NameClass = m.Value.NameClass;
+        NameControlType = m.Value.NameControlType;
         NameIndex = m.Value.NameIndex;
       });
 

@@ -19,13 +19,12 @@ namespace SpeechAgent.Migrations
                     ConnectKey = table.Column<string>(type: "TEXT", nullable: false),
                     TargetAppName = table.Column<string>(type: "TEXT", nullable: false),
                     CustomExeTitle = table.Column<string>(type: "TEXT", nullable: false),
-                    CustomChartClass = table.Column<string>(type: "TEXT", nullable: false),
+                    CustomChartControlType = table.Column<string>(type: "TEXT", nullable: false),
                     CustomChartIndex = table.Column<string>(type: "TEXT", nullable: false),
-                    CustomNameClass = table.Column<string>(type: "TEXT", nullable: false),
+                    CustomNameControlType = table.Column<string>(type: "TEXT", nullable: false),
                     CustomNameIndex = table.Column<string>(type: "TEXT", nullable: false),
                     CustomImageName = table.Column<string>(type: "TEXT", nullable: false),
-                    CustomImageRect = table.Column<string>(type: "TEXT", nullable: false),
-                    UseAutomation = table.Column<bool>(type: "INTEGER", nullable: false)
+                    CustomImageRect = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

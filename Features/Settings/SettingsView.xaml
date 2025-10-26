@@ -134,8 +134,8 @@
                   <ColumnDefinition Width="10"/>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="차트 클래스" 
-                         Text="{Binding ChartClass, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="차트 컨트롤" 
+                         Text="{Binding ChartControlType, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Index" 
                          Text="{Binding ChartIndex, UpdateSourceTrigger=PropertyChanged}"
                          PreviewTextInput="Index_PreviewTextInput"/>
@@ -146,8 +146,8 @@
                   <ColumnDefinition Width="10"/>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="이름 클래스" 
-                         Text="{Binding NameClass, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="이름 컨트롤" 
+                         Text="{Binding NameControlType, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Index" 
                          Text="{Binding NameIndex, UpdateSourceTrigger=PropertyChanged}"
                          PreviewTextInput="Index_PreviewTextInput"/>

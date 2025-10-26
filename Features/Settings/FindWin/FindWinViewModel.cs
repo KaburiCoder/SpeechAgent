@@ -34,13 +34,13 @@ namespace SpeechAgent.Features.Settings.FindWin
     private string _searchText = string.Empty;
 
     [ObservableProperty]
-    private string _chartNumberClassName = string.Empty;
+    private string _chartNumberControlType = string.Empty;
 
     [ObservableProperty]
     private string _chartNumberIndex = string.Empty;
 
     [ObservableProperty]
-    private string _patientNameClassName = string.Empty;
+    private string _patientNameControlType = string.Empty;
 
     [ObservableProperty]
     private string _patientNameIndex = string.Empty;
@@ -110,23 +110,23 @@ namespace SpeechAgent.Features.Settings.FindWin
     [RelayCommand]
     private void SendToSettings()
     {
-      if (string.IsNullOrEmpty(ChartNumberClassName) || string.IsNullOrEmpty(ChartNumberIndex))
+      if (string.IsNullOrEmpty(ChartNumberControlType) || string.IsNullOrEmpty(ChartNumberIndex))
       {
-        MessageBox.Show("차트번호의 클래스명과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show("차트번호의 컨트롤 타입과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
         return;
       }
 
-      if (string.IsNullOrEmpty(PatientNameClassName) || string.IsNullOrEmpty(PatientNameIndex))
+      if (string.IsNullOrEmpty(PatientNameControlType) || string.IsNullOrEmpty(PatientNameIndex))
       {
-        MessageBox.Show("수진자명의 클래스명과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show("수진자명의 컨트롤 타입과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
         return;
       }
 
       WeakReferenceMessenger.Default.Send(new SendToSettingsMessage(
         exeTitle: SelectedWindow?.Title ?? "",
-        chartClass: ChartNumberClassName,
+        chartControlType: ChartNumberControlType,
         chartIndex: ChartNumberIndex,
-        nameClass: PatientNameClassName,
+        nameControlType: PatientNameControlType,
         nameIndex: PatientNameIndex
       ));
 
@@ -183,7 +183,7 @@ namespace SpeechAgent.Features.Settings.FindWin
     {
       if (controlInfo != null)
       {
-        ChartNumberClassName = controlInfo.ClassName;
+        ChartNumberControlType = controlInfo.ControlType;
         ChartNumberIndex = controlInfo.Index.ToString();
       }
     }
@@ -193,7 +193,7 @@ namespace SpeechAgent.Features.Settings.FindWin
     {
       if (controlInfo != null)
       {
-        PatientNameClassName = controlInfo.ClassName;
+        PatientNameControlType = controlInfo.ControlType;
         PatientNameIndex = controlInfo.Index.ToString();
       }
     }

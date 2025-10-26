@@ -75,8 +75,8 @@ namespace SpeechAgent.Utils.Automation
         }
       }
 
-      // 클래스별로 그룹화하여 Index 재설정
-      var grouped = _foundControls.GroupBy(c => c.ClassName);
+      // 컨트롤 타입별로 그룹화하여 Index 재설정
+      var grouped = _foundControls.GroupBy(c => c.ControlType);
       foreach (var group in grouped)
       {
         int index = 0;

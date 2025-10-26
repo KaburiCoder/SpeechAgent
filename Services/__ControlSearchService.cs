@@ -89,17 +89,17 @@ namespace SpeechAgent.Services
       ControlInfo? chartEdit = null;
       ControlInfo? nameEdit = null;
 
-      if (!string.IsNullOrEmpty(settings.CustomChartClass) && !string.IsNullOrEmpty(settings.CustomChartIndex))
+      if (!string.IsNullOrEmpty(settings.CustomChartControlType) && !string.IsNullOrEmpty(settings.CustomChartIndex))
       {
-        var chartControls = controls.Where(c => c.ClassName == settings.CustomChartClass).ToList();
+        var chartControls = controls.Where(c => c.ClassName == settings.CustomChartControlType).ToList();
         if (int.TryParse(settings.CustomChartIndex, out int chartIndex) && chartIndex < chartControls.Count)
         {
           chartEdit = chartControls[chartIndex];
         }
       }
-      if (!string.IsNullOrEmpty(settings.CustomNameClass) && !string.IsNullOrEmpty(settings.CustomNameIndex))
+      if (!string.IsNullOrEmpty(settings.CustomNameControlType) && !string.IsNullOrEmpty(settings.CustomNameIndex))
       {
-        var nameControls = controls.Where(c => c.ClassName == settings.CustomNameClass).ToList();
+        var nameControls = controls.Where(c => c.ClassName == settings.CustomNameControlType).ToList();
         if (int.TryParse(settings.CustomNameIndex, out int nameIndex) && nameIndex < nameControls.Count)
         {
           nameEdit = nameControls[nameIndex];

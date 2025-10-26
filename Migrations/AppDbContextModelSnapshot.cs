@@ -26,7 +26,7 @@ namespace SpeechAgent.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CustomChartClass")
+                    b.Property<string>("CustomChartControlType")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -46,7 +46,7 @@ namespace SpeechAgent.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CustomNameClass")
+                    b.Property<string>("CustomNameControlType")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

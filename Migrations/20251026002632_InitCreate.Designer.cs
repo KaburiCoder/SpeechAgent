@@ -10,8 +10,8 @@ using SpeechAgent.Database;
 namespace SpeechAgent.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251025063229_RemoveUseAutomation")]
-    partial class RemoveUseAutomation
+    [Migration("20251026002632_InitCreate")]
+    partial class InitCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,7 +29,7 @@ namespace SpeechAgent.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CustomChartClass")
+                    b.Property<string>("CustomChartControlType")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -49,7 +49,7 @@ namespace SpeechAgent.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CustomNameClass")
+                    b.Property<string>("CustomNameControlType")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

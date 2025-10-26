@@ -38,10 +38,6 @@ namespace SpeechAgent.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CustomImageName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("CustomImageRect")
                         .IsRequired()
                         .HasColumnType("TEXT");

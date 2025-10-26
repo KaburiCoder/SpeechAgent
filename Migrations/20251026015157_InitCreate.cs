@@ -23,7 +23,6 @@ namespace SpeechAgent.Migrations
                     CustomChartIndex = table.Column<string>(type: "TEXT", nullable: false),
                     CustomNameControlType = table.Column<string>(type: "TEXT", nullable: false),
                     CustomNameIndex = table.Column<string>(type: "TEXT", nullable: false),
-                    CustomImageName = table.Column<string>(type: "TEXT", nullable: false),
                     CustomImageRect = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>

@@ -172,7 +172,7 @@
                          Foreground="#424242"
                          Margin="0,0,0,6"/>
               <TextBox materialDesign:HintAssist.Hint="이미지 이름" 
-                        Text="{Binding CustomImageName, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding ExeTitle, UpdateSourceTrigger=PropertyChanged}"
                         Margin="0,0,0,6"/>
               <TextBox materialDesign:HintAssist.Hint="이미지 영역 (x,y,width,height)" 
                         Text="{Binding CustomImageRect, UpdateSourceTrigger=PropertyChanged}"

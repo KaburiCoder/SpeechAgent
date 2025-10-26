@@ -23,7 +23,7 @@ namespace SpeechAgent.Features.Settings.FindWin
     private WindowInfo? _selectedWindow;
 
     [ObservableProperty]
-  private bool _isLoading;
+    private bool _isLoading;
 
     [ObservableProperty]
     private BitmapSource? _selectedWindowImage;
@@ -51,7 +51,7 @@ namespace SpeechAgent.Features.Settings.FindWin
 
     public FindWinImageViewModel()
     {
-   _captureService = new WindowCaptureService();
+      _captureService = new WindowCaptureService();
     }
 
     [RelayCommand]
@@ -63,24 +63,24 @@ namespace SpeechAgent.Features.Settings.FindWin
       SelectedWindowImage = null;
       CroppedImage = null;
 
-try
+      try
       {
         await Task.Run(() =>
         {
           var windows = _captureService.GetWindowsWithScreenshots();
 
-        App.Current.Dispatcher.Invoke(() =>
-        {
+          App.Current.Dispatcher.Invoke(() =>
+          {
             foreach (var window in windows)
-     {
+            {
               Windows.Add(window);
             }
- });
-      });
+          });
+        });
       }
- catch (Exception ex)
-   {
-MessageBox.Show($"스캔 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+      catch (Exception ex)
+      {
+        MessageBox.Show($"스캔 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
       }
       finally
       {
@@ -112,13 +112,13 @@ MessageBox.Show($"스캔 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBox
 
       try
       {
-      var croppedBitmap = new CroppedBitmap(SelectedWindowImage, new System.Windows.Int32Rect(x, y, width, height));
-    CroppedImage = croppedBitmap;
+        var croppedBitmap = new CroppedBitmap(SelectedWindowImage, new System.Windows.Int32Rect(x, y, width, height));
+        CroppedImage = croppedBitmap;
         CustomImageRect = $"{x},{y},{width},{height}";
-}
+      }
       catch (Exception ex)
       {
-      MessageBox.Show($"이미지 자르기 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show($"이미지 자르기 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
         CroppedImage = null;
         CustomImageRect = string.Empty;
       }
@@ -129,25 +129,25 @@ MessageBox.Show($"스캔 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBox
     {
       if (string.IsNullOrEmpty(CustomImageName))
       {
-     MessageBox.Show("이름을 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show("이름을 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
         return;
       }
 
       if (string.IsNullOrEmpty(CustomImageRect))
       {
- MessageBox.Show("X, Y, Width, Height 값을 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show("X, Y, Width, Height 값을 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
         return;
       }
 
-WeakReferenceMessenger.Default.Send(new SendToSettingsImageMessage(CustomImageName, CustomImageRect));
- View.Close();
+      WeakReferenceMessenger.Default.Send(new SendToSettingsImageMessage(CustomImageName, CustomImageRect));
+      View.Close();
     }
 
     partial void OnSelectedWindowChanged(WindowInfo? value)
     {
-   if (value != null)
+      if (value != null)
       {
-    SelectedWindowImage = value.Screenshot;
+        SelectedWindowImage = value.Screenshot;
         CustomImageName = value.Title;
         CroppedImage = null;
         RectX = string.Empty;
@@ -155,7 +155,7 @@ WeakReferenceMessenger.Default.Send(new SendToSettingsImageMessage(CustomImageNa
         RectWidth = string.Empty;
         RectHeight = string.Empty;
         CustomImageRect = string.Empty;
-    }
+      }
     }
 
     partial void OnRectXChanged(string value) => UpdateCroppedImage();

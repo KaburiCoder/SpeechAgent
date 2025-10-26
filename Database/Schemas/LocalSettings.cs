@@ -10,8 +10,6 @@
     public string CustomChartIndex { get; set; } = "";
     public string CustomNameControlType { get; set; } = "";
     public string CustomNameIndex { get; set; } = "";
-
-    public string CustomImageName { get; set; } = "";
     public string CustomImageRect { get; set; } = "";
   }
 }

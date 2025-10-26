@@ -89,7 +89,7 @@ namespace SpeechAgent.Features.Settings.FindWin.Services
 
         // ºñÆ®¸Ê »ý¼º
         using (Bitmap bitmap = new Bitmap(width, height))
-        {
+        {          
           using (Graphics graphics = Graphics.FromImage(bitmap))
           {
             var hdc = graphics.GetHdc();

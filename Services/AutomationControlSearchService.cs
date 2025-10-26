@@ -1,3 +1,4 @@
+using SpeechAgent.Constants;
 using SpeechAgent.Database.Schemas;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Models;
@@ -33,14 +34,11 @@ namespace SpeechAgent.Services
         _searcher.ClearFoundControls();
         _appControls.ClearControls();
 
-        if (settings.TargetAppName == "[사용자 정의]" && !string.IsNullOrEmpty(settings.CustomExeTitle))
+        bool isCustom = settings.TargetAppName == AppKey.CustomUser || settings.TargetAppName == AppKey.CustomUserImage;
+
+        if (isCustom)
         {
           if (!_searcher.FindWindowByTitle(title => title.Contains(settings.CustomExeTitle)))
-            return null;
-        }
-        else if (settings.TargetAppName == "[사용자 정의(이미지)]" && !string.IsNullOrEmpty(settings.CustomImageName))
-        {
-          if (!_searcher.FindWindowByTitle(title => title.Contains(settings.CustomImageName)))
             return null;
         }
         else
@@ -184,7 +182,7 @@ namespace SpeechAgent.Services
     }
 
     public void Clear()
-    {      
+    {
       _searcher.ClearFoundControls();
       _appControls.ClearControls();
     }

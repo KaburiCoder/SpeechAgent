@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SpeechAgent.Database.Schemas;
+using System.IO;
 
 namespace SpeechAgent.Database
 {
@@ -16,7 +17,12 @@ namespace SpeechAgent.Database
 
       // WPF 프로젝트의 Assembly 이름을 동적으로 가져옴
       var projectName = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name ?? "SpeechAgent";
-      DbPath = System.IO.Path.Join(path, projectName, "settings.db");
+      var dirPath = Path.Join(path, projectName);
+      DbPath = Path.Join(dirPath, "settings.db");
+
+      // 폴더가 없는 경우 생성
+      var di = new DirectoryInfo(dirPath);
+      if (!di.Exists) di.Create();
     }
 
     // The following configures EF to create a Sqlite database file in the

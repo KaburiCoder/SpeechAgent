@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using SpeechAgent.Bases;
+using SpeechAgent.Constants;
 using SpeechAgent.Messages;
 using SpeechAgent.Services;
 
@@ -60,15 +61,12 @@ namespace SpeechAgent.Features.Settings
     private string nameIndex = "";
 
     [ObservableProperty]
-    private string customImageName = "";
-
-    [ObservableProperty]
     private string customImageRect = "";
 
-    public bool IsCustomSelected => SelectedOption?.Value == "[사용자 정의]";
-    public bool IsCustomImageSelected => SelectedOption?.Value == "[사용자 정의(이미지)]";
+    public bool IsCustomSelected => SelectedOption?.Value == AppKey.CustomUser;
+    public bool IsCustomImageSelected => SelectedOption?.Value == AppKey.CustomUserImage;
 
-    partial void OnSelectedOptionChanged(Option value)
+    partial void OnSelectedOptionChanged(Option? value)
     {
       OnPropertyChanged(nameof(IsCustomSelected));
       OnPropertyChanged(nameof(IsCustomImageSelected));
@@ -87,7 +85,6 @@ namespace SpeechAgent.Features.Settings
         customChartIndex: ChartIndex,
         customNameControlType: NameControlType,
         customNameIndex: NameIndex,
-        customImageName: CustomImageName,
         customImageRect: CustomImageRect);
       // Apply auto start setting
       _autoStartService.SetAutoStart(AutoStartEnabled);
@@ -113,13 +110,14 @@ namespace SpeechAgent.Features.Settings
       View.Close();
     }
 
+
     public override void Initialize()
     {
       Options = [
-        new() { Key = "사용안함", Value = "" },
-        new() { Key = "클릭", Value = "클릭" },
-        new() { Key = "[사용자 정의]", Value = "[사용자 정의]" },
-  new() { Key = "[사용자 정의(이미지)]", Value = "[사용자 정의(이미지)]" },
+        new() { Key = "사용안함", Value = AppKey.None },
+        new() { Key = AppKey.ClickSoft, Value = AppKey.ClickSoft },
+        new() { Key = AppKey.CustomUser, Value =AppKey.CustomUser },
+        new() { Key = AppKey.CustomUserImage, Value = AppKey.CustomUserImage },
       ];
 
       _settingsService.LoadSettings();
@@ -129,8 +127,7 @@ namespace SpeechAgent.Features.Settings
       ChartControlType = _settingsService.Settings.CustomChartControlType;
       ChartIndex = _settingsService.Settings.CustomChartIndex;
       NameControlType = _settingsService.Settings.CustomNameControlType;
-      NameIndex = _settingsService.Settings.CustomNameIndex;
-      CustomImageName = _settingsService.Settings.CustomImageName;
+      NameIndex = _settingsService.Settings.CustomNameIndex; 
       CustomImageRect = _settingsService.Settings.CustomImageRect;
 
       SelectedOption = Options.FirstOrDefault(o => o.Value == TargetAppName) ?? Options[0];
@@ -149,7 +146,7 @@ namespace SpeechAgent.Features.Settings
 
       WeakReferenceMessenger.Default.Register<SendToSettingsImageMessage>(this, (r, m) =>
       {
-        CustomImageName = m.Value.CustomImageName;
+        ExeTitle = m.Value.CustomExeTitle;
         CustomImageRect = m.Value.CustomImageRect;
       });
     }

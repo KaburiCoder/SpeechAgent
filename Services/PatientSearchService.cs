@@ -126,8 +126,8 @@ namespace SpeechAgent.Services
       {
         // newClick
         var appControls = new AutomationAppControls();
-        chartTextBox = controls.FirstOrDefault(c => c.ClassName == "Edit" && c.Index == 1);
-        nameTextBox = controls.FirstOrDefault(c => c.ClassName == "ThunderRT6TextBox" && c.Index == 0);
+        chartTextBox = controls.FirstOrDefault(c => c.ControlType == "ControlType.Edit" && c.Index == 1);
+        nameTextBox = controls.FirstOrDefault(c => c.ControlType == "ControlType.Edit" && c.Index == 7);
         appControls.SetControls(chartTextBox, nameTextBox);
         return appControls;
       }

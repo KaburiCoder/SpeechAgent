@@ -1,10 +1,13 @@
+using SpeechAgent.Utils;
+using System.Diagnostics;
 using System.Windows.Threading;
 using Velopack;
+using SpeechAgent.Constants;
 
 namespace SpeechAgent.Services
 {
   public interface IUpdateService
-  { 
+  {
     event EventHandler<UpdateErrorEventArgs>? UpdateError;
 
     void StartPeriodicCheck();
@@ -22,12 +25,14 @@ namespace SpeechAgent.Services
   {
     private readonly DispatcherTimer _timer;
     private readonly string _updateUrl;
-     
+
     public event EventHandler<UpdateErrorEventArgs>? UpdateError;
 
     public UpdateService()
     {
-      _updateUrl = "https://github.com/KaburiCoder/SpeechAgent/releases/latest/download";
+      // UpdateConfig에서 URL을 불러옴
+      _updateUrl = Environment.Is64BitProcess ? UpdateConfig.UpdateUrlX64 : UpdateConfig.UpdateUrlX86;
+
       _timer = new DispatcherTimer
       {
         Interval = TimeSpan.FromMinutes(3) // 3분마다 체크

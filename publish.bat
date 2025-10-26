@@ -1,13 +1,13 @@
-ï»¿@echo off
+@echo off
 setlocal
 
-:: ë²„ì „ ì…ë ¥
-set /p VERSION=ë°°í¬í•  ë²„ì „ì„ ì…ë ¥í•˜ì„¸ìš” (ì˜ˆ: 0.0.2): 
+:: ¹öÀü ÀÔ·Â
+set /p VERSION=¹èÆ÷ÇÒ ¹öÀüÀ» ÀÔ·ÂÇÏ¼¼¿ä (¿¹: 0.0.2): 
 
-:: í† í° ì…ë ¥
-set /p TOKEN=GitHub Tokenì„ ì…ë ¥í•˜ì„¸ìš”: 
+:: ÅäÅ« ÀÔ·Â
+set /p TOKEN=GitHub TokenÀ» ÀÔ·ÂÇÏ¼¼¿ä: 
 
-:: í´ë” ì‚­ì œ
+:: Æú´õ »èÁ¦
 if exist publish rmdir /s /q publish
 if exist Releases rmdir /s /q Releases
 
@@ -20,5 +20,5 @@ vpk pack --packId SpeechAgent --packVersion %VERSION% --packDir .\publish --main
 :: upload
 vpk upload github --repoUrl https://github.com/KaburiCoder/SpeechAgent --publish --releaseName "SpeechAgent %VERSION%" --tag v%VERSION% --token %TOKEN%
 
-echo ë°°í¬ ì™„ë£Œ!
+echo ¹èÆ÷ ¿Ï·á!
 pause

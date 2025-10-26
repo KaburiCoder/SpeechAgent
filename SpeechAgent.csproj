@@ -16,7 +16,8 @@
     <SelfContained>true</SelfContained>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <ApplicationIcon>main.ico</ApplicationIcon>    
+    <ApplicationIcon>main.ico</ApplicationIcon>
+    <Platforms>AnyCPU;x86</Platforms>    
   </PropertyGroup>
 
   <ItemGroup>

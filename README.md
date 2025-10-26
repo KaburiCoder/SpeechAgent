@@ -27,9 +27,18 @@ git push origin v0.0.20
 
 https://docs.velopack.io/getting-started/csharp?platform=wpf
 
+**기존 폴더 삭제**
+```
+Remove-Item -Recurse -Force .\publish
+Remove-Item -Recurse -Force .\Releases
+```
 **publish**
 ```
+# 64bit
 dotnet publish SpeechAgent.csproj --self-contained -r win-x64 -o .\publish
+
+# 32bit
+dotnet publish SpeechAgent.csproj --self-contained -r win-x86 -o .\publish
 ```
 
 **pack**

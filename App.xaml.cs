@@ -1,14 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SpeechAgent.Constants;
 using SpeechAgent.Database;
 using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Features.Settings.FindWin;
 using SpeechAgent.Features.Settings.FindWin.Services;
 using SpeechAgent.Services;
+using SpeechAgent.Services.Api;
 using SpeechAgent.Services.MedicSIO;
 using SpeechAgent.Utils;
 using SpeechAgent.Utils.Automation;
+using System.Net.Http;
 using System.Windows;
 using Velopack;
 
@@ -24,6 +27,14 @@ namespace SpeechAgent
       var services = new ServiceCollection();
 
       // Singletons
+      services.AddHttpClient("SpeechServer", client =>
+      {
+        var settingsService = Current.Services.GetRequiredService<ISettingsService>();
+
+        client.BaseAddress = new Uri(ApiConfig.SpeechBaseUrl);
+        client.DefaultRequestHeaders.Add(ApiConfig.SpeechUserKey, settingsService.Settings.ConnectKey);
+      });
+      services.AddSingleton<HttpClient>();
       services.AddSingleton<IViewService, ViewService>();
       services.AddSingleton<IViewModelFactory, ViewModelFactory>();
       services.AddSingleton<IPatientSearchService, PatientSearchService>();
@@ -47,6 +58,7 @@ namespace SpeechAgent
       services.AddTransient<IWindowCaptureService, WindowCaptureService>();
       services.AddTransient<IAutomationControlSearcher, AutomationControlSearcher>();
 
+      services.AddTransient<ILlmApi, LlmApi>();
       return services.BuildServiceProvider();
     }
 

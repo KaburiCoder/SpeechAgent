@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Messaging;
+using SpeechAgent.Constants;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Messages;
 using SpeechAgent.Models;
@@ -19,6 +20,7 @@ namespace SpeechAgent.Features.Main
   {
     private readonly IPatientSearchService _patientSearchService;
     private readonly IMedicSIOService _medicSIOService;
+    private readonly ISettingsService _settingsService;
     private readonly DispatcherTimer _timer;
     private PatientInfo _patientInfo = new("", "", DateTime.MinValue);
 
@@ -29,7 +31,7 @@ namespace SpeechAgent.Features.Main
     {
       _patientSearchService = patientSearchService;
       _medicSIOService = medicSIOService;
-
+      this._settingsService = settingsService;
       _timer = new DispatcherTimer();
       _timer.Interval = TimeSpan.FromSeconds(1); // 1초 간격
       _timer.Tick += Timer_Tick;
@@ -41,14 +43,17 @@ namespace SpeechAgent.Features.Main
         if (isNoneTargetApp)
           _timer.Stop();
         else
-          _timer.Start();
+        {
+          StartReadChartTimer();
+        }
       });
     }
+
 
     private async void Timer_Tick(object? sender, EventArgs e)
     {
       // UI Automation 사용      
-      var patientInfo = _patientSearchService.FindPatientInfo();
+      var patientInfo = await _patientSearchService.FindPatientInfo();
       var previousPatientInfo = _patientInfo;
       _patientInfo = patientInfo;
       if (previousPatientInfo.Chart != _patientInfo.Chart)
@@ -64,6 +69,9 @@ namespace SpeechAgent.Features.Main
 
     public void StartReadChartTimer()
     {
+      int intervalSec = (_settingsService.Settings.TargetAppName == AppKey.CustomUserImage) ? 3 : 1;
+
+      _timer.Interval = TimeSpan.FromSeconds(intervalSec);
       _timer.Start();
     }
 

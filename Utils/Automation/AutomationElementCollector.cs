@@ -134,10 +134,9 @@ namespace SpeechAgent.Utils.Automation
         {
           // ºó Ã¢ÀÌ³ª ¼û°ÜÁø Ã¢ Á¦¿Ü
           if (!string.IsNullOrEmpty(window.Current.Name) &&
-    window.Current.BoundingRectangle.Width > 0)
+            window.Current.BoundingRectangle.Width > 0)
           {
             windows.Add(window);
-            Debug.Print($"Found window: {window.Current.Name}");
           }
         }
         catch (ElementNotAvailableException)

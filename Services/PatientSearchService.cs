@@ -4,8 +4,10 @@ using SpeechAgent.Database.Utils;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Features.Settings.FindWin.Services;
 using SpeechAgent.Models;
+using SpeechAgent.Services.Api;
+using SpeechAgent.Utils;
 using SpeechAgent.Utils.Automation;
-using System.IO;
+using SpeechAgent.Utils.Converters;
 using System.Windows.Media.Imaging;
 
 namespace SpeechAgent.Services
@@ -13,15 +15,17 @@ namespace SpeechAgent.Services
   public interface IPatientSearchService
   {
     void Clear();
-    PatientInfo FindPatientInfo();
+    Task<PatientInfo> FindPatientInfo();
   }
 
   public class PatientSearchService(
     IAutomationControlSearcher _searcher,
     ISettingsService _settingsService,
-    IWindowCaptureService _windowCaptureService) : IPatientSearchService
+    IWindowCaptureService _windowCaptureService,
+    ILlmApi llmApi) : IPatientSearchService
   {
     private AutomationAppControls _appControls = new();
+    private PatientImageResult _previousImageResult = new();
 
     private bool FindWindowByTitle(out bool isNewCreated)
     {
@@ -31,7 +35,6 @@ namespace SpeechAgent.Services
       if (!_searcher.IsWindowValid())
       {
         _searcher.ClearFoundControls();
-        _appControls.ClearControls();
 
         bool isCustom = settings.TargetAppName == AppKey.CustomUser || settings.TargetAppName == AppKey.CustomUserImage;
 
@@ -130,28 +133,38 @@ namespace SpeechAgent.Services
       }
     }
 
-    public PatientInfo FindPatientInfo()
+    public async Task<PatientInfo> FindPatientInfo()
     {
-      // 윈도우 타이틀로 핸들 찾기
+      // 윈도우 타이틀로 핸들 찾기   
       if (!FindWindowByTitle(out bool isNewCreated))
+      {
+        _appControls.ClearControls();
+        _previousImageResult.Clear();
         return new PatientInfo();
+      }
 
       if (_settingsService.UseCustomUserImage)
       {
-        var hWnd = _searcher.GetWindowHandle();
+        IntPtr hWnd = _searcher.GetWindowHandle();
+        PatientInfo patientInfo = new PatientInfo();
+
+        if (hWnd == IntPtr.Zero) return patientInfo;
+
         BitmapSource? bitmapSource = _windowCaptureService.CaptureWindow(hWnd, captureRect: _settingsService.Settings.ParseCustomImageRect());
-        BitmapEncoder encoder = new PngBitmapEncoder();
-        if (bitmapSource != null)
+        if (bitmapSource == null)
         {
-          encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-          // 파일로 저장
-          using (var fileStream = new FileStream("c:\\test.png", FileMode.Create, FileAccess.Write))
-          {
-            encoder.Save(fileStream);
-          }
+          _previousImageResult.Clear();
+        }
+        // 이전 이미지와 유사하면 캐시된 정보 사용
+        else if (_previousImageResult.BitmapSource == null ||
+          !OpenCvUtils.AreImagesSimilar(_previousImageResult.BitmapSource, bitmapSource, 1))
+        {
+          var patientInfoDto = await llmApi.GetPatientInfoByImage(bitmapSource.ToDataUrl());
+          patientInfo = new PatientInfo(patientInfoDto.Chart, patientInfoDto.Name);
+          _previousImageResult.SetResult(patientInfo, bitmapSource);
         }
 
-        return new PatientInfo();
+        return _previousImageResult.PatientInfo ?? patientInfo;
       }
       else
       {
@@ -181,51 +194,6 @@ namespace SpeechAgent.Services
         Name = _appControls.NameTextBox?.Text ?? "",
       };
     }
-
-    private AutomationAppControls? FindImageBasedControls(List<AutomationControlInfo> controls, LocalSettings settings)
-    {
-      if (string.IsNullOrEmpty(settings.CustomImageRect))
-        return null;
-
-      // CustomImageRect 파싱 (x,y,width,height)
-      var parts = settings.CustomImageRect.Split(',');
-      if (parts.Length != 4)
-        return null;
-
-      if (!int.TryParse(parts[0], out int targetX) ||
-        !int.TryParse(parts[1], out int targetY) ||
-        !int.TryParse(parts[2], out int targetWidth) ||
-        !int.TryParse(parts[3], out int targetHeight))
-        return null;
-
-      var targetRect = new System.Drawing.Rectangle(targetX, targetY, targetWidth, targetHeight);
-
-      // 지정된 영역과 겹치는 컨트롤 찾기
-      var matchingControls = controls.Where(c =>
-       {
-         var controlRect = c.BoundingRectangle;
-         return targetRect.IntersectsWith(controlRect);
-       }).ToList();
-
-      // 가장 겹치는 영역이 큰 컨트롤 선택
-      var bestMatch = matchingControls.OrderByDescending(c =>
-      {
-        var intersection = System.Drawing.Rectangle.Intersect(targetRect, c.BoundingRectangle);
-        return intersection.Width * intersection.Height;
-      }).FirstOrDefault();
-
-      if (bestMatch != null)
-      {
-        var appControls = new AutomationAppControls();
-        appControls.SetControls(bestMatch, null);
-        return appControls;
-      }
-
-      return null;
-    }
-
-
-
     public void Clear()
     {
       _searcher.ClearFoundControls();
@@ -248,6 +216,24 @@ namespace SpeechAgent.Services
     {
       ChartTextBox = null;
       NameTextBox = null;
+    }
+  }
+
+  public class PatientImageResult
+  {
+    public PatientInfo? PatientInfo { get; private set; }
+    public BitmapSource? BitmapSource { get; private set; }
+
+    public void SetResult(PatientInfo? patientInfo, BitmapSource? bitmapSource)
+    {
+      PatientInfo = patientInfo;
+      BitmapSource = bitmapSource;
+    }
+
+    public void Clear()
+    {
+      PatientInfo = null;
+      BitmapSource = null;
     }
   }
 }

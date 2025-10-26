@@ -56,7 +56,7 @@ namespace SpeechAgent.Features.Main
       var patientInfo = await _patientSearchService.FindPatientInfo();
       var previousPatientInfo = _patientInfo;
       _patientInfo = patientInfo;
-      if (previousPatientInfo.Chart != _patientInfo.Chart)
+      if (!patientInfo.IsEqual(previousPatientInfo) && !patientInfo.HasOnlyOneInfo())
       {
         var res = await _medicSIOService.SendPatientInfo(new PatientInfoDto
         {

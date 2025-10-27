@@ -38,7 +38,7 @@ namespace SpeechAgent.Services
 
         if (enable)
         {
-          var exePath = Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
+          var exePath = Environment.ProcessPath;
           key.SetValue(AppName, $"\"{exePath}\"");
         }
         else

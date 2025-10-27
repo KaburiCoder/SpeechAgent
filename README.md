@@ -43,7 +43,7 @@ dotnet publish SpeechAgent.csproj --self-contained -r win-x86 -o .\publish
 
 **pack**
 ```
-vpk pack --packId SpeechAgent --packVersion 0.0.2 --packDir .\publish --mainExe SpeechAgent.exe
+vpk pack --packId SpeechAgent --packVersion 0.0.32 --packDir .\publish --mainExe SpeechAgent.exe
 ```
 
 **publish github release**

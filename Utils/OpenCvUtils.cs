@@ -14,8 +14,10 @@ namespace SpeechAgent.Utils
     /// <param name="source2"></param>
     /// <param name="threshold"></param>
     /// <returns></returns>
-    public static bool AreImagesSimilar(BitmapSource source1, BitmapSource source2, double threshold)
+    public static bool AreImagesSimilar(BitmapSource? source1, BitmapSource? source2, double threshold)
     {
+      if (source1 == null || source2 == null) return false;
+
       using (Mat mat1 = BitmapSourceConverter.ToMat(source1))
       using (Mat mat2 = BitmapSourceConverter.ToMat(source2))
       {

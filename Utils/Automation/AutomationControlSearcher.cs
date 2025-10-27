@@ -6,6 +6,7 @@ namespace SpeechAgent.Utils.Automation
   public interface IAutomationControlSearcher
   {
     List<AutomationControlInfo> FoundControls { get; }
+    AutomationControlInfo? CreateControlInfo(AutomationElement? element);
     bool FindWindowByTitle(Func<string, bool> titlePredicate);
     bool FindWindowByHandle(IntPtr handle);
     List<AutomationControlInfo> SearchControls();
@@ -109,8 +110,10 @@ namespace SpeechAgent.Utils.Automation
       return _foundControls;
     }
 
-    private AutomationControlInfo? CreateControlInfo(AutomationElement element)
+    public AutomationControlInfo? CreateControlInfo(AutomationElement? element)
     {
+      if (element == null) return null;
+
       try
       {
         var rect = element.Current.BoundingRectangle;
@@ -120,22 +123,8 @@ namespace SpeechAgent.Utils.Automation
         var controlType = element.Current.ControlType.ProgrammaticName;
 
         // 텍스트 가져오기 시도
-        string text = name;
-        if (string.IsNullOrEmpty(text))
-        {
-          try
-          {
-            if (element.TryGetCurrentPattern(ValuePattern.Pattern, out object? valuePattern))
-            {
-              text = ((ValuePattern)valuePattern).Current.Value;
-            }
-          }
-          catch
-          {
-            // 무시
-          }
-        }
-
+        string text = GetControlText(element);
+      
         return new AutomationControlInfo
         {
           Element = element,

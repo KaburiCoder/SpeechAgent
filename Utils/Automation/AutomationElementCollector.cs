@@ -57,7 +57,6 @@ namespace SpeechAgent.Utils.Automation
       {
         _elements.Add(element);
 
-        // ControlViewWalker를 사용하여 사용자가 상호작용 가능한 컨트롤만 순회
         TreeWalker walker = TreeWalker.RawViewWalker;
         AutomationElement? child = walker.GetFirstChild(element);
 

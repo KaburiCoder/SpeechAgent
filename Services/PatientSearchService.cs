@@ -9,6 +9,9 @@ using SpeechAgent.Utils;
 using SpeechAgent.Utils.Automation;
 using SpeechAgent.Utils.Converters;
 using System.Windows.Media.Imaging;
+using Tesseract;
+using System.Drawing;
+using System.Diagnostics;
 
 namespace SpeechAgent.Services
 {
@@ -26,6 +29,7 @@ namespace SpeechAgent.Services
   {
     private AutomationAppControls _appControls = new();
     private PatientImageResult _previousImageResult = new();
+    private int _nullCount = 0; // 컨트롤을 찾지 못한 연속 횟수 (10회 이상이면 초기화)
 
     private bool FindWindowByTitle(out bool isNewCreated)
     {
@@ -34,8 +38,6 @@ namespace SpeechAgent.Services
       isNewCreated = false;
       if (!_searcher.IsWindowValid())
       {
-        _searcher.ClearFoundControls();
-
         bool isCustom = settings.TargetAppName == AppKey.CustomUser || settings.TargetAppName == AppKey.CustomUserImage;
 
         if (isCustom)
@@ -47,7 +49,7 @@ namespace SpeechAgent.Services
         {
           if (settings.TargetAppName == AppKey.USarang)
           {
-            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실") && title.Contains("툴버전")))
+            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실")))//&& title.Contains("툴버전")
               return false;
           }
           else
@@ -150,31 +152,65 @@ namespace SpeechAgent.Services
       // ControlType.Edit인 컨트롤들을 필터링
       var editControls = controls.Where(c => c.ControlType == "ControlType.Edit").ToList();
 
-      if (editControls.Count < 2)
-      {
-        return null;
-      }
+      if (editControls.Count < 2) return null;
 
       // Y값이 가장 큰 컨트롤을 찾기 (가장 아래)
       var chartControl = editControls.OrderByDescending(c => c.BoundingRectangle.Bottom).First();
 
       // 나머지 컨트롤 중에서 X값이 가장 가까운 컨트롤을 찾기
-      var nameControl = editControls
-        .Where(c => c != chartControl)
-        .OrderBy(c => Math.Abs(c.BoundingRectangle.Left - chartControl.BoundingRectangle.Left))
-        .First();
+      var nameControl = editControls.Where(c => c != chartControl).OrderBy(c => Math.Abs(c.BoundingRectangle.Left - chartControl.BoundingRectangle.Left)).First();
+      chartControl = _searcher.CreateControlInfo(chartControl.Element);
 
-      // 기존 JSON 저장 부분을 텍스트 파일로 저장하도록 변경
+      if (chartControl == null || nameControl == null)
+        return null;
+
+      //// 테스트
+      //chartControl = editControls[2];
+      //nameControl = editControls[3];
+
+      // OCR 수행
       try
       {
-          var infoText = $"Chart: {chartControl.Name}, {chartControl.AutomationId}, {chartControl.ClassName}, {chartControl.BoundingRectangle}\r\n" +
-                         $"Name: {nameControl.Name}, {nameControl.AutomationId}, {nameControl.ClassName}, {nameControl.BoundingRectangle}";
-          var filePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "USarangControls.txt");
-          System.IO.File.WriteAllText(filePath, infoText);
+        IntPtr hWnd = _searcher.GetWindowHandle();
+        if (hWnd != IntPtr.Zero)
+        {
+          // 윈도우의 절대 좌표 얻기
+          Vanara.PInvoke.User32.GetWindowRect(new Vanara.PInvoke.HWND(hWnd), out var windowRect);
+
+          // 절대 좌표를 윈도우 상대 좌표로 변환
+          var chartRectRelative = new Rectangle(chartControl.BoundingRectangle.X - windowRect.X, chartControl.BoundingRectangle.Y - windowRect.Y, chartControl.BoundingRectangle.Width, chartControl.BoundingRectangle.Height);
+          var chartImg = _windowCaptureService.CaptureWindow(hWnd, chartRectRelative);
+
+          // 이전 이미지와 유사하면 캐시된 정보 사용
+          if (OpenCvUtils.AreImagesSimilar(_previousImageResult.BitmapSource, chartImg, 1))
+            return _appControls;
+
+          _previousImageResult.BitmapSource = chartImg;
+
+          // BitmapSource를 Bitmap으로 변환 후 OCR 수행
+          if (chartImg != null)
+          {
+            string? previousChart = _appControls.ChartTextBox?.Text;
+            chartControl.Text = chartImg.Ocr().Trim();
+            if (previousChart != chartControl.Text)
+            {
+              nameControl.Text = string.IsNullOrWhiteSpace(chartControl.Text)
+                ? ""
+                : _searcher.GetControlText(nameControl.Element);
+            }
+          }
+          else
+          {
+            _previousImageResult.Clear();
+            return null;
+          }
+        }
       }
       catch (Exception ex)
       {
-          // 예외 발생 시 무시 (로그 등 필요시 추가)
+        var infoText = $"Error: {ex.ToString()}";
+        var filePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "USarangControls.txt");
+        System.IO.File.WriteAllText(filePath, infoText);
       }
 
       if (chartControl != null && nameControl != null)
@@ -186,12 +222,13 @@ namespace SpeechAgent.Services
 
       return null;
     }
-
+ 
     public async Task<PatientInfo> FindPatientInfo()
     {
       // 윈도우 타이틀로 핸들 찾기   
       if (!FindWindowByTitle(out bool isNewCreated))
       {
+        _searcher.ClearFoundControls();
         _appControls.ClearControls();
         _previousImageResult.Clear();
         return new PatientInfo();
@@ -222,13 +259,33 @@ namespace SpeechAgent.Services
       }
       else
       {
-        // 기존 윈도우면 캐시된 컨트롤 사용
-        if (!isNewCreated && _appControls.ChartTextBox != null && _appControls.NameTextBox != null)
+        if (_settingsService.Settings.TargetAppName != AppKey.USarang) // 의사랑은 OCR로 처리하なので 캐시 제외
         {
-          _appControls.ChartTextBox.Text = _searcher.GetControlText(_appControls.ChartTextBox.Element);
-          _appControls.NameTextBox.Text = _searcher.GetControlText(_appControls.NameTextBox.Element);
-          return CreatePatientInfo();
+          // 기존 윈도우면 캐시된 컨트롤 사용
+
+          if (!isNewCreated)
+          {
+            if (_appControls.ChartTextBox != null && _appControls.NameTextBox != null)
+            {
+              _nullCount = 0;
+              var chartInfo = _searcher.CreateControlInfo(_appControls.ChartTextBox.Element);
+              var nameInfo = _searcher.CreateControlInfo(_appControls.NameTextBox.Element);
+              _appControls.ChartTextBox.Text = chartInfo?.Text ?? "";
+              _appControls.NameTextBox.Text = nameInfo?.Text ?? "";
+              return CreatePatientInfo();
+            }
+            else
+            {
+              _nullCount++;
+              if (_nullCount >= 10)
+              {
+                // 일정 횟수 이상 실패하면 컨트롤 초기화
+                Clear();
+              }
+            }
+          }
         }
+
         var controls = _searcher.FoundControls.Count != 0
           ? _searcher.FoundControls
           : _searcher.SearchControls();
@@ -252,6 +309,8 @@ namespace SpeechAgent.Services
     {
       _searcher.ClearFoundControls();
       _appControls.ClearControls();
+      _previousImageResult.Clear();
+      _nullCount = 0;
     }
   }
 
@@ -275,8 +334,8 @@ namespace SpeechAgent.Services
 
   public class PatientImageResult
   {
-    public PatientInfo? PatientInfo { get; private set; }
-    public BitmapSource? BitmapSource { get; private set; }
+    public PatientInfo? PatientInfo { get; set; }
+    public BitmapSource? BitmapSource { get; set; }
 
     public void SetResult(PatientInfo? patientInfo, BitmapSource? bitmapSource)
     {

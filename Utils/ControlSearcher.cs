@@ -4,8 +4,10 @@ using Vanara.PInvoke;
 
 namespace SpeechAgent.Utils
 {
-
-  public class ControlSearcher
+  /// <summary>
+  /// Win32 API를 사용하여 윈도우 컨트롤을 검색하는 클래스
+  /// </summary>
+  public class ControlSearcher : IControlSearcher
   {
     private readonly Func<string, bool>? _classNamePredicate;
     private readonly List<ControlInfo> _foundControls = new();
@@ -64,6 +66,7 @@ namespace SpeechAgent.Utils
       if (_hwnd == IntPtr.Zero) return _foundControls;
       User32.EnumChildWindows(_hwnd, EnumChildProc, IntPtr.Zero);
 
+      // 위치로 정렬
       _foundControls.Sort((a, b) =>
       {
         int leftComparison = a.RECT.Left.CompareTo(b.RECT.Left);
@@ -71,6 +74,17 @@ namespace SpeechAgent.Utils
           return leftComparison;
         return a.RECT.Top.CompareTo(b.RECT.Top);
       });
+
+      // 클래스별로 인덱스 재할당
+      var classNameGroups = _foundControls.GroupBy(c => c.ClassName);
+      foreach (var group in classNameGroups)
+      {
+        int index = 0;
+        foreach (var control in group)
+        {
+          control.Index = index++;
+        }
+      }
 
       return _foundControls;
     }

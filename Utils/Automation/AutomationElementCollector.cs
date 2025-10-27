@@ -30,7 +30,7 @@ namespace SpeechAgent.Utils.Automation
 
       var windows = rootElement.FindAll(
         TreeScope.Children,
-  new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window));
+        new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window));
 
       foreach (AutomationElement window in windows)
       {
@@ -57,18 +57,36 @@ namespace SpeechAgent.Utils.Automation
       {
         _elements.Add(element);
 
+        // ControlViewWalker를 사용하여 사용자가 상호작용 가능한 컨트롤만 순회
         TreeWalker walker = TreeWalker.RawViewWalker;
         AutomationElement? child = walker.GetFirstChild(element);
 
         while (child != null)
         {
-          EnumerateElements(child);
-          child = walker.GetNextSibling(child);
+          try
+          {
+            // 유효한 요소만 재귀적으로 처리
+            EnumerateElements(child);
+          }
+          catch (ElementNotAvailableException)
+          {
+            // 요소가 더 이상 유효하지 않으면 건너뜀
+          }
+
+          try
+          {
+            child = walker.GetNextSibling(child);
+          }
+          catch (ElementNotAvailableException)
+          {
+            // 다음 형제 요소를 가져올 수 없으면 루프 종료
+            break;
+          }
         }
       }
       catch (ElementNotAvailableException)
       {
-        // 무시
+        // 요소가 유효하지 않으면 무시
       }
     }
 
@@ -132,33 +150,6 @@ namespace SpeechAgent.Utils.Automation
       {
         return null;
       }
-    }
-
-    public List<AutomationElement> GetWindows(string windowTitle)
-    {
-      var rootElement = AutomationElement.RootElement;
-      var windows = new List<AutomationElement>();
-
-      var allWindows = rootElement.FindAll(
-        TreeScope.Children,
-        new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window));
-
-      foreach (AutomationElement window in allWindows)
-      {
-        try
-        {
-          if (window.Current.Name.Contains(windowTitle))
-          {
-            windows.Add(window);
-          }
-        }
-        catch (ElementNotAvailableException)
-        {
-          // 무시
-        }
-      }
-
-      return windows;
     }
 
     public List<AutomationElement> GetAllWindows()

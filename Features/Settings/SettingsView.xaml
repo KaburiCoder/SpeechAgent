@@ -79,183 +79,229 @@
       <Grid Grid.Row="1" Margin="12">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel>
-          <!-- 연결 키 섹션 -->
-          <Border Background="#F8F9FA" 
+            <!-- 연결 키 섹션 -->
+            <Border Background="#F8F9FA" 
                   CornerRadius="5" 
                   Padding="10" 
                   Margin="0,0,0,10">
-            <StackPanel>
-              <TextBlock Text="연결 키" 
+              <StackPanel>
+                <TextBlock Text="연결 키" 
                          FontSize="12" 
                          FontWeight="SemiBold"
                          Foreground="#424242"
                          Margin="0,0,0,6"/>
-              <TextBox materialDesign:HintAssist.Hint="Connect Key를 입력하세요" 
+                <TextBox materialDesign:HintAssist.Hint="Connect Key를 입력하세요" 
                         Text="{Binding ConnectKey, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
-          </Border>
+              </StackPanel>
+            </Border>
 
-          <!-- 앱 선택 섹션 -->
-          <Border Background="#F8F9FA" 
+            <!-- 앱 선택 섹션 -->
+            <Border Background="#F8F9FA" 
                   CornerRadius="5" 
                   Padding="10" 
                   Margin="0,0,0,10">
-            <StackPanel>
-              <TextBlock Text="앱 선택" 
+              <StackPanel>
+                <TextBlock Text="앱 선택" 
                          FontSize="12" 
                          FontWeight="SemiBold"
                          Foreground="#424242"
                          Margin="0,0,0,6"/>
-              <ComboBox materialDesign:HintAssist.Hint="앱을 선택하세요" 
+                <ComboBox materialDesign:HintAssist.Hint="앱을 선택하세요" 
                         ItemsSource="{Binding Options}" 
                         DisplayMemberPath="Key" 
                         SelectedItem="{Binding SelectedOption}"/>
-            </StackPanel>
-          </Border>
+              </StackPanel>
+            </Border>
 
-          <!-- 사용자 정의 섹션 -->
-          <Border Background="#F8F9FA" 
-                  CornerRadius="5" 
-                  Padding="10" 
-                  Margin="0,0,0,10"
-                  Visibility="{Binding IsCustomSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <StackPanel>
-              <TextBlock Text="사용자 정의 설정" 
-                         FontSize="12" 
-                         FontWeight="SemiBold"
-                         Foreground="#424242"
-                         Margin="0,0,0,6"/>
-              <TextBox materialDesign:HintAssist.Hint="EXE 타이틀" 
-                       Text="{Binding ExeTitle, UpdateSourceTrigger=PropertyChanged}"
-                       Margin="0,0,0,6"/>
-              <Grid Margin="0,0,0,6">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="10"/>
-                  <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="차트 컨트롤" 
-                         Text="{Binding ChartControlType, UpdateSourceTrigger=PropertyChanged}"/>
-                <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Index" 
-                         Text="{Binding ChartIndex, UpdateSourceTrigger=PropertyChanged}"
-                         PreviewTextInput="Index_PreviewTextInput"/>
-              </Grid>
-              <Grid Margin="0,0,0,6">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="10"/>
-                  <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="이름 컨트롤" 
-                         Text="{Binding NameControlType, UpdateSourceTrigger=PropertyChanged}"/>
-                <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Index" 
-                         Text="{Binding NameIndex, UpdateSourceTrigger=PropertyChanged}"
-                         PreviewTextInput="Index_PreviewTextInput"/>
-              </Grid>
-              <Button Command="{Binding FindControlCommand}"
-                      Margin="0,6,0,0">
-                컨트롤 찾기
-              </Button>
-            </StackPanel>
-          </Border>
+            <!-- 사용자 정의 섹션 -->
+            <Border Background="#F8F9FA" 
+           CornerRadius="5" 
+     Padding="10" 
+    Margin="0,0,0,10"
+      Visibility="{Binding IsCustomSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
+              <StackPanel>
+                <TextBlock Text="사용자 정의 설정" 
+ FontSize="12" 
+           FontWeight="SemiBold"
+          Foreground="#424242"
+           Margin="0,0,0,6"/>
+                <TextBox materialDesign:HintAssist.Hint="EXE 타이틀" 
+            Text="{Binding ExeTitle, UpdateSourceTrigger=PropertyChanged}"
+ Margin="0,0,0,6"/>
+                <Grid Margin="0,0,0,6">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="차트 컨트롤" 
+         Text="{Binding ChartControlType, UpdateSourceTrigger=PropertyChanged}"/>
+                  <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Index" 
+        Text="{Binding ChartIndex, UpdateSourceTrigger=PropertyChanged}"
+           PreviewTextInput="Index_PreviewTextInput"/>
+                </Grid>
+                <Grid Margin="0,0,0,6">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="이름 컨트롤" 
+        Text="{Binding NameControlType, UpdateSourceTrigger=PropertyChanged}"/>
+                  <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Index" 
+Text="{Binding NameIndex, UpdateSourceTrigger=PropertyChanged}"
+  PreviewTextInput="Index_PreviewTextInput"/>
+                </Grid>
+                <Button Command="{Binding FindControlCommand}"
+           Margin="0,6,0,0">
+                  컨트롤 찾기
+                </Button>
+              </StackPanel>
+            </Border>
 
-          <!-- 사용자 이미지 설정 섹션 -->
-          <Border Background="#F8F9FA" 
+            <!-- 사용자 정의 WinAPI 섹션 -->
+            <Border Background="#F8F9FA" 
+         CornerRadius="5" 
+       Padding="10" 
+          Margin="0,0,0,10"
+           Visibility="{Binding IsCustomWinApiSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
+              <StackPanel>
+                <TextBlock Text="사용자 정의 WinAPI 설정" 
+  FontSize="12" 
+ FontWeight="SemiBold"
+      Foreground="#424242"
+         Margin="0,0,0,6"/>
+                <TextBox materialDesign:HintAssist.Hint="EXE 타이틀" 
+     Text="{Binding ExeTitle, UpdateSourceTrigger=PropertyChanged}"
+              Margin="0,0,0,6"/>
+                <Grid Margin="0,0,0,6">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="차트 컨트롤" 
+   Text="{Binding ChartControlType, UpdateSourceTrigger=PropertyChanged}"/>
+                  <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Index" 
+         Text="{Binding ChartIndex, UpdateSourceTrigger=PropertyChanged}"
+          PreviewTextInput="Index_PreviewTextInput"/>
+                </Grid>
+                <Grid Margin="0,0,0,6">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="이름 컨트롤" 
+Text="{Binding NameControlType, UpdateSourceTrigger=PropertyChanged}"/>
+                  <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Index" 
+      Text="{Binding NameIndex, UpdateSourceTrigger=PropertyChanged}"
+     PreviewTextInput="Index_PreviewTextInput"/>
+                </Grid>
+                <Button Command="{Binding FindWinApiControlCommand}"
+              Margin="0,6,0,0">
+                  컨트롤 찾기 (WinAPI)
+                </Button>
+              </StackPanel>
+            </Border>
+
+            <!-- 사용자 이미지 설정 섹션 -->
+            <Border Background="#F8F9FA" 
                   CornerRadius="5" 
                   Padding="10" 
                   Margin="0,0,0,10"
                   Visibility="{Binding IsCustomImageSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <StackPanel>
-              <TextBlock Text="사용자 이미지 설정" 
+              <StackPanel>
+                <TextBlock Text="사용자 이미지 설정" 
                          FontSize="12" 
                          FontWeight="SemiBold"
                          Foreground="#424242"
                          Margin="0,0,0,6"/>
-              <TextBox materialDesign:HintAssist.Hint="이미지 이름" 
+                <TextBox materialDesign:HintAssist.Hint="이미지 이름" 
                         Text="{Binding ExeTitle, UpdateSourceTrigger=PropertyChanged}"
                         Margin="0,0,0,6"/>
-              <TextBox materialDesign:HintAssist.Hint="이미지 영역 (x,y,width,height)" 
+                <TextBox materialDesign:HintAssist.Hint="이미지 영역 (x,y,width,height)" 
                         Text="{Binding CustomImageRect, UpdateSourceTrigger=PropertyChanged}"
                         IsReadOnly="True"
                         Margin="0,0,0,6"/>
-              <Button Command="{Binding FindImageControlCommand}"
+                <Button Command="{Binding FindImageControlCommand}"
                       Margin="0,6,0,0">
-                이미지 컨트롤 찾기
-              </Button>
-            </StackPanel>
-          </Border>
+                  이미지 컨트롤 찾기
+                </Button>
+              </StackPanel>
+            </Border>
 
-          <!-- 자동 시작 섹션 -->
-          <Border Background="#F8F9FA" 
+            <!-- 자동 시작 섹션 -->
+            <Border Background="#F8F9FA" 
                   CornerRadius="5" 
                   Padding="10" 
                   Margin="0,0,0,12">
-            <StackPanel>
-              <TextBlock Text="시스템 설정" 
+              <StackPanel>
+                <TextBlock Text="시스템 설정" 
                          FontSize="12" 
                          FontWeight="SemiBold"
                          Foreground="#424242"
                          Margin="0,0,0,6"/>
-              <CheckBox IsChecked="{Binding AutoStartEnabled}"
+                <CheckBox IsChecked="{Binding AutoStartEnabled}"
                         Style="{StaticResource MaterialDesignCheckBox}">
-                <StackPanel Orientation="Horizontal">
-                  <materialDesign:PackIcon Kind="WindowRestore" 
+                  <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="WindowRestore" 
                                            Width="14" Height="14" 
                                            VerticalAlignment="Center"
                                            Margin="0,0,6,0"
                                            Foreground="#616161"/>
-                  <TextBlock Text="윈도우 시작 시 자동 실행" 
+                    <TextBlock Text="윈도우 시작 시 자동 실행" 
                              FontSize="12"
                              Foreground="#424242"
                              VerticalAlignment="Center"/>
-                </StackPanel>
-              </CheckBox>
-            </StackPanel>
-          </Border>
+                  </StackPanel>
+                </CheckBox>
+              </StackPanel>
+            </Border>
 
-          <!-- 버튼 영역 -->
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <!-- 버튼 영역 -->
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" 
+              <Button Grid.Column="0" 
                    Margin="0,0,3,0" 
                    Height="32"
                    Style="{StaticResource MaterialDesignRaisedButton}"
                    materialDesign:ButtonAssist.CornerRadius="6"
                    Command="{Binding SaveSettingsCommand}">
-              <StackPanel Orientation="Horizontal">
-                <materialDesign:PackIcon Kind="ContentSave" 
+                <StackPanel Orientation="Horizontal">
+                  <materialDesign:PackIcon Kind="ContentSave" 
                                          Width="15" Height="15" 
                                          VerticalAlignment="Center"/>
-                <TextBlock Text="저장" 
+                  <TextBlock Text="저장" 
                           Margin="6,0,0,0" 
                           FontSize="13"
                           VerticalAlignment="Center"/>
-              </StackPanel>
-            </Button>
+                </StackPanel>
+              </Button>
 
-            <Button Grid.Column="1" 
+              <Button Grid.Column="1" 
                    Margin="3,0,0,0" 
                    Height="32"
                    Style="{StaticResource MaterialDesignOutlinedButton}"
                    materialDesign:ButtonAssist.CornerRadius="6"
                    Command="{Binding CloseCommand}">
-              <StackPanel Orientation="Horizontal">
-                <materialDesign:PackIcon Kind="Close" 
+                <StackPanel Orientation="Horizontal">
+                  <materialDesign:PackIcon Kind="Close" 
                                          Width="15" Height="15" 
                                          VerticalAlignment="Center"/>
-                <TextBlock Text="닫기" 
+                  <TextBlock Text="닫기" 
                           Margin="6,0,0,0" 
                           FontSize="13"
                           VerticalAlignment="Center"/>
-              </StackPanel>
-            </Button>
-          </Grid>
-        </StackPanel>
-      </ScrollViewer>
+                </StackPanel>
+              </Button>
+            </Grid>
+          </StackPanel>
+        </ScrollViewer>
       </Grid>
     </Grid>
   </Border>

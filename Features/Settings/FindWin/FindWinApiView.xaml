@@ -1,13 +1,13 @@
-﻿<Window x:Class="SpeechAgent.Features.Settings.FindWin.FindWinView"
+﻿<Window x:Class="SpeechAgent.Features.Settings.FindWin.FindWinApiView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:SpeechAgent.Features.Settings.FindWin.Controls"
         xmlns:local="clr-namespace:SpeechAgent.Features.Settings.FindWin"
         mc:Ignorable="d"
         Title="윈도우 찾기" Height="800" Width="1400"
-  WindowStartupLocation="CenterScreen" d:DataContext="{d:DesignInstance Type=local:FindWinViewModel}">
+        WindowStartupLocation="CenterScreen" d:DataContext="{d:DesignInstance Type=local:FindWinApiViewModel}">
   <Window.Resources>
     <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
     <Style x:Key="CustomButtonStyle" TargetType="Button">
@@ -15,9 +15,9 @@
         <Setter.Value>
           <ControlTemplate TargetType="Button">
             <Border Background="{TemplateBinding Background}" 
-                    BorderBrush="{TemplateBinding BorderBrush}" 
-                    BorderThickness="{TemplateBinding BorderThickness}" 
-                    CornerRadius="5">
+           BorderBrush="{TemplateBinding BorderBrush}" 
+            BorderThickness="{TemplateBinding BorderThickness}" 
+      CornerRadius="5">
               <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
           </ControlTemplate>
@@ -49,37 +49,37 @@
 
       <!-- 왼쪽: 스캔 버튼 -->
       <controls:ScanButton Grid.Column="0" 
-       ButtonText="스캔" 
-                  Command="{Binding StartScanCommand}"
-     LoadingText="로딩 중..."
+           ButtonText="스캔" 
+           Command="{Binding StartScanCommand}"
+        LoadingText="로딩 중..."
          IsLoading="{Binding IsLoading}"/>
 
       <!-- 오른쪽: 차트번호와 수진자명 가로로 -->
       <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
         <!-- 차트번호 -->
         <controls:ControlPosBox Title="차트번호" 
-     ControlType="{Binding ChartNumberControlType}" 
-        Index="{Binding ChartNumberIndex}"
-           Margin="0,0,10,0"/>
+ControlType="{Binding ChartNumberControlType}" 
+ Index="{Binding ChartNumberIndex}"
+              Margin="0,0,10,0"/>
 
         <!-- 수진자명 -->
         <controls:ControlPosBox Title="수진자명" 
-           ControlType="{Binding PatientNameControlType}" 
-   Index="{Binding PatientNameIndex}"
-     Margin="0,0,10,0"/>
+          ControlType="{Binding PatientNameControlType}" 
+           Index="{Binding PatientNameIndex}"
+              Margin="0,0,10,0"/>
 
         <!-- 설정으로 전송 버튼 -->
         <Button Content="설정으로 전송" 
-                Command="{Binding SendToSettingsCommand}"
-                Width="120" 
-                Height="40" 
-                Margin="10,0,0,0"
-                FontSize="14" 
-                FontWeight="Bold"
-                Background="#28A745"
-                Foreground="White"
-                BorderThickness="0"
-                Style="{StaticResource CustomButtonStyle}">
+       Command="{Binding SendToSettingsCommand}"
+      Width="120" 
+     Height="40" 
+     Margin="10,0,0,0"
+   FontSize="14" 
+       FontWeight="Bold"
+   Background="#28A745"
+           Foreground="White"
+  BorderThickness="0"
+   Style="{StaticResource CustomButtonStyle}">
         </Button>
       </StackPanel>
     </Grid>
@@ -93,15 +93,14 @@
       </Grid.ColumnDefinitions>
 
       <!-- 윈도우 목록 (왼쪽) -->
-      <!-- Window List (Left) - Using Custom Control -->
       <controls:WindowListControl Grid.Column="0"
-                                  Windows="{Binding Windows}"
-                                  SelectedWindow="{Binding SelectedWindow, Mode=TwoWay}"/>
+      Windows="{Binding Windows}"
+   SelectedWindow="{Binding SelectedWindow, Mode=TwoWay}"/>
       <!-- 구분선 -->
       <GridSplitter Grid.Column="1" 
-                    Width="5" 
-                    HorizontalAlignment="Stretch" 
-                    Background="LightGray"/>
+    Width="5" 
+     HorizontalAlignment="Stretch" 
+       Background="LightGray"/>
 
       <!-- 세부 정보 (오른쪽) -->
       <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10">
@@ -113,26 +112,25 @@
 
           <!-- 헤더 -->
           <controls:ControlListHeader Grid.Row="0"
-   Title="선택된 윈도우의 컨트롤 목록"
- WindowTitle="{Binding SelectedWindow.Title}"
-       ControlCount="{Binding SearchedControls.Count, Mode=OneWay}"
-    IsLoading="{Binding IsLoading}"
-      LoadingText="컨트롤 검색 중..."
-SearchLabel="텍스트 검색"
-       SearchText="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-    SearchButtonText="검색"
-    SearchCommand="{Binding SearchCommand}"/>
-
+  Title="선택된 윈도우의 컨트롤 목록"
+          WindowTitle="{Binding SelectedWindow.Title}"
+           ControlCount="{Binding SearchedControls.Count, Mode=OneWay}"
+                   IsLoading="{Binding IsLoading}"
+             LoadingText="컨트롤 검색 중..."
+       SearchLabel="텍스트 검색"
+         SearchText="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+       SearchButtonText="검색"
+           SearchCommand="{Binding SearchCommand}"/>
 
           <!-- 컨트롤 목록 -->
           <ListBox 
-            Grid.Row="1"
-            ItemsSource="{Binding SearchedControls}" 
-            BorderThickness="0" 
+             Grid.Row="1"
+    ItemsSource="{Binding SearchedControls}" 
+ BorderThickness="0" 
             Background="Transparent"
-            ScrollViewer.CanContentScroll="True"
-            VirtualizingPanel.IsVirtualizing="True"
-            VirtualizingPanel.VirtualizationMode="Recycling">
+      ScrollViewer.CanContentScroll="True"
+        VirtualizingPanel.IsVirtualizing="True"
+     VirtualizingPanel.VirtualizationMode="Recycling">
             <ListBox.ItemsPanel>
               <ItemsPanelTemplate>
                 <VirtualizingStackPanel/>
@@ -141,11 +139,11 @@ SearchLabel="텍스트 검색"
             <ListBox.ItemTemplate>
               <DataTemplate>
                 <Border Background="White"
-                          BorderBrush="#E0E0E0"
-                          BorderThickness="1"
-                          Margin="0,0,0,2"
-                          Padding="4"
-                          CornerRadius="3">
+       BorderBrush="#E0E0E0"
+      BorderThickness="1"
+              Margin="0,0,0,2"
+   Padding="4"
+          CornerRadius="3">
                   <Grid>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="*"/>
@@ -154,34 +152,34 @@ SearchLabel="텍스트 검색"
                     <StackPanel Grid.Column="0">
                       <TextBlock FontSize="12" Text="{Binding DisplayText, Mode=OneWay}" TextWrapping="Wrap" Foreground="#333"/>
                       <TextBlock FontSize="12" TextWrapping="Wrap">
-                          <Run Text="Text: " Foreground="#555"/>
-                          <Run Text="{Binding Text, Mode=OneWay}" Foreground="Blue" FontWeight="Bold"/>
+       <Run Text="Text: " Foreground="#555"/>
+      <Run Text="{Binding Text, Mode=OneWay}" Foreground="Blue" FontWeight="Bold"/>
                       </TextBlock>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Margin="10,0,0,0">
                       <Button Content="차트" 
-                              Command="{Binding DataContext.AssignToChartCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
-                              CommandParameter="{Binding}"
-                              Width="40" 
-                              Height="25" 
-                              Margin="0,0,0,5"
-                              FontSize="10"
-                              Background="#007ACC"
-                              Foreground="White"
-                              BorderThickness="0"
-                              HorizontalAlignment="Center"
-                              Style="{StaticResource CustomButtonStyle}"/>
+ Command="{Binding DataContext.AssignToChartCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+        CommandParameter="{Binding}"
+               Width="40" 
+      Height="25" 
+       Margin="0,0,0,5"
+    FontSize="10"
+        Background="#007ACC"
+          Foreground="White"
+    BorderThickness="0"
+           HorizontalAlignment="Center"
+         Style="{StaticResource CustomButtonStyle}"/>
                       <Button Content="이름" 
-                              Command="{Binding DataContext.AssignToNameCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
-                              CommandParameter="{Binding}"
-                              Width="40" 
-                              Height="25" 
-                              FontSize="10"
-                              Background="#28A745"
-                              Foreground="White"
-                              BorderThickness="0"
-                              HorizontalAlignment="Center"
-                              Style="{StaticResource CustomButtonStyle}"/>
+  Command="{Binding DataContext.AssignToNameCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+     CommandParameter="{Binding}"
+    Width="40" 
+    Height="25" 
+  FontSize="10"
+         Background="#28A745"
+      Foreground="White"
+                BorderThickness="0"
+    HorizontalAlignment="Center"
+              Style="{StaticResource CustomButtonStyle}"/>
                     </StackPanel>
                   </Grid>
                 </Border>
@@ -202,12 +200,12 @@ SearchLabel="텍스트 검색"
 
           <!-- 빈 상태 메시지 -->
           <TextBlock Grid.Row="1"
-                     Text="윈도우를 선택하면 컨트롤 목록이 표시됩니다." 
-                     Foreground="Gray"
-                     FontSize="13"
-                     TextWrapping="Wrap"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center">
+        Text="윈도우를 선택하면 컨트롤 목록이 표시됩니다." 
+         Foreground="Gray"
+  FontSize="13"
+      TextWrapping="Wrap"
+  HorizontalAlignment="Center"
+      VerticalAlignment="Center">
             <TextBlock.Style>
               <Style TargetType="TextBlock">
                 <Setter Property="Visibility" Value="Collapsed"/>

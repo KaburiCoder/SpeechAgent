@@ -65,11 +65,13 @@ namespace SpeechAgent.Features.Settings
 
     public bool IsCustomSelected => SelectedOption?.Value == AppKey.CustomUser;
     public bool IsCustomImageSelected => SelectedOption?.Value == AppKey.CustomUserImage;
+    public bool IsCustomWinApiSelected => SelectedOption?.Value == AppKey.CustomUserWinApi;
 
     partial void OnSelectedOptionChanged(Option? value)
     {
       OnPropertyChanged(nameof(IsCustomSelected));
       OnPropertyChanged(nameof(IsCustomImageSelected));
+      OnPropertyChanged(nameof(IsCustomWinApiSelected));
     }
 
     [RelayCommand]
@@ -99,6 +101,12 @@ namespace SpeechAgent.Features.Settings
     }
 
     [RelayCommand]
+    void FindWinApiControl()
+    {
+      _viewService.ShowFindWinApiView(View);
+    }
+
+    [RelayCommand]
     void FindImageControl()
     {
       _viewService.ShowFindWinImageView(View);
@@ -114,9 +122,10 @@ namespace SpeechAgent.Features.Settings
     public override void Initialize()
     {
       Options = [
-        new() { Key = "사용안함", Value = AppKey.None },
+        new() { Key = "없음", Value = AppKey.None },
         new() { Key = AppKey.ClickSoft, Value = AppKey.ClickSoft },
         new() { Key = AppKey.CustomUser, Value =AppKey.CustomUser },
+        //new() { Key = "사용자 정의 WinAPI", Value = AppKey.CustomUserWinApi },
         new() { Key = AppKey.CustomUserImage, Value = AppKey.CustomUserImage },
       ];
 

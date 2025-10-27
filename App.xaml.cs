@@ -51,12 +51,14 @@ namespace SpeechAgent
       services.AddTransient<MainViewModel>();
       services.AddTransient<SettingsViewModel>();
       services.AddTransient<FindWinViewModel>();
+      services.AddTransient<FindWinApiViewModel>();
       services.AddTransient<FindWinImageViewModel>();
 
       // Services
       services.AddTransient<IMainService, MainService>();
       services.AddTransient<IWindowCaptureService, WindowCaptureService>();
       services.AddTransient<IAutomationControlSearcher, AutomationControlSearcher>();
+      services.AddTransient<IControlSearcher, ControlSearcher>();
 
       services.AddTransient<ILlmApi, LlmApi>();
       return services.BuildServiceProvider();

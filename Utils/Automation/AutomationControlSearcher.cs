@@ -144,11 +144,7 @@ namespace SpeechAgent.Utils.Automation
           AutomationId = automationId ?? "",
           ControlType = controlType ?? "",
           Text = text ?? "",
-          BoundingRectangle = new System.Drawing.Rectangle(
-                (int)rect.Left,
-               (int)rect.Top,
-             (int)rect.Width,
-                (int)rect.Height)
+          BoundingRectangle = new Rectangle((int)rect.Left, (int)rect.Top, (int)rect.Width, (int)rect.Height)
         };
       }
       catch

@@ -123,7 +123,8 @@ namespace SpeechAgent.Features.Settings
     {
       Options = [
         new() { Key = "없음", Value = AppKey.None },
-        new() { Key = AppKey.ClickSoft, Value = AppKey.ClickSoft },
+        new() { Key = "A 클릭", Value = AppKey.ClickSoft },
+        new() { Key = "B 의사랑", Value = AppKey.USarang },
         new() { Key = AppKey.CustomUser, Value =AppKey.CustomUser },
         //new() { Key = "사용자 정의 WinAPI", Value = AppKey.CustomUserWinApi },
         new() { Key = AppKey.CustomUserImage, Value = AppKey.CustomUserImage },

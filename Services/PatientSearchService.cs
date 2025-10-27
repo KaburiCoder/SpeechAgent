@@ -45,8 +45,16 @@ namespace SpeechAgent.Services
         }
         else
         {
-          if (!_searcher.FindWindowByTitle(title => title.Contains("진료실[")))
-            return false;
+          if (settings.TargetAppName == AppKey.USarang)
+          {
+            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실") && title.Contains("툴버전")))
+              return false;
+          }
+          else
+          {
+            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실[")))
+              return false;
+          }
         }
         isNewCreated = true;
       }
@@ -59,7 +67,11 @@ namespace SpeechAgent.Services
       var settings = _settingsService.Settings;
 
       AutomationAppControls? result = null;
-      if (settings.TargetAppName == AppKey.CustomUser)
+      if (settings.TargetAppName == AppKey.USarang)
+      {
+        result = FindUSarangControls(controls);
+      }
+      else if (settings.TargetAppName == AppKey.CustomUser)
       {
         result = FindCustomControls(controls, settings);
       }
@@ -131,6 +143,48 @@ namespace SpeechAgent.Services
         appControls.SetControls(chartTextBox, nameTextBox);
         return appControls;
       }
+    }
+
+    private AutomationAppControls? FindUSarangControls(List<AutomationControlInfo> controls)
+    {
+      // ControlType.Edit인 컨트롤들을 필터링
+      var editControls = controls.Where(c => c.ControlType == "ControlType.Edit").ToList();
+
+      if (editControls.Count < 2)
+      {
+        return null;
+      }
+
+      // Y값이 가장 큰 컨트롤을 찾기 (가장 아래)
+      var chartControl = editControls.OrderByDescending(c => c.BoundingRectangle.Bottom).First();
+
+      // 나머지 컨트롤 중에서 X값이 가장 가까운 컨트롤을 찾기
+      var nameControl = editControls
+        .Where(c => c != chartControl)
+        .OrderBy(c => Math.Abs(c.BoundingRectangle.Left - chartControl.BoundingRectangle.Left))
+        .First();
+
+      // 기존 JSON 저장 부분을 텍스트 파일로 저장하도록 변경
+      try
+      {
+          var infoText = $"Chart: {chartControl.Name}, {chartControl.AutomationId}, {chartControl.ClassName}, {chartControl.BoundingRectangle}\r\n" +
+                         $"Name: {nameControl.Name}, {nameControl.AutomationId}, {nameControl.ClassName}, {nameControl.BoundingRectangle}";
+          var filePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "USarangControls.txt");
+          System.IO.File.WriteAllText(filePath, infoText);
+      }
+      catch (Exception ex)
+      {
+          // 예외 발생 시 무시 (로그 등 필요시 추가)
+      }
+
+      if (chartControl != null && nameControl != null)
+      {
+        var appControls = new AutomationAppControls();
+        appControls.SetControls(chartControl, nameControl);
+        return appControls;
+      }
+
+      return null;
     }
 
     public async Task<PatientInfo> FindPatientInfo()

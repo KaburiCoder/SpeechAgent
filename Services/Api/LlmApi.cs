@@ -48,6 +48,6 @@ namespace SpeechAgent.Services.Api
 
   public class GetPatientInfoByImageRequestDto
   {
-    public string ImageUrl { get; set; }
+    public string ImageUrl { get; set; } = "";
   }
 }

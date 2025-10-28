@@ -59,6 +59,7 @@ namespace SpeechAgent
       services.AddTransient<IWindowCaptureService, WindowCaptureService>();
       services.AddTransient<IAutomationControlSearcher, AutomationControlSearcher>();
       services.AddTransient<IControlSearcher, ControlSearcher>();
+      services.AddTransient<IClickSoftControlSearchService, ClickSoftControlSearchService>();
 
       services.AddTransient<ILlmApi, LlmApi>();
       return services.BuildServiceProvider();

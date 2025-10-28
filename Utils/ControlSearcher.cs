@@ -4,6 +4,17 @@ using Vanara.PInvoke;
 
 namespace SpeechAgent.Utils
 {
+  public interface IControlSearcher
+  {
+    List<ControlInfo> SearchControls();
+    bool FindWindowByTitle(Func<string, bool> winTitlePredicate);
+    bool IsHwndValid();
+    void ClearFoundControls();
+    void SetHwnd(HWND hwnd);
+    string GetControlText(HWND hwnd);
+    List<ControlInfo> FoundControls { get; }
+  }
+
   /// <summary>
   /// Win32 API를 사용하여 윈도우 컨트롤을 검색하는 클래스
   /// </summary>

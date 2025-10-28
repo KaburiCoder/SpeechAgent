@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using Tesseract;
 using System.Drawing;
 using System.Diagnostics;
+using System.Text;
 
 namespace SpeechAgent.Services
 {
@@ -25,11 +26,33 @@ namespace SpeechAgent.Services
     IAutomationControlSearcher _searcher,
     ISettingsService _settingsService,
     IWindowCaptureService _windowCaptureService,
-    ILlmApi llmApi) : IPatientSearchService
+    ILlmApi llmApi,
+    IClickSoftControlSearchService _clickSoftControlSearchService) : IPatientSearchService
   {
     private AutomationAppControls _appControls = new();
     private PatientImageResult _previousImageResult = new();
     private int _nullCount = 0; // 컨트롤을 찾지 못한 연속 횟수 (10회 이상이면 초기화)
+    private const int MaxNullCount = 10; // 초기화 기준 횟수
+
+    /// <summary>
+    /// 컨트롤 검색 성공 시 _nullCount를 초기화합니다.
+    /// </summary>
+    private void ResetNullCount()
+    {
+      _nullCount = 0;
+    }
+
+    /// <summary>
+    /// 컨트롤 검색 실패 시 _nullCount를 증가시키고, 일정 횟수 이상이면 상태를 초기화합니다.
+    /// </summary>
+    private void IncrementAndCheckNullCount()
+    {
+      _nullCount++;
+      if (_nullCount >= MaxNullCount)
+      {
+        Clear();
+      }
+    }
 
     private bool FindWindowByTitle(out bool isNewCreated)
     {
@@ -154,12 +177,17 @@ namespace SpeechAgent.Services
 
       if (editControls.Count < 2) return null;
 
-      // Y값이 가장 큰 컨트롤을 찾기 (가장 아래)
-      var chartControl = editControls.OrderByDescending(c => c.BoundingRectangle.Bottom).First();
+      // 한 라인에 가장 많은 컨트롤이 있는 그룹 찾기
+      var maxGroup = editControls
+          .GroupBy(x => x.RectTop)
+          .OrderByDescending(g => g.Count())
+          .FirstOrDefault();
+
+      var chartControl = maxGroup?.First();
 
       // 나머지 컨트롤 중에서 X값이 가장 가까운 컨트롤을 찾기
-      var nameControl = editControls.Where(c => c != chartControl).OrderBy(c => Math.Abs(c.BoundingRectangle.Left - chartControl.BoundingRectangle.Left)).First();
-      chartControl = _searcher.CreateControlInfo(chartControl.Element);
+      var nameControl = maxGroup?.Where(c => c != chartControl).OrderBy(c => Math.Abs(c.BoundingRectangle.Left - chartControl?.BoundingRectangle.Left ?? 0)).First();
+      chartControl = _searcher.CreateControlInfo(chartControl?.Element);
 
       if (chartControl == null || nameControl == null)
         return null;
@@ -167,6 +195,8 @@ namespace SpeechAgent.Services
       //// 테스트
       //chartControl = editControls[2];
       //nameControl = editControls[3];
+
+
 
       // OCR 수행
       try
@@ -191,11 +221,11 @@ namespace SpeechAgent.Services
           if (chartImg != null)
           {
             string? previousChart = _appControls.ChartTextBox?.Text;
-            chartControl.Text = chartImg.Ocr().Trim();
+            chartControl.Text = chartImg.OcrUSarangChart().Trim();
             if (previousChart != chartControl.Text)
             {
               nameControl.Text = string.IsNullOrWhiteSpace(chartControl.Text)
-                ? ""
+             ? ""
                 : _searcher.GetControlText(nameControl.Element);
             }
           }
@@ -222,9 +252,26 @@ namespace SpeechAgent.Services
 
       return null;
     }
- 
+
     public async Task<PatientInfo> FindPatientInfo()
     {
+      var settings = _settingsService.Settings;
+
+      // ClickSoft 일때 Win32 API 우선 사용
+      if (settings.TargetAppName == AppKey.ClickSoft)
+      {
+        var win32Result = _clickSoftControlSearchService.FindControls();
+        if (win32Result != null && win32Result.ChartTextBox != null && win32Result.NameTextBox != null)
+        {
+          _appControls.SetControls(win32Result.ChartTextBox, win32Result.NameTextBox);
+          ResetNullCount();
+          return CreatePatientInfo();
+        }
+        // Win32로 못 찾으면 _nullCount 증가
+        IncrementAndCheckNullCount();
+        // Win32로 못 찾으면 Automation으로 계속 시도
+      }
+
       // 윈도우 타이틀로 핸들 찾기   
       if (!FindWindowByTitle(out bool isNewCreated))
       {
@@ -248,7 +295,7 @@ namespace SpeechAgent.Services
         }
         // 이전 이미지와 유사하면 캐시된 정보 사용
         else if (_previousImageResult.BitmapSource == null ||
-          !OpenCvUtils.AreImagesSimilar(_previousImageResult.BitmapSource, bitmapSource, 1))
+               !OpenCvUtils.AreImagesSimilar(_previousImageResult.BitmapSource, bitmapSource, 1))
         {
           var patientInfoDto = await llmApi.GetPatientInfoByImage(bitmapSource.ToDataUrl());
           patientInfo = new PatientInfo(patientInfoDto.Chart, patientInfoDto.Name);
@@ -259,7 +306,7 @@ namespace SpeechAgent.Services
       }
       else
       {
-        if (_settingsService.Settings.TargetAppName != AppKey.USarang) // 의사랑은 OCR로 처리하なので 캐시 제외
+        if (_settingsService.Settings.TargetAppName != AppKey.USarang) // 의사랑은 OCR로 처리하므로 캐시 제외
         {
           // 기존 윈도우면 캐시된 컨트롤 사용
 
@@ -267,7 +314,7 @@ namespace SpeechAgent.Services
           {
             if (_appControls.ChartTextBox != null && _appControls.NameTextBox != null)
             {
-              _nullCount = 0;
+              ResetNullCount();
               var chartInfo = _searcher.CreateControlInfo(_appControls.ChartTextBox.Element);
               var nameInfo = _searcher.CreateControlInfo(_appControls.NameTextBox.Element);
               _appControls.ChartTextBox.Text = chartInfo?.Text ?? "";
@@ -276,19 +323,14 @@ namespace SpeechAgent.Services
             }
             else
             {
-              _nullCount++;
-              if (_nullCount >= 10)
-              {
-                // 일정 횟수 이상 실패하면 컨트롤 초기화
-                Clear();
-              }
+              IncrementAndCheckNullCount();
             }
           }
         }
 
         var controls = _searcher.FoundControls.Count != 0
           ? _searcher.FoundControls
-          : _searcher.SearchControls();
+       : _searcher.SearchControls();
 
         // 차트, 수진자명 컨트롤 찾아서 전달
         GetAppControls(controls);
@@ -307,6 +349,7 @@ namespace SpeechAgent.Services
     }
     public void Clear()
     {
+      _clickSoftControlSearchService.Clear();
       _searcher.ClearFoundControls();
       _appControls.ClearControls();
       _previousImageResult.Clear();

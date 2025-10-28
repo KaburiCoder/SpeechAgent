@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.IO;
 using System.Windows.Media.Imaging;
 
 namespace SpeechAgent.Utils
@@ -55,8 +56,9 @@ namespace SpeechAgent.Utils
           return tempFilePath;
         }
       }
-      catch
+      catch(Exception ex)
       {
+        LogUtils.WriteTextLog("Error.log", ex.ToString(), append: true);
         return null;
       }
     }

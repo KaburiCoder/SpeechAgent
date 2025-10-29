@@ -11,7 +11,9 @@ namespace SpeechAgent.Constants
     public const string SpeechUserKey = "x-user-key";
 #if DEBUG
     public const string SpeechBaseUrl = "http://localhost:3100/api/";
+    public const string SocketBaseUrl = "http://localhost:3100/agent";
 #else
+    public const string SocketBaseUrl = "https://clickcns.com/agent";
     public const string SpeechBaseUrl = "https://clickcns.com/api/";
 #endif
   }

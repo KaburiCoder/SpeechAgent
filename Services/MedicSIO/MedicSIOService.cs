@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using SocketIOClient;
 using SocketIOClient.Transport;
+using SpeechAgent.Constants;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Messages;
 using SpeechAgent.Services.MedicSIO.Args;
@@ -47,7 +48,7 @@ namespace SpeechAgent.Services.MedicSIO
         AutoUpgrade = false,
         Transport = TransportProtocol.WebSocket
       };
-      _sio = new SocketIOClient.SocketIO("https://clickcns.com/agent", sioOptions);
+      _sio = new SocketIOClient.SocketIO(ApiConfig.SocketBaseUrl, sioOptions);
 
       _sio.OnConnected += async (sender, e) =>
       {
@@ -85,19 +86,30 @@ namespace SpeechAgent.Services.MedicSIO
       _sio.On(EventNames.ReceiveAudio, response =>
       {
         var data = response.GetValue<ReceiveAudioArgs>();
+
         // data.OpusBuffer 를 파일로 저장
-        File.WriteAllBytes("c:\\output.webm", data.OpusBuffer);
-        Debug.WriteLine($"ReceiveAudio: {data}");
-        //App.Current.Dispatcher.Invoke(() =>
-        //{
-        //  WeakReferenceMessenger.Default.Send(new StartRecordRequestedMessage());
-        //});
+        var di = new DirectoryInfo($@"c:\VoiceMedic\{data.Chart}");
+        if (!di.Exists) di.Create();
+
+        var filePath = Path.Join(di.FullName, $"{DateTime.Now:yyyy_MM_dd HH_mm_ss}.webm");
+
+        try
+        {
+          File.WriteAllBytes(filePath, data.OpusBuffer);
+        }
+        catch (Exception ex)
+        {
+          Debug.WriteLine(ex.Message);
+        }
       });
     }
     public class ReceiveAudioArgs
     {
       [JsonPropertyName("opusBuffer")]
-      public byte[] OpusBuffer { get; set; } = Array.Empty<byte>();
+      public byte[] OpusBuffer { get; set; } = [];
+
+      [JsonPropertyName("chart")]
+      public string Chart { get; set; } = string.Empty;
     }
 
     public bool IsConnected => _sio.Connected;

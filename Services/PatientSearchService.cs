@@ -72,7 +72,12 @@ namespace SpeechAgent.Services
         {
           if (settings.TargetAppName == AppKey.USarang)
           {
-            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실")))//&& title.Contains("툴버전")
+            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실") && title.Contains("툴버전")))
+              return false;
+          }
+          else if (settings.TargetAppName == AppKey.Brain)
+          {
+            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실")))
               return false;
           }
           else
@@ -92,17 +97,21 @@ namespace SpeechAgent.Services
       var settings = _settingsService.Settings;
 
       AutomationAppControls? result = null;
-      if (settings.TargetAppName == AppKey.USarang)
+
+      switch (settings.TargetAppName)
       {
-        result = FindUSarangControls(controls);
-      }
-      else if (settings.TargetAppName == AppKey.CustomUser)
-      {
-        result = FindCustomControls(controls, settings);
-      }
-      else if (settings.TargetAppName == AppKey.ClickSoft)
-      {
-        result = FindDefaultControls(controls);
+        case AppKey.Brain:
+          result = FindBrainControls(controls);
+          break;
+        case AppKey.USarang:
+          result = FindUSarangControls(controls);
+          break;
+        case AppKey.CustomUser:
+          result = FindCustomControls(controls, settings);
+          break;
+        case AppKey.ClickSoft:
+          result = FindDefaultControls(controls);
+          break;
       }
 
       if (result != null && result.ChartTextBox != null)
@@ -168,6 +177,22 @@ namespace SpeechAgent.Services
         appControls.SetControls(chartTextBox, nameTextBox);
         return appControls;
       }
+    }
+
+    private AutomationAppControls? FindBrainControls(List<AutomationControlInfo> controls)
+    {
+      var editControls = controls.Where(c => c.ControlType == "ControlType.Edit").ToList();
+      var chartControl = editControls.First();
+      var nameControl = chartControl;
+
+      if (chartControl != null && nameControl != null)
+      {
+        var appControls = new AutomationAppControls();
+        appControls.SetControls(chartControl, nameControl);
+        return appControls;
+      }
+
+      return null;
     }
 
     private AutomationAppControls? FindUSarangControls(List<AutomationControlInfo> controls)
@@ -341,6 +366,16 @@ namespace SpeechAgent.Services
 
     private PatientInfo CreatePatientInfo()
     {
+      if (_settingsService.Settings.TargetAppName == AppKey.Brain)
+      {
+        var splitResults = _appControls.ChartTextBox?.Text?.Split(" ", 2);
+        if (splitResults != null && splitResults.Length >= 2)
+          return new PatientInfo
+          {
+            Chart = splitResults[0].Trim(),
+            Name = splitResults[1].Trim(),
+          };
+      }
       return new PatientInfo
       {
         Chart = _appControls.ChartTextBox?.Text ?? "",

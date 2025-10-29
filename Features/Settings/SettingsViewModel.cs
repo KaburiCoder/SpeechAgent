@@ -125,6 +125,7 @@ namespace SpeechAgent.Features.Settings
         new() { Key = "없음", Value = AppKey.None },
         new() { Key = "A 클릭", Value = AppKey.ClickSoft },
         new() { Key = "B 의사랑", Value = AppKey.USarang },
+        new() { Key = "C 브레인", Value = AppKey.Brain },
         new() { Key = AppKey.CustomUser, Value =AppKey.CustomUser },
         //new() { Key = "사용자 정의 WinAPI", Value = AppKey.CustomUserWinApi },
         new() { Key = AppKey.CustomUserImage, Value = AppKey.CustomUserImage },
@@ -137,7 +138,7 @@ namespace SpeechAgent.Features.Settings
       ChartControlType = _settingsService.Settings.CustomChartControlType;
       ChartIndex = _settingsService.Settings.CustomChartIndex;
       NameControlType = _settingsService.Settings.CustomNameControlType;
-      NameIndex = _settingsService.Settings.CustomNameIndex; 
+      NameIndex = _settingsService.Settings.CustomNameIndex;
       CustomImageRect = _settingsService.Settings.CustomImageRect;
 
       SelectedOption = Options.FirstOrDefault(o => o.Value == TargetAppName) ?? Options[0];

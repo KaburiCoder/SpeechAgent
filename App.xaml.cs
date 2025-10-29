@@ -11,12 +11,9 @@ using SpeechAgent.Services.Api;
 using SpeechAgent.Services.MedicSIO;
 using SpeechAgent.Utils;
 using SpeechAgent.Utils.Automation;
-using System.Diagnostics;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Windows;
 using Velopack;
-using static Vanara.PInvoke.User32;
 
 namespace SpeechAgent
 {
@@ -73,19 +70,6 @@ namespace SpeechAgent
     [STAThread]
     public static void Main()
     {
-      string text = "000000001  가나다 as";
-      string pattern = @"^(\d+)\s+(.*)$";
-      //var t = text[-1];
-      Match match = Regex.Match(text, pattern);
-      Debug.Print("---");
-      Debug.Print(match.Groups[0].Value);
-      Debug.Print(match.Groups[1].Value);
-      Debug.Print(match.Groups[2].Value);
-
-
-
-
-
       if (_mutex.WaitOne(TimeSpan.Zero, true) == false)
       {
         Msg.Show("이미 실행 중입니다.");

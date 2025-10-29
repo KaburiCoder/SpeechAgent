@@ -37,6 +37,11 @@ namespace SpeechAgent.Services
     private const int MaxNullCount = 10; // 초기화 기준 횟수
 
     LocalSettings Settings => _settingsService.Settings;
+    bool IsCustom => Settings.TargetAppName == AppKey.CustomUser ||
+      Settings.TargetAppName == AppKey.CustomUserWinApi ||
+      Settings.TargetAppName == AppKey.CustomUserImage;
+
+    bool IsCustomNotImage => Settings.TargetAppName == AppKey.CustomUser || Settings.TargetAppName == AppKey.CustomUserWinApi;
 
     /// <summary>
     /// 컨트롤 검색 성공 시 _nullCount를 초기화합니다.
@@ -63,9 +68,7 @@ namespace SpeechAgent.Services
       isNewCreated = false;
       if (!_searcher.IsWindowValid())
       {
-        bool isCustom = Settings.TargetAppName == AppKey.CustomUser || Settings.TargetAppName == AppKey.CustomUserImage;
-
-        if (isCustom)
+        if (IsCustom)
         {
           if (!_searcher.FindWindowByTitle(title => title.Contains(Settings.CustomExeTitle)))
             return false;
@@ -365,7 +368,7 @@ namespace SpeechAgent.Services
 
     private string ApplyRegexOrDefault(string? input, string pattern, int groupIndex)
     {
-      if (string.IsNullOrWhiteSpace(pattern))
+      if (!IsCustomNotImage || string.IsNullOrWhiteSpace(pattern))
         return input ?? string.Empty;
 
       Match match = Regex.Match(input ?? string.Empty, pattern);

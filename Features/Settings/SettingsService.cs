@@ -12,7 +12,7 @@ namespace SpeechAgent.Features.Settings
   {
     LocalSettings Settings { get; }
     void LoadSettings();
-    void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartControlType = null, string? customChartIndex = null, string? customNameControlType = null, string? customNameIndex = null, string? customImageRect = null);
+    void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartControlType = null, string? customChartIndex = null, string? customChartRegex = null, string? customChartRegexIndex = null, string? customNameControlType = null, string? customNameIndex = null, string? customNameRegex = null, string? customNameRegexIndex = null, string? customImageRect = null);
 
     bool UseCustomUserImage { get; }
   }
@@ -33,7 +33,7 @@ namespace SpeechAgent.Features.Settings
       Settings = dbSetting?.DeepCopy() ?? new LocalSettings();
     }
 
-    public void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartControlType = null, string? customChartIndex = null, string? customNameControlType = null, string? customNameIndex = null, string? customImageRect = null)
+    public void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartControlType = null, string? customChartIndex = null, string? customChartRegex = null, string? customChartRegexIndex = null, string? customNameControlType = null, string? customNameIndex = null, string? customNameRegex = null, string? customNameRegexIndex = null, string? customImageRect = null)
     {
       using var db = new AppDbContext();
 
@@ -55,10 +55,18 @@ namespace SpeechAgent.Features.Settings
         currentSetting.CustomChartControlType = customChartControlType.Trim();
       if (customChartIndex != null)
         currentSetting.CustomChartIndex = customChartIndex.Trim();
+      if (customChartRegex != null)
+        currentSetting.CustomChartRegex = customChartRegex.Trim();
+      if (!string.IsNullOrWhiteSpace(customChartRegexIndex) && int.TryParse(customChartRegexIndex, out int chartRegexIdx))
+        currentSetting.CustomChartRegexIndex = chartRegexIdx;
       if (customNameControlType != null)
         currentSetting.CustomNameControlType = customNameControlType.Trim();
       if (customNameIndex != null)
         currentSetting.CustomNameIndex = customNameIndex.Trim();
+      if (customNameRegex != null)
+        currentSetting.CustomNameRegex = customNameRegex.Trim();
+      if (!string.IsNullOrWhiteSpace(customNameRegexIndex) && int.TryParse(customNameRegexIndex, out int nameRegexIdx))
+        currentSetting.CustomNameRegexIndex = nameRegexIdx;
       if (customImageRect != null)
         currentSetting.CustomImageRect = customImageRect.Trim();
 

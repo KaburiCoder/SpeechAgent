@@ -8,11 +8,13 @@ using SpeechAgent.Services.Api;
 using SpeechAgent.Utils;
 using SpeechAgent.Utils.Automation;
 using SpeechAgent.Utils.Converters;
+using System.Diagnostics;
+using System.Drawing;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
 using Tesseract;
-using System.Drawing;
-using System.Diagnostics;
-using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SpeechAgent.Services
 {
@@ -33,6 +35,8 @@ namespace SpeechAgent.Services
     private PatientImageResult _previousImageResult = new();
     private int _nullCount = 0; // 컨트롤을 찾지 못한 연속 횟수 (10회 이상이면 초기화)
     private const int MaxNullCount = 10; // 초기화 기준 횟수
+
+    LocalSettings Settings => _settingsService.Settings;
 
     /// <summary>
     /// 컨트롤 검색 성공 시 _nullCount를 초기화합니다.
@@ -56,28 +60,26 @@ namespace SpeechAgent.Services
 
     private bool FindWindowByTitle(out bool isNewCreated)
     {
-      var settings = _settingsService.Settings;
-
       isNewCreated = false;
       if (!_searcher.IsWindowValid())
       {
-        bool isCustom = settings.TargetAppName == AppKey.CustomUser || settings.TargetAppName == AppKey.CustomUserImage;
+        bool isCustom = Settings.TargetAppName == AppKey.CustomUser || Settings.TargetAppName == AppKey.CustomUserImage;
 
         if (isCustom)
         {
-          if (!_searcher.FindWindowByTitle(title => title.Contains(settings.CustomExeTitle)))
+          if (!_searcher.FindWindowByTitle(title => title.Contains(Settings.CustomExeTitle)))
             return false;
         }
         else
         {
-          if (settings.TargetAppName == AppKey.USarang)
+          if (Settings.TargetAppName == AppKey.USarang)
           {
             if (!_searcher.FindWindowByTitle(title => title.Contains("진료실") && title.Contains("툴버전")))
               return false;
           }
-          else if (settings.TargetAppName == AppKey.Brain)
+          else if (Settings.TargetAppName == AppKey.Brain)
           {
-            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실")))
+            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실") && title.Contains("ver")))
               return false;
           }
           else
@@ -94,11 +96,9 @@ namespace SpeechAgent.Services
 
     private AutomationAppControls? GetAppControls(List<AutomationControlInfo> controls)
     {
-      var settings = _settingsService.Settings;
-
       AutomationAppControls? result = null;
 
-      switch (settings.TargetAppName)
+      switch (Settings.TargetAppName)
       {
         case AppKey.Brain:
           result = FindBrainControls(controls);
@@ -107,7 +107,7 @@ namespace SpeechAgent.Services
           result = FindUSarangControls(controls);
           break;
         case AppKey.CustomUser:
-          result = FindCustomControls(controls, settings);
+          result = FindCustomControls(controls, Settings);
           break;
         case AppKey.ClickSoft:
           result = FindDefaultControls(controls);
@@ -280,10 +280,8 @@ namespace SpeechAgent.Services
 
     public async Task<PatientInfo> FindPatientInfo()
     {
-      var settings = _settingsService.Settings;
-
       // ClickSoft 일때 Win32 API 우선 사용
-      if (settings.TargetAppName == AppKey.ClickSoft)
+      if (Settings.TargetAppName == AppKey.ClickSoft)
       {
         var win32Result = _clickSoftControlSearchService.FindControls();
         if (win32Result != null && win32Result.ChartTextBox != null && win32Result.NameTextBox != null)
@@ -364,9 +362,20 @@ namespace SpeechAgent.Services
       }
     }
 
+
+    private string ApplyRegexOrDefault(string? input, string pattern, int groupIndex)
+    {
+      if (string.IsNullOrWhiteSpace(pattern))
+        return input ?? string.Empty;
+
+      Match match = Regex.Match(input ?? string.Empty, pattern);
+      var group = match.Groups.Cast<Group>().ElementAtOrDefault(groupIndex);
+      return group?.Value?.Trim() ?? string.Empty;
+    }
+
     private PatientInfo CreatePatientInfo()
     {
-      if (_settingsService.Settings.TargetAppName == AppKey.Brain)
+      if (Settings.TargetAppName == AppKey.Brain)
       {
         var splitResults = _appControls.ChartTextBox?.Text?.Split(" ", 2);
         if (splitResults != null && splitResults.Length >= 2)
@@ -376,10 +385,14 @@ namespace SpeechAgent.Services
             Name = splitResults[1].Trim(),
           };
       }
+
+      string chart = ApplyRegexOrDefault(_appControls.ChartTextBox?.Text, Settings.CustomChartRegex, Settings.CustomChartRegexIndex);
+      string name = ApplyRegexOrDefault(_appControls.NameTextBox?.Text, Settings.CustomNameRegex, Settings.CustomNameRegexIndex);
+
       return new PatientInfo
       {
-        Chart = _appControls.ChartTextBox?.Text ?? "",
-        Name = _appControls.NameTextBox?.Text ?? "",
+        Chart = chart,
+        Name = name,
       };
     }
     public void Clear()

@@ -119,8 +119,12 @@ namespace SpeechAgent.Features.Settings.FindWin
         exeTitle: SelectedWindow?.Title ?? "",
         chartControlType: ChartNumberControlType,
         chartIndex: ChartNumberIndex,
+        chartRegex: "",
+        chartRegexIndex: "0",
         nameControlType: PatientNameControlType,
-        nameIndex: PatientNameIndex
+        nameIndex: PatientNameIndex,
+        nameRegex: "",
+        nameRegexIndex: "0"
       ));
 
       View.Close();

@@ -1,20 +1,21 @@
 ﻿<Window x:Class="SpeechAgent.Features.Settings.SettingsView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SpeechAgent.Features.Settings"
+    xmlns:controls="clr-namespace:SpeechAgent.Features.Settings.FindWin.Controls"
+        xmlns:converters="clr-namespace:SpeechAgent.Converters"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:vm="clr-namespace:SpeechAgent.Features.Settings"
         d:DataContext="{d:DesignInstance vm:SettingsViewModel}"
-        mc:Ignorable="d" 
-        Title="Voice Medic Settings" Height="600" Width="400"
-        WindowStartupLocation="CenterOwner"
+    mc:Ignorable="d" 
+     Title="Voice Medic Settings" Height="600" Width="400"
+WindowStartupLocation="CenterOwner"
         WindowStyle="None"
-        AllowsTransparency="True"
-        Background="Transparent"
+    AllowsTransparency="True"
+    Background="Transparent"
         ResizeMode="NoResize">
-
   <!-- 전체 윈도우를 위한 둥근 테두리와 그림자 -->
   <Border Background="White" 
           CornerRadius="8" 
@@ -128,32 +129,24 @@
                 <TextBox materialDesign:HintAssist.Hint="EXE 타이틀" 
             Text="{Binding ExeTitle, UpdateSourceTrigger=PropertyChanged}"
  Margin="0,0,0,6"/>
-                <Grid Margin="0,0,0,6">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                  </Grid.ColumnDefinitions>
-                  <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="차트 컨트롤" 
-         Text="{Binding ChartControlType, UpdateSourceTrigger=PropertyChanged}"/>
-                  <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Index" 
-        Text="{Binding ChartIndex, UpdateSourceTrigger=PropertyChanged}"
-           PreviewTextInput="Index_PreviewTextInput"/>
-                </Grid>
-                <Grid Margin="0,0,0,6">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                  </Grid.ColumnDefinitions>
-                  <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="이름 컨트롤" 
-        Text="{Binding NameControlType, UpdateSourceTrigger=PropertyChanged}"/>
-                  <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Index" 
-Text="{Binding NameIndex, UpdateSourceTrigger=PropertyChanged}"
-  PreviewTextInput="Index_PreviewTextInput"/>
-                </Grid>
+                <!-- 차트 컨트롤 설정 -->
+                <controls:ControlSettingTextBoxes 
+  FirstHint="차트 컨트롤"
+                FirstControlType="{Binding ChartControlType, UpdateSourceTrigger=PropertyChanged}"
+     FirstIndex="{Binding ChartIndex, UpdateSourceTrigger=PropertyChanged}"
+            SecondHint="정규식"
+          SecondControlType="{Binding ChartRegex, UpdateSourceTrigger=PropertyChanged}"
+       SecondIndex="{Binding ChartRegexIndex, UpdateSourceTrigger=PropertyChanged}"/>
+                <!-- 이름 컨트롤 설정 -->
+                <controls:ControlSettingTextBoxes 
+    FirstHint="이름 컨트롤"
+         FirstControlType="{Binding NameControlType, UpdateSourceTrigger=PropertyChanged}"
+     FirstIndex="{Binding NameIndex, UpdateSourceTrigger=PropertyChanged}"
+      SecondHint="정규식"
+           SecondControlType="{Binding NameRegex, UpdateSourceTrigger=PropertyChanged}"
+          SecondIndex="{Binding NameRegexIndex, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button Command="{Binding FindControlCommand}"
-           Margin="0,6,0,0">
+        Margin="0,6,0,0">
                   컨트롤 찾기
                 </Button>
               </StackPanel>
@@ -163,29 +156,26 @@ Text="{Binding NameIndex, UpdateSourceTrigger=PropertyChanged}"
             <Border Background="#F8F9FA" 
          CornerRadius="5" 
        Padding="10" 
-          Margin="0,0,0,10"
-           Visibility="{Binding IsCustomWinApiSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
+     Margin="0,0,0,10"
+         Visibility="{Binding IsCustomWinApiSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
               <StackPanel>
                 <TextBlock Text="사용자 정의 WinAPI 설정" 
   FontSize="12" 
  FontWeight="SemiBold"
       Foreground="#424242"
-         Margin="0,0,0,6"/>
+    Margin="0,0,0,6"/>
                 <TextBox materialDesign:HintAssist.Hint="EXE 타이틀" 
      Text="{Binding ExeTitle, UpdateSourceTrigger=PropertyChanged}"
               Margin="0,0,0,6"/>
-                <Grid Margin="0,0,0,6">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                  </Grid.ColumnDefinitions>
-                  <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="차트 컨트롤" 
-   Text="{Binding ChartControlType, UpdateSourceTrigger=PropertyChanged}"/>
-                  <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Index" 
-         Text="{Binding ChartIndex, UpdateSourceTrigger=PropertyChanged}"
-          PreviewTextInput="Index_PreviewTextInput"/>
-                </Grid>
+                <!-- 차트 컨트롤 설정 -->
+                <controls:ControlSettingTextBoxes 
+             FirstHint="차트 컨트롤"
+  FirstControlType="{Binding ChartControlType, UpdateSourceTrigger=PropertyChanged}"
+            FirstIndex="{Binding ChartIndex, UpdateSourceTrigger=PropertyChanged}"
+       SecondHint=""
+          SecondControlType="{Binding ChartRegex, UpdateSourceTrigger=PropertyChanged}"
+  SecondIndex="0"/>
+                <!-- 이름 컨트롤 설정 -->
                 <Grid Margin="0,0,0,6">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -199,7 +189,7 @@ Text="{Binding NameControlType, UpdateSourceTrigger=PropertyChanged}"/>
      PreviewTextInput="Index_PreviewTextInput"/>
                 </Grid>
                 <Button Command="{Binding FindWinApiControlCommand}"
-              Margin="0,6,0,0">
+         Margin="0,6,0,0">
                   컨트롤 찾기 (WinAPI)
                 </Button>
               </StackPanel>
@@ -289,15 +279,15 @@ Text="{Binding NameControlType, UpdateSourceTrigger=PropertyChanged}"/>
                    Style="{StaticResource MaterialDesignOutlinedButton}"
                    materialDesign:ButtonAssist.CornerRadius="6"
                    Command="{Binding CloseCommand}">
-                <StackPanel Orientation="Horizontal">
-                  <materialDesign:PackIcon Kind="Close" 
-                                         Width="15" Height="15" 
-                                         VerticalAlignment="Center"/>
-                  <TextBlock Text="닫기" 
-                          Margin="6,0,0,0" 
-                          FontSize="13"
-                          VerticalAlignment="Center"/>
-                </StackPanel>
+       <StackPanel Orientation="Horizontal">
+            <materialDesign:PackIcon Kind="Close" 
+        Width="15" Height="15" 
+        VerticalAlignment="Center"/>
+      <TextBlock Text="닫기" 
+             Margin="6,0,0,0" 
+          FontSize="13"
+       VerticalAlignment="Center"/>
+  </StackPanel>
               </Button>
             </Grid>
           </StackPanel>

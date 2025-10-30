@@ -95,7 +95,7 @@ namespace SpeechAgent.Services.MedicSIO
 
         try
         {
-          File.WriteAllBytes(filePath, data.OpusBuffer);
+          File.WriteAllBytes(filePath, data.AudioBuffer);
         }
         catch (Exception ex)
         {
@@ -105,8 +105,8 @@ namespace SpeechAgent.Services.MedicSIO
     }
     public class ReceiveAudioArgs
     {
-      [JsonPropertyName("opusBuffer")]
-      public byte[] OpusBuffer { get; set; } = [];
+      [JsonPropertyName("audioBuffer")]
+      public byte[] AudioBuffer { get; set; } = [];
 
       [JsonPropertyName("chart")]
       public string Chart { get; set; } = string.Empty;

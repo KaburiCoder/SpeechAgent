@@ -1,25 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>0.0.32</VersionPrefix>
+    <VersionPrefix>0.0.46</VersionPrefix>
     <Utf8Output>true</Utf8Output>
-
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-
     <StartupObject>SpeechAgent.App</StartupObject>
-
     <PublishSingleFile>false</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <ApplicationIcon>main.ico</ApplicationIcon>
-    <Platforms>AnyCPU;x86</Platforms>    
+    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
-
   <ItemGroup>
     <ApplicationDefinition Remove="App.xaml" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
@@ -37,7 +33,6 @@
     <PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.2.1" />
     <Resource Include="Resources\main.ico" />
     <Page Include="App.xaml" />
-
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="MaterialDesignThemes" Version="5.3.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
@@ -46,12 +41,10 @@
     <PackageReference Include="Vanara.PInvoke.User32" Version="4.2.1" />
     <PackageReference Include="Velopack" Version="0.0.1298" />
   </ItemGroup>
-
   <ItemGroup>
-    <!-- tessdata 폴더를 publish에 포함 -->
+    <!-- tessdata ?대뜑瑜?publish???ы븿 -->
     <Content Include="Assets/tessdata/**" CopyToPublishDirectory="PreserveNewest" Link="tessdata/%(Filename)%(Extension)" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -59,7 +52,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

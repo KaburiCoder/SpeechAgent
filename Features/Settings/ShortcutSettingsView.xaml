@@ -51,6 +51,15 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel>
 
+            <!--  설명 텍스트  -->
+            <TextBlock
+              Margin="0,0,0,12"
+              Foreground="#666666"
+              FontSize="12"
+              TextWrapping="Wrap">
+              <Run Text="💡 커서를 단축키 입력란에 가져다 놓고 단축키를 누르면 해당하는 값이 자동으로 입력됩니다." />
+            </TextBlock>
+
             <!--  단축키 설정 항목들을 하나의 Border에 담음  -->
             <Border
               Margin="0,0,0,12"

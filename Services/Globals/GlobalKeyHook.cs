@@ -1,13 +1,10 @@
-﻿using System.Diagnostics;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Gma.System.MouseKeyHook;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SpeechAgent.Database.Schemas;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Services.MedicSIO;
 using SpeechAgent.Services.MedicSIO.Dto;
 using SpeechAgent.Utils;
-using static Vanara.PInvoke.User32;
 
 namespace SpeechAgent.Services.Globals
 {
@@ -44,32 +41,40 @@ namespace SpeechAgent.Services.Globals
 
     private async void _hook_KeyDown(object? sender, System.Windows.Forms.KeyEventArgs e)
     {
-      var wpfKey = KeyInterop.KeyFromVirtualKey((int)e.KeyCode);
-      var foundShortcut = _shortcuts.Find(s =>
-        s.Modifiers == Keyboard.Modifiers && s.Key == wpfKey
-      );
-
-      if (foundShortcut == null)
-        return;
-
-      switch (foundShortcut.ShortcutFeature)
+      try
       {
-        case ShortcutFeature.All:
-        case ShortcutFeature.CC:
-        case ShortcutFeature.S:
-        case ShortcutFeature.O:
-        case ShortcutFeature.A:
-        case ShortcutFeature.P:
-          e.Handled = true;
-          break;
-        default:
-          return;
-      }
+        var wpfKey = KeyInterop.KeyFromVirtualKey((int)e.KeyCode);
+        var foundShortcut = _shortcuts.Find(s =>
+          s.Modifiers == Keyboard.Modifiers && s.Key == wpfKey
+        );
 
-      var res = await _medicSIOService.RequestSummary(
-        new RequestSummaryDto { Key = $"{foundShortcut.ShortcutFeature}" }
-      );
-      Debug.Print(res.ToString());
+        if (foundShortcut == null)
+          return;
+
+        switch (foundShortcut.ShortcutFeature)
+        {
+          case ShortcutFeature.All:
+          case ShortcutFeature.CC:
+          case ShortcutFeature.S:
+          case ShortcutFeature.O:
+          case ShortcutFeature.A:
+          case ShortcutFeature.P:
+            e.Handled = true;
+            break;
+          default:
+            return;
+        }
+
+        var res = await _medicSIOService.RequestSummary(
+          new RequestSummaryDto { Key = $"{foundShortcut.ShortcutFeature}" }
+        );
+
+        if (string.IsNullOrWhiteSpace(res.Message))
+          return;
+
+        await res.Message.PasteTextAtCursor();
+      }
+      catch { }
     }
 
     public void Stop()

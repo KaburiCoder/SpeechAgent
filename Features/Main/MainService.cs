@@ -43,7 +43,7 @@ namespace SpeechAgent.Features.Main
 
       WeakReferenceMessenger.Default.Register<LocalSettingsChangedMessage>(
         this,
-        (r, m) =>
+        async (r, m) =>
         {
           _patientSearchService.Clear();
           bool isNoneTargetApp = string.IsNullOrWhiteSpace(m.Value.Settings.TargetAppName);
@@ -52,6 +52,15 @@ namespace SpeechAgent.Features.Main
           else
           {
             StartReadChartTimer();
+          }
+
+          var prevKey = m.Value.PreviousSettings?.ConnectKey;
+          var newKey = m.Value.Settings.ConnectKey;
+          if (prevKey != newKey)
+          {
+            if (!string.IsNullOrWhiteSpace(prevKey))
+              await _medicSIOService.LeaveRoom(prevKey);
+            await _medicSIOService.JoinRoom();
           }
         }
       );

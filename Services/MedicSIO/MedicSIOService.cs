@@ -19,7 +19,7 @@ namespace SpeechAgent.Services.MedicSIO
     Task Connect();
     Task DisConnect();
     Task<BaseResponseDto> JoinRoom();
-    Task<BaseResponseDto> LeaveRoom();
+    Task<BaseResponseDto> LeaveRoom(string prevKey);
     Task<BaseResponseDto> SendPatientInfo(PatientInfoDto patientInfo);
     Task RequestRecord();
     Task<RequestSummaryResponseDto> RequestSummary(RequestSummaryDto dto);
@@ -152,9 +152,9 @@ namespace SpeechAgent.Services.MedicSIO
       return res;
     }
 
-    public async Task<BaseResponseDto> LeaveRoom()
+    public async Task<BaseResponseDto> LeaveRoom(string prevKey)
     {
-      var res = await EmitWithAck<BaseResponseDto>(EventNames.LeaveRoom, GetRoomDto());
+      var res = await EmitWithAck<BaseResponseDto>(EventNames.LeaveRoom, GetRoomDto(key: prevKey));
 
       return res;
     }
@@ -196,9 +196,10 @@ namespace SpeechAgent.Services.MedicSIO
       return await tcs.Task;
     }
 
-    private RoomDto GetRoomDto()
+    private RoomDto GetRoomDto(string? key = null)
     {
-      string key = _settingsService.Settings.ConnectKey;
+      if (key == null)
+        key = _settingsService.Settings.ConnectKey;
 
       return new RoomDto { RoomId = $"agent_{key}", To = $"web_{key}" };
     }

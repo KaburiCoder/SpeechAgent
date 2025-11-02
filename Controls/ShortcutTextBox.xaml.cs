@@ -130,22 +130,6 @@ namespace SpeechAgent.Controls
       return key >= Key.F1 && key <= Key.F12
         || key == Key.Scroll
         || key == Key.PrintScreen
-        || key == Key.Pause
-        || key == Key.Return
-        || key == Key.Tab
-        || key == Key.Escape
-        || key == Key.Delete
-        || key == Key.Back
-        || key == Key.Insert
-        || key == Key.Home
-        || key == Key.End
-        || key == Key.PageUp
-        || key == Key.PageDown
-        || key == Key.Left
-        || key == Key.Right
-        || key == Key.Up
-        || key == Key.Down
-        || key == Key.Space
         || key == Key.Pause;
     }
 

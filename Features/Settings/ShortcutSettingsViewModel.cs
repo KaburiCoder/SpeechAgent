@@ -109,29 +109,12 @@ namespace SpeechAgent.Features.Settings
     {
       try
       {
-        // CC 저장
-        if (CcKey != Key.None)
-          _shortcutSettingsService.SaveShortcut(CcModifiers, CcKey, ShortcutFeature.CC);
-
-        // SOAP 전체 저장
-        if (AllKey != Key.None)
-          _shortcutSettingsService.SaveShortcut(AllModifiers, AllKey, ShortcutFeature.All);
-
-        // S 저장
-        if (SKey != Key.None)
-          _shortcutSettingsService.SaveShortcut(SModifiers, SKey, ShortcutFeature.S);
-
-        // O 저장
-        if (OKey != Key.None)
-          _shortcutSettingsService.SaveShortcut(OModifiers, OKey, ShortcutFeature.O);
-
-        // A 저장
-        if (AKey != Key.None)
-          _shortcutSettingsService.SaveShortcut(AModifiers, AKey, ShortcutFeature.A);
-
-        // P 저장
-        if (PKey != Key.None)
-          _shortcutSettingsService.SaveShortcut(PModifiers, PKey, ShortcutFeature.P);
+        _shortcutSettingsService.SaveShortcut(AllModifiers, AllKey, ShortcutFeature.All);
+        _shortcutSettingsService.SaveShortcut(CcModifiers, CcKey, ShortcutFeature.CC);
+        _shortcutSettingsService.SaveShortcut(SModifiers, SKey, ShortcutFeature.S);
+        _shortcutSettingsService.SaveShortcut(OModifiers, OKey, ShortcutFeature.O);
+        _shortcutSettingsService.SaveShortcut(AModifiers, AKey, ShortcutFeature.A);
+        _shortcutSettingsService.SaveShortcut(PModifiers, PKey, ShortcutFeature.P);
 
         View.Close();
       }

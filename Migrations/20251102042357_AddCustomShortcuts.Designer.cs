@@ -10,7 +10,7 @@ using SpeechAgent.Database;
 namespace SpeechAgent.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251102033335_AddCustomShortcuts")]
+    [Migration("20251102042357_AddCustomShortcuts")]
     partial class AddCustomShortcuts
     {
         /// <inheritdoc />
@@ -21,16 +21,16 @@ namespace SpeechAgent.Migrations
 
             modelBuilder.Entity("SpeechAgent.Database.Schemas.CustomShortcuts", b =>
                 {
-                    b.Property<int>("Modifiers")
+                    b.Property<int>("ShortcutFeature")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Key")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ShortcutFeature")
+                    b.Property<int>("Modifiers")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Modifiers", "Key");
+                    b.HasKey("ShortcutFeature");
 
                     b.ToTable("CustomShortcuts");
                 });

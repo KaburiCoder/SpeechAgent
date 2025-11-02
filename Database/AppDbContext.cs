@@ -35,7 +35,7 @@ namespace SpeechAgent.Database
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      modelBuilder.Entity<CustomShortcuts>().HasKey(cs => new { cs.Modifiers, cs.Key });
+      modelBuilder.Entity<CustomShortcuts>().HasKey(cs => cs.ShortcutFeature);
     }
   }
 }

@@ -39,12 +39,7 @@ namespace SpeechAgent.Features.Settings
 
   public class ShortcutSettingsService : IShortcutSettingsService
   {
-    private readonly AppDbContext _dbContext;
-
-    public ShortcutSettingsService(AppDbContext dbContext)
-    {
-      _dbContext = dbContext;
-    }
+    public ShortcutSettingsService() { }
 
     /// <summary>
     /// 모든 저장된 단축키 로드
@@ -53,7 +48,8 @@ namespace SpeechAgent.Features.Settings
     {
       try
       {
-        return _dbContext.CustomShortcuts.ToList();
+        using var dbContext = new AppDbContext();
+        return dbContext.CustomShortcuts.ToList();
       }
       catch (Exception ex)
       {
@@ -69,7 +65,8 @@ namespace SpeechAgent.Features.Settings
     {
       try
       {
-        return _dbContext.CustomShortcuts.FirstOrDefault(s => s.ShortcutFeature == feature);
+        using var dbContext = new AppDbContext();
+        return dbContext.CustomShortcuts.FirstOrDefault(s => s.ShortcutFeature == feature);
       }
       catch (Exception ex)
       {
@@ -85,16 +82,17 @@ namespace SpeechAgent.Features.Settings
     {
       try
       {
+        using var dbContext = new AppDbContext();
         // 기존 데이터 확인
-        var existing = _dbContext.CustomShortcuts.FirstOrDefault(s =>
-          s.Modifiers == modifiers && s.Key == key
-        );
+        var existing = dbContext.CustomShortcuts.FirstOrDefault(s => s.ShortcutFeature == feature);
 
         if (existing != null)
         {
           // 업데이트
+          existing.Modifiers = modifiers;
+          existing.Key = key;
           existing.ShortcutFeature = feature;
-          _dbContext.CustomShortcuts.Update(existing);
+          dbContext.CustomShortcuts.Update(existing);
         }
         else
         {
@@ -105,10 +103,10 @@ namespace SpeechAgent.Features.Settings
             Key = key,
             ShortcutFeature = feature,
           };
-          _dbContext.CustomShortcuts.Add(shortcut);
+          dbContext.CustomShortcuts.Add(shortcut);
         }
 
-        _dbContext.SaveChanges();
+        dbContext.SaveChanges();
       }
       catch (Exception ex)
       {
@@ -123,14 +121,15 @@ namespace SpeechAgent.Features.Settings
     {
       try
       {
-        var shortcut = _dbContext.CustomShortcuts.FirstOrDefault(s =>
+        using var dbContext = new AppDbContext();
+        var shortcut = dbContext.CustomShortcuts.FirstOrDefault(s =>
           s.Modifiers == modifiers && s.Key == key
         );
 
         if (shortcut != null)
         {
-          _dbContext.CustomShortcuts.Remove(shortcut);
-          _dbContext.SaveChanges();
+          dbContext.CustomShortcuts.Remove(shortcut);
+          dbContext.SaveChanges();
         }
       }
       catch (Exception ex)
@@ -146,8 +145,9 @@ namespace SpeechAgent.Features.Settings
     {
       try
       {
-        _dbContext.CustomShortcuts.RemoveRange(_dbContext.CustomShortcuts);
-        _dbContext.SaveChanges();
+        using var dbContext = new AppDbContext();
+        dbContext.CustomShortcuts.RemoveRange(dbContext.CustomShortcuts);
+        dbContext.SaveChanges();
       }
       catch (Exception ex)
       {

@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using System.Windows;
+﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SpeechAgent.Constants;
@@ -14,6 +13,9 @@ using SpeechAgent.Services.Globals;
 using SpeechAgent.Services.MedicSIO;
 using SpeechAgent.Utils;
 using SpeechAgent.Utils.Automation;
+using System.IO;
+using System.Net.Http;
+using System.Windows;
 using Velopack;
 
 namespace SpeechAgent
@@ -26,10 +28,7 @@ namespace SpeechAgent
     private static IServiceProvider ConfigureServices()
     {
       var services = new ServiceCollection();
-
-      // Database
-      services.AddSingleton<AppDbContext>();
-
+      
       // Singletons
       services.AddHttpClient(
         "SpeechServer",
@@ -92,7 +91,19 @@ namespace SpeechAgent
 
       using (var context = new AppDbContext())
       {
-        context.Database.Migrate();
+        string dbPath = context.DbPath;
+        try
+        {
+          context.Database.Migrate();
+        }
+        catch (SqliteException ex)
+        {
+          if (ex.SqliteErrorCode == 1)
+          {
+            context.Database.EnsureDeleted();
+            context.Database.Migrate();
+          }
+        }
       }
 
       // Velopack을 진입점에서 가장 먼저 실행

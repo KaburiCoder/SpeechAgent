@@ -37,7 +37,7 @@ namespace SpeechAgent.Features.Main
       {
         this.DragMove();
       }
-    }     
+    }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {

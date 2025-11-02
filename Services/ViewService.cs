@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+using SpeechAgent.Bases;
 using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Features.Settings.FindWin;
-using System.Windows;
 
 namespace SpeechAgent.Services
 {
@@ -13,11 +14,11 @@ namespace SpeechAgent.Services
     void ShowFindWinView(Window parent);
     void ShowFindWinApiView(Window parent);
     void ShowFindWinImageView(Window parent);
+    void ShowShortcutSettingsView(Window parent);
   }
 
   public class ViewService : IViewService
   {
-
     public void ShowMainView()
     {
       var mainView = App.Current.Services.GetRequiredService<MainView>();
@@ -30,33 +31,39 @@ namespace SpeechAgent.Services
       mainView.Show();
     }
 
-    public void ShowSettingsView(Window parent)
+    private void ShowDialogCommon<TView, TViewModel>(Window parent)
+      where TView : Window, new()
+      where TViewModel : BaseViewModel
     {
       var viewModelFactory = App.Current.Services.GetRequiredService<IViewModelFactory>();
-   var settings = viewModelFactory.CreateViewModel<SettingsView, SettingsViewModel>(parent);
+      var result = viewModelFactory.CreateViewModel<TView, TViewModel>(parent);
 
-      settings.View.ShowDialog();
-  }
+      result.View.ShowDialog();
+    }
+
+    public void ShowSettingsView(Window parent)
+    {
+      ShowDialogCommon<SettingsView, SettingsViewModel>(parent);
+    }
 
     public void ShowFindWinView(Window parent)
     {
- var viewModelFactory = App.Current.Services.GetRequiredService<IViewModelFactory>();
-      var findWin = viewModelFactory.CreateViewModel<FindWinView, FindWinViewModel>(parent);
-  findWin.View.ShowDialog();
- }
+      ShowDialogCommon<FindWinView, FindWinViewModel>(parent);
+    }
 
     public void ShowFindWinApiView(Window parent)
     {
-   var viewModelFactory = App.Current.Services.GetRequiredService<IViewModelFactory>();
-      var findWinApi = viewModelFactory.CreateViewModel<FindWinApiView, FindWinApiViewModel>(parent);
-      findWinApi.View.ShowDialog();
+      ShowDialogCommon<FindWinApiView, FindWinApiViewModel>(parent);
     }
 
     public void ShowFindWinImageView(Window parent)
     {
-  var viewModelFactory = App.Current.Services.GetRequiredService<IViewModelFactory>();
-      var findWinImage = viewModelFactory.CreateViewModel<FindWinImageView, FindWinImageViewModel>(parent);
-      findWinImage.View.ShowDialog();
+      ShowDialogCommon<FindWinImageView, FindWinImageViewModel>(parent);
+    }
+
+    public void ShowShortcutSettingsView(Window parent)
+    {
+      ShowDialogCommon<ShortcutSettingsView, ShortcutSettingsViewModel>(parent);
     }
   }
 }

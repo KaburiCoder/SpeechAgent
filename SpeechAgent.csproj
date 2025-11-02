@@ -58,4 +58,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\Apps\SpeechAgent\Test\.editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="D:\Apps\SpeechAgent\.editorconfig" />
+  </ItemGroup>
 </Project>

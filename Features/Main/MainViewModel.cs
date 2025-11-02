@@ -1,4 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics.Eventing.Reader;
+using System.Windows.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using SpeechAgent.Bases;
@@ -8,9 +11,6 @@ using SpeechAgent.Messages;
 using SpeechAgent.Models;
 using SpeechAgent.Services;
 using SpeechAgent.Services.MedicSIO;
-using System.Collections.ObjectModel;
-using System.Diagnostics.Eventing.Reader;
-using System.Windows.Threading;
 
 namespace SpeechAgent.Features.Main
 {
@@ -27,13 +27,16 @@ namespace SpeechAgent.Features.Main
 
     [ObservableProperty]
     private bool _isSIOConnected = false;
+
     [ObservableProperty]
     private bool _isJoinedRoom = false;
 
     [ObservableProperty]
     private DateTime? _lastPingTime = null;
+
     [ObservableProperty]
     private bool _isPingHealthy = false;
+
     [ObservableProperty]
     private string _pingStatusText = "연결 대기 중";
 
@@ -41,7 +44,8 @@ namespace SpeechAgent.Features.Main
       IViewService viewService,
       IMainService mainService,
       ISettingsService settingsService,
-      IMedicSIOService medicSIOService)
+      IMedicSIOService medicSIOService
+    )
     {
       this._viewService = viewService;
       this._mainService = mainService;
@@ -49,10 +53,7 @@ namespace SpeechAgent.Features.Main
       this._medicSIOService = medicSIOService;
 
       // Ping 상태 체크용 타이머 (1초마다)
-      _pingTimer = new DispatcherTimer
-      {
-        Interval = TimeSpan.FromSeconds(1)
-      };
+      _pingTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
       _pingTimer.Tick += OnPingTimerTick;
       _pingTimer.Start();
     }
@@ -122,32 +123,46 @@ namespace SpeechAgent.Features.Main
 
     public override void Initialize()
     {
-      WeakReferenceMessenger.Default.Register<PatientInfoUpdatedMessage>(this, (_r, m) =>
-      {
-        if (PatInfos.Count > 30)
+      WeakReferenceMessenger.Default.Register<PatientInfoUpdatedMessage>(
+        this,
+        (_r, m) =>
         {
-          PatInfos.RemoveAt(PatInfos.Count - 1);
+          if (PatInfos.Count > 30)
+          {
+            PatInfos.RemoveAt(PatInfos.Count - 1);
+          }
+
+          PatInfos.Insert(0, new PatientInfo(m.Value.Chart, m.Value.Name, DateTime.Now));
         }
-
-        PatInfos.Insert(0, new PatientInfo(m.Value.Chart, m.Value.Name, DateTime.Now));
-
-      });
-      WeakReferenceMessenger.Default.Register<MedicSIOConnectionChangedMessage>(this, (_r, m) =>
-      {
-        IsSIOConnected = m.Value;
-      });
-      WeakReferenceMessenger.Default.Register<MedicSIOJoinRoomChangedMessage>(this, (_r, m) =>
-      {
-        IsJoinedRoom = m.Value;
-      });
-      WeakReferenceMessenger.Default.Register<WebPingReceivedMessage>(this, (_r, m) =>
-      {
-        OnWebPingReceived(m.Value);
-      });
-      WeakReferenceMessenger.Default.Register<LocalSettingsChangedMessage>(this, (_r, m) =>
-      {
-        OnConnectKeyChanged(m.Value.Settings);
-      });
+      );
+      WeakReferenceMessenger.Default.Register<MedicSIOConnectionChangedMessage>(
+        this,
+        (_r, m) =>
+        {
+          IsSIOConnected = m.Value;
+        }
+      );
+      WeakReferenceMessenger.Default.Register<MedicSIOJoinRoomChangedMessage>(
+        this,
+        (_r, m) =>
+        {
+          IsJoinedRoom = m.Value;
+        }
+      );
+      WeakReferenceMessenger.Default.Register<WebPingReceivedMessage>(
+        this,
+        (_r, m) =>
+        {
+          OnWebPingReceived(m.Value);
+        }
+      );
+      WeakReferenceMessenger.Default.Register<LocalSettingsChangedMessage>(
+        this,
+        (_r, m) =>
+        {
+          OnConnectKeyChanged(m.Value.Settings);
+        }
+      );
       OnConnectKeyChanged(_settingsService.Settings);
     }
 
@@ -155,6 +170,12 @@ namespace SpeechAgent.Features.Main
     void ShowSettings()
     {
       _viewService.ShowSettingsView(View);
+    }
+
+    [RelayCommand]
+    void ShowShortcutSettings()
+    {
+      _viewService.ShowShortcutSettingsView(View);
     }
   }
 }

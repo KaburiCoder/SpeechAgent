@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Net.Http;
+using System.Windows;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SpeechAgent.Constants;
 using SpeechAgent.Database;
@@ -11,29 +13,36 @@ using SpeechAgent.Services.Api;
 using SpeechAgent.Services.MedicSIO;
 using SpeechAgent.Utils;
 using SpeechAgent.Utils.Automation;
-using System.Net.Http;
-using System.Windows;
 using Velopack;
 
 namespace SpeechAgent
 {
   public partial class App : System.Windows.Application
   {
-    public new static App Current => (App)System.Windows.Application.Current;
+    public static new App Current => (App)System.Windows.Application.Current;
     public IServiceProvider Services { get; } = default!;
 
     private static IServiceProvider ConfigureServices()
     {
       var services = new ServiceCollection();
 
-      // Singletons
-      services.AddHttpClient("SpeechServer", client =>
-      {
-        var settingsService = Current.Services.GetRequiredService<ISettingsService>();
+      // Database
+      services.AddSingleton<AppDbContext>();
 
-        client.BaseAddress = new Uri(ApiConfig.SpeechBaseUrl);
-        client.DefaultRequestHeaders.Add(ApiConfig.SpeechUserKey, settingsService.Settings.ConnectKey);
-      });
+      // Singletons
+      services.AddHttpClient(
+        "SpeechServer",
+        client =>
+        {
+          var settingsService = Current.Services.GetRequiredService<ISettingsService>();
+
+          client.BaseAddress = new Uri(ApiConfig.SpeechBaseUrl);
+          client.DefaultRequestHeaders.Add(
+            ApiConfig.SpeechUserKey,
+            settingsService.Settings.ConnectKey
+          );
+        }
+      );
       services.AddSingleton<HttpClient>();
       services.AddSingleton<IViewService, ViewService>();
       services.AddSingleton<IViewModelFactory, ViewModelFactory>();
@@ -53,6 +62,7 @@ namespace SpeechAgent
       services.AddTransient<FindWinViewModel>();
       services.AddTransient<FindWinApiViewModel>();
       services.AddTransient<FindWinImageViewModel>();
+      services.AddTransient<ShortcutSettingsViewModel>();
 
       // Services
       services.AddTransient<IMainService, MainService>();
@@ -60,6 +70,7 @@ namespace SpeechAgent
       services.AddTransient<IAutomationControlSearcher, AutomationControlSearcher>();
       services.AddTransient<IControlSearcher, ControlSearcher>();
       services.AddTransient<IClickSoftControlSearchService, ClickSoftControlSearchService>();
+      services.AddTransient<IShortcutSettingsService, ShortcutSettingsService>();
 
       services.AddTransient<ILlmApi, LlmApi>();
       return services.BuildServiceProvider();
@@ -97,6 +108,10 @@ namespace SpeechAgent
 
     private async void Application_Startup(object sender, StartupEventArgs e)
     {
+      //var testView = new TestApp();
+      //testView.Show();
+      //return;
+
       // UpdateService 시작
       var updateService = Services.GetRequiredService<IUpdateService>();
       await updateService.CheckForUpdatesAsync();

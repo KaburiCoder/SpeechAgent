@@ -1,4 +1,8 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Net.Sockets;
+using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.Messaging;
 using SocketIOClient;
 using SocketIOClient.Transport;
 using SpeechAgent.Constants;
@@ -7,10 +11,6 @@ using SpeechAgent.Messages;
 using SpeechAgent.Services.MedicSIO.Args;
 using SpeechAgent.Services.MedicSIO.Consts;
 using SpeechAgent.Services.MedicSIO.Dto;
-using System.Diagnostics;
-using System.IO;
-using System.Net.Sockets;
-using System.Text.Json.Serialization;
 
 namespace SpeechAgent.Services.MedicSIO
 {
@@ -22,6 +22,7 @@ namespace SpeechAgent.Services.MedicSIO
     Task<BaseResponseDto> LeaveRoom();
     Task<BaseResponseDto> SendPatientInfo(PatientInfoDto patientInfo);
     Task RequestRecord();
+    Task<RequestSummaryResponseDto> RequestSummary(RequestSummaryDto dto);
     bool IsConnected { get; }
     bool IsRoomJoined { get; }
   }
@@ -43,10 +44,10 @@ namespace SpeechAgent.Services.MedicSIO
         Reconnection = true,
         ReconnectionAttempts = int.MaxValue,
         ReconnectionDelay = 2000,
-        ReconnectionDelayMax = 5000,      // 최대 1초까지만 증가
-        RandomizationFactor = 0.0,        // 랜덤 지연 제거
+        ReconnectionDelayMax = 5000, // 최대 1초까지만 증가
+        RandomizationFactor = 0.0, // 랜덤 지연 제거
         AutoUpgrade = false,
-        Transport = TransportProtocol.WebSocket
+        Transport = TransportProtocol.WebSocket,
       };
       _sio = new SocketIOClient.SocketIO(ApiConfig.SocketBaseUrl, sioOptions);
 
@@ -57,10 +58,10 @@ namespace SpeechAgent.Services.MedicSIO
       };
 
       _sio.OnReconnected += async (sender, e) =>
-          {
-            WeakReferenceMessenger.Default.Send(new MedicSIOConnectionChangedMessage(true));
-            await JoinRoom();
-          };
+      {
+        WeakReferenceMessenger.Default.Send(new MedicSIOConnectionChangedMessage(true));
+        await JoinRoom();
+      };
 
       // 연결 끊김 이벤트
       _sio.OnDisconnected += (sender, e) =>
@@ -70,39 +71,47 @@ namespace SpeechAgent.Services.MedicSIO
       };
 
       // 에러 이벤트
-      _sio.On("error", response =>
-      {
-      });
+      _sio.On("error", response => { });
 
-      _sio.On(EventNames.PingFromWeb, async response =>
-      {
-        await App.Current.Dispatcher.InvokeAsync(() =>
+      _sio.On(
+        EventNames.PingFromWeb,
+        async response =>
         {
-          WeakReferenceMessenger.Default.Send(new WebPingReceivedMessage(DateTime.Now));
-        });
-        await response.CallbackAsync(new PingFromWebDto { TargetAppName = _settingsService.Settings.TargetAppName });
-      });
-
-      _sio.On(EventNames.ReceiveAudio, response =>
-      {
-        var data = response.GetValue<ReceiveAudioArgs>();
-
-        // data.OpusBuffer 를 파일로 저장
-        var di = new DirectoryInfo($@"c:\VoiceMedic\{data.Chart}");
-        if (!di.Exists) di.Create();
-
-        var filePath = Path.Join(di.FullName, $"{DateTime.Now:yyyy_MM_dd HH_mm_ss}.webm");
-
-        try
-        {
-          File.WriteAllBytes(filePath, data.AudioBuffer);
+          await App.Current.Dispatcher.InvokeAsync(() =>
+          {
+            WeakReferenceMessenger.Default.Send(new WebPingReceivedMessage(DateTime.Now));
+          });
+          await response.CallbackAsync(
+            new PingFromWebDto { TargetAppName = _settingsService.Settings.TargetAppName }
+          );
         }
-        catch (Exception ex)
+      );
+
+      _sio.On(
+        EventNames.ReceiveAudio,
+        response =>
         {
-          Debug.WriteLine(ex.Message);
+          var data = response.GetValue<ReceiveAudioArgs>();
+
+          // data.OpusBuffer 를 파일로 저장
+          var di = new DirectoryInfo($@"c:\VoiceMedic\{data.Chart}");
+          if (!di.Exists)
+            di.Create();
+
+          var filePath = Path.Join(di.FullName, $"{DateTime.Now:yyyy_MM_dd HH_mm_ss}.webm");
+
+          try
+          {
+            File.WriteAllBytes(filePath, data.AudioBuffer);
+          }
+          catch (Exception ex)
+          {
+            Debug.WriteLine(ex.Message);
+          }
         }
-      });
+      );
     }
+
     public class ReceiveAudioArgs
     {
       [JsonPropertyName("audioBuffer")]
@@ -152,7 +161,11 @@ namespace SpeechAgent.Services.MedicSIO
 
     public async Task<BaseResponseDto> SendPatientInfo(PatientInfoDto patientInfo)
     {
-      var res = await EmitWithAck<BaseResponseDto>(EventNames.SendPatientInfo, GetRoomDto(), patientInfo);
+      var res = await EmitWithAck<BaseResponseDto>(
+        EventNames.SendPatientInfo,
+        GetRoomDto(),
+        patientInfo
+      );
       return res;
     }
 
@@ -166,10 +179,14 @@ namespace SpeechAgent.Services.MedicSIO
       var tcs = new TaskCompletionSource<T>();
       try
       {
-        await _sio.EmitAsync(eventName, (res) =>
-        {
-          tcs.SetResult(res.GetValue<T>());
-        }, data);
+        await _sio.EmitAsync(
+          eventName,
+          (res) =>
+          {
+            tcs.SetResult(res.GetValue<T>());
+          },
+          data
+        );
       }
       catch (Exception ex)
       {
@@ -183,11 +200,18 @@ namespace SpeechAgent.Services.MedicSIO
     {
       string key = _settingsService.Settings.ConnectKey;
 
-      return new RoomDto
-      {
-        RoomId = $"agent_{key}",
-        To = $"web_{key}"
-      };
+      return new RoomDto { RoomId = $"agent_{key}", To = $"web_{key}" };
+    }
+
+    public async Task<RequestSummaryResponseDto> RequestSummary(RequestSummaryDto dto)
+    {
+      var res = await EmitWithAck<BaseResponseWithDataDto<RequestSummaryResponseDto>>(
+        EventNames.RequestSummary,
+        GetRoomDto(),
+        dto
+      );
+
+      return res.Data ?? new RequestSummaryResponseDto();
     }
   }
 }

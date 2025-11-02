@@ -10,6 +10,7 @@ using SpeechAgent.Features.Settings;
 using SpeechAgent.Messages;
 using SpeechAgent.Models;
 using SpeechAgent.Services;
+using SpeechAgent.Services.Globals;
 using SpeechAgent.Services.MedicSIO;
 
 namespace SpeechAgent.Features.Main
@@ -20,6 +21,7 @@ namespace SpeechAgent.Features.Main
     private readonly IMainService _mainService;
     private readonly ISettingsService _settingsService;
     private readonly IMedicSIOService _medicSIOService;
+    private readonly IGlobalKeyHook _globalKeyHook;
     private readonly DispatcherTimer _pingTimer;
 
     [ObservableProperty]
@@ -44,13 +46,18 @@ namespace SpeechAgent.Features.Main
       IViewService viewService,
       IMainService mainService,
       ISettingsService settingsService,
-      IMedicSIOService medicSIOService
+      IMedicSIOService medicSIOService,
+      IGlobalKeyHook globalKeyHook
     )
     {
       this._viewService = viewService;
       this._mainService = mainService;
       this._settingsService = settingsService;
       this._medicSIOService = medicSIOService;
+      this._globalKeyHook = globalKeyHook;
+
+      // 키보드 후킹
+      _globalKeyHook.Start();
 
       // Ping 상태 체크용 타이머 (1초마다)
       _pingTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
@@ -175,7 +182,9 @@ namespace SpeechAgent.Features.Main
     [RelayCommand]
     void ShowShortcutSettings()
     {
+      _globalKeyHook.Stop();
       _viewService.ShowShortcutSettingsView(View);
+      _globalKeyHook.Start();
     }
   }
 }

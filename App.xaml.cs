@@ -10,6 +10,7 @@ using SpeechAgent.Features.Settings.FindWin;
 using SpeechAgent.Features.Settings.FindWin.Services;
 using SpeechAgent.Services;
 using SpeechAgent.Services.Api;
+using SpeechAgent.Services.Globals;
 using SpeechAgent.Services.MedicSIO;
 using SpeechAgent.Utils;
 using SpeechAgent.Utils.Automation;
@@ -52,6 +53,8 @@ namespace SpeechAgent
       services.AddSingleton<TrayIconService>();
       services.AddSingleton<IUpdateService, UpdateService>();
       services.AddSingleton<IAutoStartService, AutoStartService>();
+
+      services.AddSingleton<IGlobalKeyHook, GlobalKeyHook>();
 
       // Views
       services.AddSingleton<MainView>();

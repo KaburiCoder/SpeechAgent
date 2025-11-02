@@ -54,7 +54,7 @@ namespace SpeechAgent.Features.Settings
       catch (Exception ex)
       {
         System.Diagnostics.Debug.WriteLine($"Error loading shortcuts: {ex.Message}");
-        return new List<CustomShortcuts>();
+        return [];
       }
     }
 

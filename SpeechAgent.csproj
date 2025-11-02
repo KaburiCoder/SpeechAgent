@@ -18,12 +18,14 @@
   </PropertyGroup>
   <ItemGroup>
     <ApplicationDefinition Remove="App.xaml" />
+    <PackageReference Include="KeyboardHookLite" Version="1.1.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.10" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
+    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
     <PackageReference Include="OpenCvSharp4" Version="4.11.0.20250507" />
     <PackageReference Include="OpenCvSharp4.Windows" Version="4.11.0.20250507" />
     <PackageReference Include="OpenCvSharp4.WpfExtensions" Version="4.11.0.20250507" />
@@ -31,6 +33,7 @@
     <PackageReference Include="Tesseract" Version="5.2.0" />
     <PackageReference Include="Vanara.PInvoke.DwmApi" Version="4.2.1" />
     <PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.2.1" />
+    <PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.2.1" />
     <Resource Include="Resources\main.ico" />
     <Page Include="App.xaml" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />

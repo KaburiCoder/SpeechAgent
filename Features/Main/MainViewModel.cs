@@ -12,6 +12,7 @@ using SpeechAgent.Models;
 using SpeechAgent.Services;
 using SpeechAgent.Services.Globals;
 using SpeechAgent.Services.MedicSIO;
+using SpeechAgent.Utils;
 
 namespace SpeechAgent.Features.Main
 {
@@ -47,7 +48,8 @@ namespace SpeechAgent.Features.Main
       IMainService mainService,
       ISettingsService settingsService,
       IMedicSIOService medicSIOService,
-      IGlobalKeyHook globalKeyHook
+      IGlobalKeyHook globalKeyHook,
+      IUpdateService updateService
     )
     {
       this._viewService = viewService;
@@ -63,6 +65,22 @@ namespace SpeechAgent.Features.Main
       _pingTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
       _pingTimer.Tick += OnPingTimerTick;
       _pingTimer.Start();
+
+      BootPopupBrowser(updateService);
+    }
+
+    private void BootPopupBrowser(IUpdateService updateService)
+    {
+      var isUpdateApplied = updateService.IsUpdateApplied;
+      updateService.IsUpdateApplied = false; // 플래그 초기화
+      if (isUpdateApplied)
+        return; // 업데이트 후 부팅: 아무 동작도 하지 않음
+
+      // 일반 부팅: IsBootPopupBrowserEnabled가 true이면 VoiceMedic 열기
+      if (_settingsService.Settings.IsBootPopupBrowserEnabled)
+      {
+        BrowserLauncher.OpenMedic();
+      }
     }
 
     private void OnWebPingReceived(DateTime pingTime)

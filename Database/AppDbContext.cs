@@ -36,6 +36,12 @@ namespace SpeechAgent.Database
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       modelBuilder.Entity<CustomShortcuts>().HasKey(cs => cs.ShortcutFeature);
+
+      // LocalSettings의 기본값 설정
+      modelBuilder.Entity<LocalSettings>(entity =>
+      {
+        entity.Property(ls => ls.IsBootPopupBrowserEnabled).HasDefaultValue(true);
+      });
     }
   }
 }

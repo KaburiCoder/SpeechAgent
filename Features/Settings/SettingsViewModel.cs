@@ -19,7 +19,8 @@ namespace SpeechAgent.Features.Settings
     public SettingsViewModel(
       ISettingsService settingsService,
       IAutoStartService autoStartService,
-      IViewService viewService)
+      IViewService viewService
+    )
     {
       this._settingsService = settingsService;
       this._autoStartService = autoStartService;
@@ -75,6 +76,9 @@ namespace SpeechAgent.Features.Settings
     [ObservableProperty]
     private string customImageRect = "";
 
+    [ObservableProperty]
+    private bool isBootPopupBrowserEnabled = true;
+
     public bool IsCustomSelected => SelectedOption?.Value == AppKey.CustomUser;
     public bool IsCustomImageSelected => SelectedOption?.Value == AppKey.CustomUserImage;
     public bool IsCustomWinApiSelected => SelectedOption?.Value == AppKey.CustomUserWinApi;
@@ -103,7 +107,9 @@ namespace SpeechAgent.Features.Settings
         customNameIndex: NameIndex,
         customNameRegex: NameRegex,
         customNameRegexIndex: NameRegexIndex,
-        customImageRect: CustomImageRect);
+        customImageRect: CustomImageRect,
+        isBootPopupBrowserEnabled: IsBootPopupBrowserEnabled
+      );
       // Apply auto start setting
       _autoStartService.SetAutoStart(AutoStartEnabled);
 
@@ -134,15 +140,15 @@ namespace SpeechAgent.Features.Settings
       View.Close();
     }
 
-
     public override void Initialize()
     {
-      Options = [
+      Options =
+      [
         new() { Key = "없음", Value = AppKey.None },
         new() { Key = "A사", Value = AppKey.ClickSoft },
         new() { Key = "B사", Value = AppKey.USarang },
         new() { Key = "C사", Value = AppKey.Brain },
-        new() { Key = AppKey.CustomUser, Value =AppKey.CustomUser },
+        new() { Key = AppKey.CustomUser, Value = AppKey.CustomUser },
         //new() { Key = "사용자 정의 WinAPI", Value = AppKey.CustomUserWinApi },
         new() { Key = AppKey.CustomUserImage, Value = AppKey.CustomUserImage },
       ];
@@ -160,30 +166,37 @@ namespace SpeechAgent.Features.Settings
       NameRegex = _settingsService.Settings.CustomNameRegex;
       NameRegexIndex = _settingsService.Settings.CustomNameRegexIndex.ToString();
       CustomImageRect = _settingsService.Settings.CustomImageRect;
+      IsBootPopupBrowserEnabled = _settingsService.Settings.IsBootPopupBrowserEnabled;
 
       SelectedOption = Options.FirstOrDefault(o => o.Value == TargetAppName) ?? Options[0];
 
       // Load auto start status from registry
       AutoStartEnabled = _autoStartService.IsAutoStartEnabled();
 
-      WeakReferenceMessenger.Default.Register<SendToSettingsMessage>(this, (r, m) =>
-      {
-        ExeTitle = m.Value.ExeTitle;
-        ChartControlType = m.Value.ChartControlType;
-        ChartIndex = m.Value.ChartIndex;
-        ChartRegex = m.Value.ChartRegex;
-        ChartRegexIndex = m.Value.ChartRegexIndex;
-        NameControlType = m.Value.NameControlType;
-        NameIndex = m.Value.NameIndex;
-        NameRegex = m.Value.NameRegex;
-        NameRegexIndex = m.Value.NameRegexIndex;
-      });
+      WeakReferenceMessenger.Default.Register<SendToSettingsMessage>(
+        this,
+        (r, m) =>
+        {
+          ExeTitle = m.Value.ExeTitle;
+          ChartControlType = m.Value.ChartControlType;
+          ChartIndex = m.Value.ChartIndex;
+          ChartRegex = m.Value.ChartRegex;
+          ChartRegexIndex = m.Value.ChartRegexIndex;
+          NameControlType = m.Value.NameControlType;
+          NameIndex = m.Value.NameIndex;
+          NameRegex = m.Value.NameRegex;
+          NameRegexIndex = m.Value.NameRegexIndex;
+        }
+      );
 
-      WeakReferenceMessenger.Default.Register<SendToSettingsImageMessage>(this, (r, m) =>
-      {
-        ExeTitle = m.Value.CustomExeTitle;
-        CustomImageRect = m.Value.CustomImageRect;
-      });
+      WeakReferenceMessenger.Default.Register<SendToSettingsImageMessage>(
+        this,
+        (r, m) =>
+        {
+          ExeTitle = m.Value.CustomExeTitle;
+          CustomImageRect = m.Value.CustomImageRect;
+        }
+      );
     }
   }
 }

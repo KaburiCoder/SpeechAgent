@@ -1,7 +1,8 @@
-using SpeechAgent.Features.Main;
-using SpeechAgent.Features.Settings;
 using System.IO;
 using System.Windows;
+using SpeechAgent.Features.Main;
+using SpeechAgent.Features.Settings;
+using SpeechAgent.Utils;
 
 namespace SpeechAgent.Services
 {
@@ -42,9 +43,18 @@ namespace SpeechAgent.Services
       // 컨텍스트 메뉴 생성
       var contextMenu = new ContextMenuStrip();
       var showMenuItem = new ToolStripMenuItem("보이기", null, OnShow);
+      var popupVoiceMedicMenuItem = new ToolStripMenuItem(
+        "VoiceMedic 브라우저 열기",
+        null,
+        OnPopupVoiceMedicBrowser
+      );
+      var versionLabel = new ToolStripLabel($"버전: {GetApplicationVersion()}");
       var exitMenuItem = new ToolStripMenuItem("종료", null, OnExit);
 
       contextMenu.Items.Add(showMenuItem);
+      contextMenu.Items.Add(popupVoiceMedicMenuItem);
+      contextMenu.Items.Add(new ToolStripSeparator());
+      contextMenu.Items.Add(versionLabel);
       contextMenu.Items.Add(new ToolStripSeparator());
       contextMenu.Items.Add(exitMenuItem);
 
@@ -54,9 +64,21 @@ namespace SpeechAgent.Services
       _notifyIcon.DoubleClick += OnShow;
     }
 
+    private string GetApplicationVersion()
+    {
+      var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+      return version?.ToString() ?? "Unknown";
+    }
+
+    private void OnPopupVoiceMedicBrowser(object? sender, EventArgs e)
+    {
+      BrowserLauncher.OpenMedic();
+    }
+
     private void SetupMainViewEvents()
     {
-      if (_mainView == null) return;
+      if (_mainView == null)
+        return;
 
       // 창 닫기 이벤트 처리
       _mainView.Closing += OnMainViewClosing;
@@ -82,7 +104,8 @@ namespace SpeechAgent.Services
 
     private void HideToTray()
     {
-      if (_mainView == null || _notifyIcon == null) return;
+      if (_mainView == null || _notifyIcon == null)
+        return;
 
       _mainView.Hide();
       _notifyIcon.Visible = true;
@@ -92,7 +115,8 @@ namespace SpeechAgent.Services
 
     private void OnShow(object? sender, EventArgs e)
     {
-      if (_mainView == null || _notifyIcon == null) return;
+      if (_mainView == null || _notifyIcon == null)
+        return;
 
       _mainView.Show();
       _mainView.WindowState = WindowState.Normal;
@@ -118,7 +142,8 @@ namespace SpeechAgent.Services
 
     public void Dispose()
     {
-      if (_disposed) return;
+      if (_disposed)
+        return;
 
       if (_mainView != null)
       {

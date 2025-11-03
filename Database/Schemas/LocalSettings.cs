@@ -15,5 +15,7 @@
     public string CustomNameRegex { get; set; } = "";
     public int CustomNameRegexIndex { get; set; } = 0;
     public string CustomImageRect { get; set; } = "";
+
+    public bool IsBootPopupBrowserEnabled { get; set; } = true;
   }
 }

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>0.0.48</VersionPrefix>
+    <VersionPrefix>0.0.52</VersionPrefix>
     <Utf8Output>true</Utf8Output>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -44,7 +44,7 @@
     <PackageReference Include="Velopack" Version="0.0.1298" />
   </ItemGroup>
   <ItemGroup>
-    <!-- tessdata ????臾딅ご?publish??????-->
+    <!-- tessdata ???????類ｋ뭸??publish??????-->
     <Content Include="Assets/tessdata/**" CopyToPublishDirectory="PreserveNewest" Link="tessdata/%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>

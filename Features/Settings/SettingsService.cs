@@ -7,19 +7,31 @@ using SpeechAgent.Utils;
 
 namespace SpeechAgent.Features.Settings
 {
-
   public interface ISettingsService
   {
     LocalSettings Settings { get; }
     void LoadSettings();
-    void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartControlType = null, string? customChartIndex = null, string? customChartRegex = null, string? customChartRegexIndex = null, string? customNameControlType = null, string? customNameIndex = null, string? customNameRegex = null, string? customNameRegexIndex = null, string? customImageRect = null);
+    void UpdateSettings(
+      string? connectKey = null,
+      string? targetAppName = null,
+      string? customExeTitle = null,
+      string? customChartControlType = null,
+      string? customChartIndex = null,
+      string? customChartRegex = null,
+      string? customChartRegexIndex = null,
+      string? customNameControlType = null,
+      string? customNameIndex = null,
+      string? customNameRegex = null,
+      string? customNameRegexIndex = null,
+      string? customImageRect = null,
+      bool? isBootPopupBrowserEnabled = null
+    );
 
     bool UseCustomUserImage { get; }
   }
 
   public class SettingsService : ISettingsService
   {
-
     public LocalSettings Settings { get; private set; } = new();
 
     public bool UseCustomUserImage => Settings.TargetAppName == AppKey.CustomUserImage;
@@ -33,7 +45,21 @@ namespace SpeechAgent.Features.Settings
       Settings = dbSetting?.DeepCopy() ?? new LocalSettings();
     }
 
-    public void UpdateSettings(string? connectKey = null, string? targetAppName = null, string? customExeTitle = null, string? customChartControlType = null, string? customChartIndex = null, string? customChartRegex = null, string? customChartRegexIndex = null, string? customNameControlType = null, string? customNameIndex = null, string? customNameRegex = null, string? customNameRegexIndex = null, string? customImageRect = null)
+    public void UpdateSettings(
+      string? connectKey = null,
+      string? targetAppName = null,
+      string? customExeTitle = null,
+      string? customChartControlType = null,
+      string? customChartIndex = null,
+      string? customChartRegex = null,
+      string? customChartRegexIndex = null,
+      string? customNameControlType = null,
+      string? customNameIndex = null,
+      string? customNameRegex = null,
+      string? customNameRegexIndex = null,
+      string? customImageRect = null,
+      bool? isBootPopupBrowserEnabled = null
+    )
     {
       using var db = new AppDbContext();
 
@@ -57,7 +83,10 @@ namespace SpeechAgent.Features.Settings
         currentSetting.CustomChartIndex = customChartIndex.Trim();
       if (customChartRegex != null)
         currentSetting.CustomChartRegex = customChartRegex.Trim();
-      if (!string.IsNullOrWhiteSpace(customChartRegexIndex) && int.TryParse(customChartRegexIndex, out int chartRegexIdx))
+      if (
+        !string.IsNullOrWhiteSpace(customChartRegexIndex)
+        && int.TryParse(customChartRegexIndex, out int chartRegexIdx)
+      )
         currentSetting.CustomChartRegexIndex = chartRegexIdx;
       if (customNameControlType != null)
         currentSetting.CustomNameControlType = customNameControlType.Trim();
@@ -65,11 +94,17 @@ namespace SpeechAgent.Features.Settings
         currentSetting.CustomNameIndex = customNameIndex.Trim();
       if (customNameRegex != null)
         currentSetting.CustomNameRegex = customNameRegex.Trim();
-      if (!string.IsNullOrWhiteSpace(customNameRegexIndex) && int.TryParse(customNameRegexIndex, out int nameRegexIdx))
+      if (
+        !string.IsNullOrWhiteSpace(customNameRegexIndex)
+        && int.TryParse(customNameRegexIndex, out int nameRegexIdx)
+      )
         currentSetting.CustomNameRegexIndex = nameRegexIdx;
       if (customImageRect != null)
         currentSetting.CustomImageRect = customImageRect.Trim();
+      if (isBootPopupBrowserEnabled != null)
+        currentSetting.IsBootPopupBrowserEnabled = isBootPopupBrowserEnabled.Value;
 
+      // ------------------------------
       if (dbSetting == null)
         db.LocalSettings.Add(currentSetting);
 
@@ -78,7 +113,11 @@ namespace SpeechAgent.Features.Settings
       // Settings 속성 업데이트
       Settings = currentSetting.DeepCopy();
 
-      WeakReferenceMessenger.Default.Send(new LocalSettingsChangedMessage(new LocalSettingsChangeData(currentSetting, previousSettings)));
+      WeakReferenceMessenger.Default.Send(
+        new LocalSettingsChangedMessage(
+          new LocalSettingsChangeData(currentSetting, previousSettings)
+        )
+      );
     }
   }
 }

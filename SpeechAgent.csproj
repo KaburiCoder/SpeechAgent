@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>0.0.52</VersionPrefix>
+    <VersionPrefix>0.0.56</VersionPrefix>
     <Utf8Output>true</Utf8Output>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -15,7 +15,6 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <ApplicationIcon>main.ico</ApplicationIcon>
     <Platforms>AnyCPU;x86</Platforms>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <ApplicationDefinition Remove="App.xaml" />
@@ -45,7 +44,7 @@
     <PackageReference Include="Velopack" Version="0.0.1298" />
   </ItemGroup>
   <ItemGroup>
-    <!-- tessdata ???????類ｋ뭸??publish??????-->
+    <!-- tessdata ???????癲ル슢???留??publish??????-->
     <Content Include="Assets/tessdata/**" CopyToPublishDirectory="PreserveNewest" Link="tessdata/%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>

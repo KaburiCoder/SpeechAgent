@@ -83,6 +83,9 @@ namespace SpeechAgent
     [STAThread]
     public static void Main()
     {
+      // 관리자 권한 확인 및 필요시 재실행
+      AdminHelper.RequireAdminOrExit();
+
       if (_mutex.WaitOne(TimeSpan.Zero, true) == false)
       {
         Msg.Show("이미 실행 중입니다.");

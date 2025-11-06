@@ -1,3 +1,6 @@
+using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -5,9 +8,6 @@ using SpeechAgent.Bases;
 using SpeechAgent.Features.Settings.FindWin.Models;
 using SpeechAgent.Features.Settings.FindWin.Services;
 using SpeechAgent.Messages;
-using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Media.Imaging;
 using MessageBox = System.Windows.MessageBox;
 
 namespace SpeechAgent.Features.Settings.FindWin
@@ -46,7 +46,7 @@ namespace SpeechAgent.Features.Settings.FindWin
 
     [ObservableProperty]
     private BitmapSource? _croppedImage;
-     
+
     [RelayCommand]
     private async Task StartScan()
     {
@@ -73,7 +73,12 @@ namespace SpeechAgent.Features.Settings.FindWin
       }
       catch (Exception ex)
       {
-        MessageBox.Show($"스캔 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show(
+          $"스캔 중 오류가 발생했습니다: {ex.Message}",
+          "오류",
+          MessageBoxButton.OK,
+          MessageBoxImage.Error
+        );
       }
       finally
       {
@@ -84,21 +89,29 @@ namespace SpeechAgent.Features.Settings.FindWin
     [RelayCommand]
     private void UpdateCroppedImage()
     {
-      if (SelectedWindowImage == null) return;
+      if (SelectedWindowImage == null)
+        return;
 
-      if (!int.TryParse(RectX, out int x) ||
-        !int.TryParse(RectY, out int y) ||
-        !int.TryParse(RectWidth, out int width) ||
-        !int.TryParse(RectHeight, out int height))
+      if (
+        !int.TryParse(RectX, out int x)
+        || !int.TryParse(RectY, out int y)
+        || !int.TryParse(RectWidth, out int width)
+        || !int.TryParse(RectHeight, out int height)
+      )
       {
         CroppedImage = null;
         CustomImageRect = string.Empty;
         return;
       }
 
-      if (x < 0 || y < 0 || width <= 0 || height <= 0 ||
-        x + width > SelectedWindowImage.PixelWidth ||
-        y + height > SelectedWindowImage.PixelHeight)
+      if (
+        x < 0
+        || y < 0
+        || width <= 0
+        || height <= 0
+        || x + width > SelectedWindowImage.PixelWidth
+        || y + height > SelectedWindowImage.PixelHeight
+      )
       {
         CroppedImage = null;
         CustomImageRect = string.Empty;
@@ -107,13 +120,21 @@ namespace SpeechAgent.Features.Settings.FindWin
 
       try
       {
-        var croppedBitmap = new CroppedBitmap(SelectedWindowImage, new Int32Rect(x, y, width, height));
+        var croppedBitmap = new CroppedBitmap(
+          SelectedWindowImage,
+          new Int32Rect(x, y, width, height)
+        );
         CroppedImage = croppedBitmap;
         CustomImageRect = $"{x},{y},{width},{height}";
       }
       catch (Exception ex)
       {
-        MessageBox.Show($"이미지 자르기 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show(
+          $"이미지 자르기 중 오류가 발생했습니다: {ex.Message}",
+          "오류",
+          MessageBoxButton.OK,
+          MessageBoxImage.Error
+        );
         CroppedImage = null;
         CustomImageRect = string.Empty;
       }
@@ -124,17 +145,29 @@ namespace SpeechAgent.Features.Settings.FindWin
     {
       if (string.IsNullOrEmpty(CustomImageName))
       {
-        MessageBox.Show("이름을 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show(
+          "이름을 입력해주세요.",
+          "알림",
+          MessageBoxButton.OK,
+          MessageBoxImage.Warning
+        );
         return;
       }
 
       if (string.IsNullOrEmpty(CustomImageRect))
       {
-        MessageBox.Show("X, Y, Width, Height 값을 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show(
+          "X, Y, Width, Height 값을 입력해주세요.",
+          "알림",
+          MessageBoxButton.OK,
+          MessageBoxImage.Warning
+        );
         return;
       }
 
-      WeakReferenceMessenger.Default.Send(new SendToSettingsImageMessage(CustomImageName, CustomImageRect));
+      WeakReferenceMessenger.Default.Send(
+        new SendToSettingsImageMessage(CustomImageName, CustomImageRect)
+      );
       View.Close();
     }
 
@@ -154,8 +187,11 @@ namespace SpeechAgent.Features.Settings.FindWin
     }
 
     partial void OnRectXChanged(string value) => UpdateCroppedImage();
+
     partial void OnRectYChanged(string value) => UpdateCroppedImage();
+
     partial void OnRectWidthChanged(string value) => UpdateCroppedImage();
+
     partial void OnRectHeightChanged(string value) => UpdateCroppedImage();
   }
 }

@@ -1,5 +1,4 @@
-﻿using SpeechAgent.Services.MedicSIO.Dto;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -7,6 +6,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using SpeechAgent.Services.MedicSIO.Dto;
 
 namespace SpeechAgent.Services.Api
 {
@@ -25,7 +25,7 @@ namespace SpeechAgent.Services.Api
       _httpClientFactory = httpClientFactory;
       _jsonOptions = new JsonSerializerOptions
       {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
       };
     }
 
@@ -35,7 +35,11 @@ namespace SpeechAgent.Services.Api
       {
         var client = _httpClientFactory.CreateClient("SpeechServer");
         var request = new GetPatientInfoByImageRequestDto() { ImageUrl = imageUrl };
-        var response = await client.PostAsJsonAsync("llm/get-patient-info-by-image", request, _jsonOptions);
+        var response = await client.PostAsJsonAsync(
+          "llm/get-patient-info-by-image",
+          request,
+          _jsonOptions
+        );
         var patientInfo = await response.Content.ReadFromJsonAsync<PatientInfoDto>(_jsonOptions);
         return patientInfo!;
       }

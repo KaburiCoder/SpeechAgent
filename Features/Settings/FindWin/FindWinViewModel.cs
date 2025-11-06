@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -7,15 +9,14 @@ using SpeechAgent.Features.Settings.FindWin.Services;
 using SpeechAgent.Messages;
 using SpeechAgent.Models;
 using SpeechAgent.Utils.Automation;
-using System.Collections.ObjectModel;
-using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
 namespace SpeechAgent.Features.Settings.FindWin
 {
   partial class FindWinViewModel(
     IWindowCaptureService _captureService,
-    IAutomationControlSearcher _automationSearcher) : BaseViewModel
+    IAutomationControlSearcher _automationSearcher
+  ) : BaseViewModel
   {
     [ObservableProperty]
     private ObservableCollection<WindowInfo> _windows = new();
@@ -43,7 +44,7 @@ namespace SpeechAgent.Features.Settings.FindWin
 
     [ObservableProperty]
     private string _patientNameIndex = string.Empty;
-      
+
     [RelayCommand]
     private async Task StartScan()
     {
@@ -69,7 +70,12 @@ namespace SpeechAgent.Features.Settings.FindWin
       }
       catch (Exception ex)
       {
-        MessageBox.Show($"스캔 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show(
+          $"스캔 중 오류가 발생했습니다: {ex.Message}",
+          "오류",
+          MessageBoxButton.OK,
+          MessageBoxImage.Error
+        );
       }
       finally
       {
@@ -88,9 +94,11 @@ namespace SpeechAgent.Features.Settings.FindWin
         return;
       }
 
-      var filtered = _automationSearcher.FoundControls
-        .Where(c => c.Text.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                   c.ClassName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+      var filtered = _automationSearcher
+        .FoundControls.Where(c =>
+          c.Text.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+          || c.ClassName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+        )
         .ToList();
 
       SearchedControls.Clear();
@@ -105,27 +113,39 @@ namespace SpeechAgent.Features.Settings.FindWin
     {
       if (string.IsNullOrEmpty(ChartNumberControlType) || string.IsNullOrEmpty(ChartNumberIndex))
       {
-        MessageBox.Show("차트번호의 컨트롤 타입과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show(
+          "차트번호의 컨트롤 타입과 인덱스를 입력해주세요.",
+          "알림",
+          MessageBoxButton.OK,
+          MessageBoxImage.Warning
+        );
         return;
       }
 
       if (string.IsNullOrEmpty(PatientNameControlType) || string.IsNullOrEmpty(PatientNameIndex))
       {
-        MessageBox.Show("수진자명의 컨트롤 타입과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show(
+          "수진자명의 컨트롤 타입과 인덱스를 입력해주세요.",
+          "알림",
+          MessageBoxButton.OK,
+          MessageBoxImage.Warning
+        );
         return;
       }
 
-      WeakReferenceMessenger.Default.Send(new SendToSettingsMessage(
-        exeTitle: SelectedWindow?.Title ?? "",
-        chartControlType: ChartNumberControlType,
-        chartIndex: ChartNumberIndex,
-        chartRegex: "",
-        chartRegexIndex: "0",
-        nameControlType: PatientNameControlType,
-        nameIndex: PatientNameIndex,
-        nameRegex: "",
-        nameRegexIndex: "0"
-      ));
+      WeakReferenceMessenger.Default.Send(
+        new SendToSettingsMessage(
+          exeTitle: SelectedWindow?.Title ?? "",
+          chartControlType: ChartNumberControlType,
+          chartIndex: ChartNumberIndex,
+          chartRegex: "",
+          chartRegexIndex: "0",
+          nameControlType: PatientNameControlType,
+          nameIndex: PatientNameIndex,
+          nameRegex: "",
+          nameRegexIndex: "0"
+        )
+      );
 
       View.Close();
     }
@@ -161,7 +181,12 @@ namespace SpeechAgent.Features.Settings.FindWin
           {
             App.Current.Dispatcher.Invoke(() =>
             {
-              MessageBox.Show($"컨트롤 검색 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+              MessageBox.Show(
+                $"컨트롤 검색 중 오류가 발생했습니다: {ex.Message}",
+                "오류",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error
+              );
             });
           }
           finally

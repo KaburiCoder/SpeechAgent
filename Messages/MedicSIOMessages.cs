@@ -1,10 +1,10 @@
-﻿using CommunityToolkit.Mvvm.Messaging.Messages;
-using SpeechAgent.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+using SpeechAgent.Models;
 
 namespace SpeechAgent.Messages
 {

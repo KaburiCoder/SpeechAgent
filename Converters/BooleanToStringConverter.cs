@@ -14,7 +14,7 @@ namespace SpeechAgent.Converters
         {
           return boolValue ? parts[0] : parts[1];
         }
-        
+
         // 기존 콜론 구분자도 지원
         var colonParts = param.Split(':');
         if (colonParts.Length >= 2)

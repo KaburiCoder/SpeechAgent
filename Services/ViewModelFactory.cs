@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 using SpeechAgent.Bases;
-using System.Windows;
 using static SpeechAgent.Services.ViewModelFactory;
 
 namespace SpeechAgent.Services
@@ -10,7 +10,10 @@ namespace SpeechAgent.Services
     ReturnType<TView, TViewModel> CreateViewModel<TView, TViewModel>(Window? owner = null)
       where TView : Window, new()
       where TViewModel : BaseViewModel;
-    ReturnType<TView, TViewModel> CreateViewModel<TView, TViewModel, TArgs>(TArgs args, Window? owner = null)
+    ReturnType<TView, TViewModel> CreateViewModel<TView, TViewModel, TArgs>(
+      TArgs args,
+      Window? owner = null
+    )
       where TView : Window, new()
       where TViewModel : BaseViewModel<TArgs>;
   }
@@ -26,8 +29,8 @@ namespace SpeechAgent.Services
     }
 
     public ReturnType<TView, TViewModel> CreateViewModel<TView, TViewModel>(Window? owner = null)
-     where TView : Window, new()
-     where TViewModel : BaseViewModel
+      where TView : Window, new()
+      where TViewModel : BaseViewModel
     {
       var view = new TView();
       if (owner != null)
@@ -39,16 +42,15 @@ namespace SpeechAgent.Services
       viewModel.Initialize();
 
       view.DataContext = viewModel;
-      return new ReturnType<TView, TViewModel>
-      {
-        View = view,
-        ViewModel = viewModel
-      };
+      return new ReturnType<TView, TViewModel> { View = view, ViewModel = viewModel };
     }
 
-    public ReturnType<TView, TViewModel> CreateViewModel<TView, TViewModel, TArgs>(TArgs args, Window? owner = null)
-    where TView : Window, new()
-    where TViewModel : BaseViewModel<TArgs>
+    public ReturnType<TView, TViewModel> CreateViewModel<TView, TViewModel, TArgs>(
+      TArgs args,
+      Window? owner = null
+    )
+      where TView : Window, new()
+      where TViewModel : BaseViewModel<TArgs>
     {
       var view = new TView();
       if (owner != null)
@@ -60,11 +62,7 @@ namespace SpeechAgent.Services
       viewModel.Initialize(args);
 
       view.DataContext = viewModel;
-      return new ReturnType<TView, TViewModel>
-      {
-        View = view,
-        ViewModel = viewModel
-      };
+      return new ReturnType<TView, TViewModel> { View = view, ViewModel = viewModel };
     }
   }
 }

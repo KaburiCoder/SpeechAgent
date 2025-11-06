@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>0.0.56</VersionPrefix>
+    <VersionPrefix>0.0.57</VersionPrefix>
     <Utf8Output>true</Utf8Output>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -33,6 +33,7 @@
     <PackageReference Include="Vanara.PInvoke.DwmApi" Version="4.2.1" />
     <PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.2.1" />
     <PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.2.1" />
+    <PackageReference Include="WPF-UI.Markdown" Version="4.0.2" />
     <Resource Include="Resources\main.ico" />
     <Page Include="App.xaml" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
@@ -43,16 +44,45 @@
     <PackageReference Include="Vanara.PInvoke.User32" Version="4.2.1" />
     <PackageReference Include="Velopack" Version="0.0.1298" />
   </ItemGroup>
-  <ItemGroup>
-    <!-- tessdata ???????癲ル슢???留??publish??????-->
+  <ItemGroup>    <!-- tessdata ????????꿔꺂????筌??publish??????-->
     <Content Include="Assets/tessdata/**" CopyToPublishDirectory="PreserveNewest" Link="tessdata/%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="_Updates\\**\\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
+  <ItemGroup>
+    <Content Include="_Updates\\**\\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
       <DesignTime>True</DesignTime>
+  <ItemGroup>
+    <Content Include="_Updates\\**\\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
       <AutoGen>True</AutoGen>
+  <ItemGroup>
+    <Content Include="_Updates\\**\\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
       <DependentUpon>Resources.resx</DependentUpon>
+  <ItemGroup>
+    <Content Include="_Updates\\**\\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
     </Compile>
+  <ItemGroup>
+    <Content Include="_Updates\\**\\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">

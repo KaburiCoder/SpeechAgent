@@ -49,14 +49,15 @@ namespace SpeechAgent.Utils
             return null;
 
           string tempFilePath = System.IO.Path.Combine(
-                  System.IO.Path.GetTempPath(),
-                $"ocr_{Guid.NewGuid()}.png");
+            System.IO.Path.GetTempPath(),
+            $"ocr_{Guid.NewGuid()}.png"
+          );
 
           bitmap.Save(tempFilePath, System.Drawing.Imaging.ImageFormat.Png);
           return tempFilePath;
         }
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         LogUtils.WriteTextLog("Error.log", ex.ToString(), append: true);
         return null;

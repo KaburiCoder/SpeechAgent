@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using SpeechAgent.Bases;
@@ -6,15 +8,14 @@ using SpeechAgent.Features.Settings.FindWin.Models;
 using SpeechAgent.Features.Settings.FindWin.Services;
 using SpeechAgent.Messages;
 using SpeechAgent.Utils;
-using System.Collections.ObjectModel;
-using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
 namespace SpeechAgent.Features.Settings.FindWin
 {
   partial class FindWinApiViewModel(
     IWindowCaptureService _captureService,
-    IControlSearcher _controlSearcher) : BaseViewModel
+    IControlSearcher _controlSearcher
+  ) : BaseViewModel
   {
     [ObservableProperty]
     private ObservableCollection<WindowInfo> _windows = new();
@@ -58,17 +59,22 @@ namespace SpeechAgent.Features.Settings.FindWin
           var windows = _captureService.GetWindowsWithScreenshots();
 
           App.Current.Dispatcher.Invoke(() =>
-      {
-        foreach (var window in windows)
-        {
-          Windows.Add(window);
-        }
-      });
+          {
+            foreach (var window in windows)
+            {
+              Windows.Add(window);
+            }
+          });
         });
       }
       catch (Exception ex)
       {
-        MessageBox.Show($"스캔 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show(
+          $"스캔 중 오류가 발생했습니다: {ex.Message}",
+          "오류",
+          MessageBoxButton.OK,
+          MessageBoxImage.Error
+        );
       }
       finally
       {
@@ -86,21 +92,25 @@ namespace SpeechAgent.Features.Settings.FindWin
         return;
       }
 
-      var filtered = _controlSearcher.FoundControls
-        .Where(c => c.Text.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-    c.ClassName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+      var filtered = _controlSearcher
+        .FoundControls.Where(c =>
+          c.Text.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+          || c.ClassName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+        )
         .ToList();
 
       SearchedControls.Clear();
       foreach (var control in filtered)
       {
-        SearchedControls.Add(new ControlInfoDisplay
-        {
-          DisplayText = $"{control.ClassName} - [{control.RECT.Left}, {control.RECT.Top}]",
-          Text = control.Text,
-          ControlType = control.ClassName,
-          Index = control.Index
-        });
+        SearchedControls.Add(
+          new ControlInfoDisplay
+          {
+            DisplayText = $"{control.ClassName} - [{control.RECT.Left}, {control.RECT.Top}]",
+            Text = control.Text,
+            ControlType = control.ClassName,
+            Index = control.Index,
+          }
+        );
       }
     }
 
@@ -109,27 +119,39 @@ namespace SpeechAgent.Features.Settings.FindWin
     {
       if (string.IsNullOrEmpty(ChartNumberControlType) || string.IsNullOrEmpty(ChartNumberIndex))
       {
-        MessageBox.Show("차트번호의 컨트롤 타입과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show(
+          "차트번호의 컨트롤 타입과 인덱스를 입력해주세요.",
+          "알림",
+          MessageBoxButton.OK,
+          MessageBoxImage.Warning
+        );
         return;
       }
 
       if (string.IsNullOrEmpty(PatientNameControlType) || string.IsNullOrEmpty(PatientNameIndex))
       {
-        MessageBox.Show("수진자명의 컨트롤 타입과 인덱스를 입력해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show(
+          "수진자명의 컨트롤 타입과 인덱스를 입력해주세요.",
+          "알림",
+          MessageBoxButton.OK,
+          MessageBoxImage.Warning
+        );
         return;
       }
 
-      WeakReferenceMessenger.Default.Send(new SendToSettingsMessage(
-         exeTitle: SelectedWindow?.Title ?? "",
-        chartControlType: ChartNumberControlType,
-           chartIndex: ChartNumberIndex,
-        chartRegex: "",
-   chartRegexIndex: "0",
-           nameControlType: PatientNameControlType,
-       nameIndex: PatientNameIndex,
-     nameRegex: "",
-    nameRegexIndex: "0"
-         ));
+      WeakReferenceMessenger.Default.Send(
+        new SendToSettingsMessage(
+          exeTitle: SelectedWindow?.Title ?? "",
+          chartControlType: ChartNumberControlType,
+          chartIndex: ChartNumberIndex,
+          chartRegex: "",
+          chartRegexIndex: "0",
+          nameControlType: PatientNameControlType,
+          nameIndex: PatientNameIndex,
+          nameRegex: "",
+          nameRegexIndex: "0"
+        )
+      );
 
       View.Close();
     }
@@ -143,45 +165,53 @@ namespace SpeechAgent.Features.Settings.FindWin
         IsLoading = true;
 
         Task.Run(() =>
-  {
-    try
-    {
-      // Win32 API로 컨트롤 검색
-      if (_controlSearcher.FindWindowByTitle(title => title.Contains(value.Title)))
-      {
-        var controls = _controlSearcher.SearchControls();
-        App.Current.Dispatcher.Invoke(() =>
         {
-          SearchedControls.Clear();
-          for (int i = 0; i < controls.Count; i++)
+          try
           {
-            var control = controls[i];
-            SearchedControls.Add(new ControlInfoDisplay
+            // Win32 API로 컨트롤 검색
+            if (_controlSearcher.FindWindowByTitle(title => title.Contains(value.Title)))
             {
-              DisplayText = $"{control.ClassName} - [{control.RECT.Left}, {control.RECT.Top}]",
-              Text = control.Text,
-              ControlType = control.ClassName,
-              Index = control.Index,
+              var controls = _controlSearcher.SearchControls();
+              App.Current.Dispatcher.Invoke(() =>
+              {
+                SearchedControls.Clear();
+                for (int i = 0; i < controls.Count; i++)
+                {
+                  var control = controls[i];
+                  SearchedControls.Add(
+                    new ControlInfoDisplay
+                    {
+                      DisplayText =
+                        $"{control.ClassName} - [{control.RECT.Left}, {control.RECT.Top}]",
+                      Text = control.Text,
+                      ControlType = control.ClassName,
+                      Index = control.Index,
+                    }
+                  );
+                }
+              });
+            }
+          }
+          catch (Exception ex)
+          {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+              MessageBox.Show(
+                $"컨트롤 검색 중 오류가 발생했습니다: {ex.Message}",
+                "오류",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error
+              );
+            });
+          }
+          finally
+          {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+              IsLoading = false;
             });
           }
         });
-      }
-    }
-    catch (Exception ex)
-    {
-      App.Current.Dispatcher.Invoke(() =>
-       {
-         MessageBox.Show($"컨트롤 검색 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-       });
-    }
-    finally
-    {
-      App.Current.Dispatcher.Invoke(() =>
-       {
-         IsLoading = false;
-       });
-    }
-  });
       }
     }
 

@@ -7,6 +7,7 @@ namespace SpeechAgent.Messages
   {
     public LocalSettings Settings { get; }
     public LocalSettings? PreviousSettings { get; }
+
     public LocalSettingsChangeData(LocalSettings settings, LocalSettings? previousSettings)
     {
       Settings = settings;
@@ -14,5 +15,6 @@ namespace SpeechAgent.Messages
     }
   }
 
-  public class LocalSettingsChangedMessage(LocalSettingsChangeData data) : ValueChangedMessage<LocalSettingsChangeData>(data) { }
+  public class LocalSettingsChangedMessage(LocalSettingsChangeData data)
+    : ValueChangedMessage<LocalSettingsChangeData>(data) { }
 }

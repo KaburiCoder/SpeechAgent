@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Windows;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Features.Settings.FindWin;
 using SpeechAgent.Features.Settings.FindWin.Services;
+using SpeechAgent.Features.UpdateHistory;
 using SpeechAgent.Services;
 using SpeechAgent.Services.Api;
 using SpeechAgent.Services.Globals;
@@ -65,6 +67,7 @@ namespace SpeechAgent
       services.AddTransient<FindWinApiViewModel>();
       services.AddTransient<FindWinImageViewModel>();
       services.AddTransient<ShortcutSettingsViewModel>();
+      services.AddTransient<UpdateHistoryViewModel>();
 
       // Services
       services.AddTransient<IMainService, MainService>();
@@ -73,6 +76,7 @@ namespace SpeechAgent
       services.AddTransient<IControlSearcher, ControlSearcher>();
       services.AddTransient<IClickSoftControlSearchService, ClickSoftControlSearchService>();
       services.AddTransient<IShortcutSettingsService, ShortcutSettingsService>();
+      services.AddTransient<IUpdateHistoryService, UpdateHistoryService>();
 
       services.AddTransient<ILlmApi, LlmApi>();
       return services.BuildServiceProvider();
@@ -85,6 +89,8 @@ namespace SpeechAgent
     {
       // 관리자 권한 확인 및 필요시 재실행
       AdminHelper.RequireAdminOrExit();
+      // EUC-KR, CP949, 949
+      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
       if (_mutex.WaitOne(TimeSpan.Zero, true) == false)
       {

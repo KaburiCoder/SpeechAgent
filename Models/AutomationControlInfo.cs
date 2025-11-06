@@ -19,6 +19,7 @@ namespace SpeechAgent.Models
     public int RectWidth => BoundingRectangle.Width;
     public int RectHeight => BoundingRectangle.Height;
 
-    public string DisplayText => $"[{Index}] Class: {ClassName}\nAutomationId: {AutomationId}\nControlType: {ControlType}\nPosition: x:{RectLeft}, y:{RectTop}, w:{RectWidth}, h:{RectHeight}";
+    public string DisplayText =>
+      $"[{Index}] Class: {ClassName}\nAutomationId: {AutomationId}\nControlType: {ControlType}\nPosition: x:{RectLeft}, y:{RectTop}, w:{RectWidth}, h:{RectHeight}";
   }
 }

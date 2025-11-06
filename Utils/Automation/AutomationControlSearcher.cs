@@ -99,20 +99,23 @@ namespace SpeechAgent.Utils.Automation
         }
       }
 
-      _foundControls.Sort((a, b) =>
-      {
-        int topComparison = a.BoundingRectangle.Left.CompareTo(b.BoundingRectangle.Left);
-        if (topComparison != 0)
-          return topComparison;
-        return a.BoundingRectangle.Top.CompareTo(b.BoundingRectangle.Top);
-      });
+      _foundControls.Sort(
+        (a, b) =>
+        {
+          int topComparison = a.BoundingRectangle.Left.CompareTo(b.BoundingRectangle.Left);
+          if (topComparison != 0)
+            return topComparison;
+          return a.BoundingRectangle.Top.CompareTo(b.BoundingRectangle.Top);
+        }
+      );
 
       return _foundControls;
     }
 
     public AutomationControlInfo? CreateControlInfo(AutomationElement? element)
     {
-      if (element == null) return null;
+      if (element == null)
+        return null;
 
       try
       {
@@ -124,7 +127,7 @@ namespace SpeechAgent.Utils.Automation
 
         // 텍스트 가져오기 시도
         string text = GetControlText(element);
-      
+
         return new AutomationControlInfo
         {
           Element = element,
@@ -133,7 +136,12 @@ namespace SpeechAgent.Utils.Automation
           AutomationId = automationId ?? "",
           ControlType = controlType ?? "",
           Text = text ?? "",
-          BoundingRectangle = new Rectangle((int)rect.Left, (int)rect.Top, (int)rect.Width, (int)rect.Height)
+          BoundingRectangle = new Rectangle(
+            (int)rect.Left,
+            (int)rect.Top,
+            (int)rect.Width,
+            (int)rect.Height
+          ),
         };
       }
       catch
@@ -196,7 +204,8 @@ namespace SpeechAgent.Utils.Automation
 
     public IntPtr GetWindowHandle()
     {
-      if (_targetWindow == null) return 0;
+      if (_targetWindow == null)
+        return 0;
 
       try
       {
@@ -206,7 +215,6 @@ namespace SpeechAgent.Utils.Automation
       {
         return 0;
       }
-
     }
   }
 }

@@ -1,5 +1,5 @@
-using SpeechAgent.Models;
 using System.Text;
+using SpeechAgent.Models;
 using Vanara.PInvoke;
 
 namespace SpeechAgent.Utils
@@ -33,23 +33,25 @@ namespace SpeechAgent.Utils
       string className = _classNameSb.ToString();
       bool isMatched = _classNamePredicate?.Invoke(className) ?? true;
 
-      if (!isMatched) return true;
+      if (!isMatched)
+        return true;
       User32.GetWindowRect(hwnd, out RECT rect);
 
       string text = GetControlText(hwnd);
-      _foundControls.Add(new ControlInfo
-      {
-        Hwnd = hwnd,
-        ClassName = className,
-        Text = text,
-        RECT = rect
-      });
+      _foundControls.Add(
+        new ControlInfo
+        {
+          Hwnd = hwnd,
+          ClassName = className,
+          Text = text,
+          RECT = rect,
+        }
+      );
 
       return true;
     }
 
-    public ControlSearcher(
-      Func<string, bool>? classNamePredicate = null)
+    public ControlSearcher(Func<string, bool>? classNamePredicate = null)
     {
       _classNamePredicate = classNamePredicate;
 
@@ -59,7 +61,8 @@ namespace SpeechAgent.Utils
 
     public string GetControlText(HWND hwnd)
     {
-      int length = (int)User32.SendMessage(hwnd, User32.WindowMessage.WM_GETTEXTLENGTH, IntPtr.Zero, IntPtr.Zero);
+      int length = (int)
+        User32.SendMessage(hwnd, User32.WindowMessage.WM_GETTEXTLENGTH, IntPtr.Zero, IntPtr.Zero);
       StringBuilder sb = new(length + 1);
       User32.SendMessage(hwnd, User32.WindowMessage.WM_GETTEXT, (IntPtr)sb.Capacity, sb);
       string text = sb.ToString();
@@ -74,17 +77,20 @@ namespace SpeechAgent.Utils
     public List<ControlInfo> SearchControls()
     {
       _foundControls.Clear();
-      if (_hwnd == IntPtr.Zero) return _foundControls;
+      if (_hwnd == IntPtr.Zero)
+        return _foundControls;
       User32.EnumChildWindows(_hwnd, EnumChildProc, IntPtr.Zero);
 
       // 위치로 정렬
-      _foundControls.Sort((a, b) =>
-      {
-        int leftComparison = a.RECT.Left.CompareTo(b.RECT.Left);
-        if (leftComparison != 0)
-          return leftComparison;
-        return a.RECT.Top.CompareTo(b.RECT.Top);
-      });
+      _foundControls.Sort(
+        (a, b) =>
+        {
+          int leftComparison = a.RECT.Left.CompareTo(b.RECT.Left);
+          if (leftComparison != 0)
+            return leftComparison;
+          return a.RECT.Top.CompareTo(b.RECT.Top);
+        }
+      );
 
       // 클래스별로 인덱스 재할당
       var classNameGroups = _foundControls.GroupBy(c => c.ClassName);

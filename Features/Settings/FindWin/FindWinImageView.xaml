@@ -1,107 +1,118 @@
-<Window x:Class="SpeechAgent.Features.Settings.FindWin.FindWinImageView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:SpeechAgent.Features.Settings.FindWin"
-        xmlns:controls="clr-namespace:SpeechAgent.Features.Settings.FindWin.Controls"
-        mc:Ignorable="d"
-        Title="Image Control Finder" Height="800" Width="1400"
-        WindowStartupLocation="CenterScreen">
+<Window
+  x:Class="SpeechAgent.Features.Settings.FindWin.FindWinImageView"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:controls="clr-namespace:SpeechAgent.Features.Settings.FindWin.Controls"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:local="clr-namespace:SpeechAgent.Features.Settings.FindWin"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  Title="Image Control Finder"
+  Width="1400"
+  Height="800"
+  WindowStartupLocation="CenterScreen"
+  mc:Ignorable="d">
   <Window.Resources>
-    <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
   </Window.Resources>
 
   <Grid Margin="10">
     <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <!-- Top Control Area -->
+    <!--  Top Control Area  -->
     <Grid Grid.Row="0" Margin="0,0,0,10">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
 
-      <!-- Left: Scan Button -->
-      <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-        <Button Content="스캔"
-                Command="{Binding StartScanCommand}"
-                Width="120"
-                Height="40"
-                Margin="0,0,10,0"
-                FontSize="14"
-                FontWeight="Bold"
-                Background="#007ACC"
-                Foreground="White"
-                BorderThickness="0">
+      <!--  Left: Scan Button  -->
+      <StackPanel
+        Grid.Column="0"
+        VerticalAlignment="Center"
+        Orientation="Horizontal">
+        <Button
+          Width="120"
+          Height="40"
+          Margin="0,0,10,0"
+          Background="#007ACC"
+          BorderThickness="0"
+          Command="{Binding StartScanCommand}"
+          Content="스캔"
+          FontSize="14"
+          FontWeight="Bold"
+          Foreground="White">
           <Button.Style>
             <Style TargetType="Button">
               <Setter Property="Template">
                 <Setter.Value>
                   <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="5">
-                      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Border
+                      Background="{TemplateBinding Background}"
+                      BorderBrush="{TemplateBinding BorderBrush}"
+                      BorderThickness="{TemplateBinding BorderThickness}"
+                      CornerRadius="5">
+                      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                   </ControlTemplate>
                 </Setter.Value>
               </Setter>
               <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                  <Setter Property="Background" Value="#005A9E"/>
+                  <Setter Property="Background" Value="#005A9E" />
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                  <Setter Property="Background" Value="#004080"/>
+                  <Setter Property="Background" Value="#004080" />
                 </Trigger>
               </Style.Triggers>
             </Style>
           </Button.Style>
         </Button>
-        <TextBlock Text="로딩 중..."
-                   VerticalAlignment="Center"
-                   Margin="20,0,0,0"
-                   FontSize="14"
-                   Foreground="Gray"
-                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}"/>
+        <TextBlock
+          Margin="20,0,0,0"
+          VerticalAlignment="Center"
+          FontSize="14"
+          Foreground="Gray"
+          Text="로딩 중..."
+          Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
       </StackPanel>
 
-      <!-- Right: Send to Settings Button -->
-      <Button Grid.Column="1"
-              Content="설정으로 전송"
-              Command="{Binding SendToSettingsCommand}"
-              Width="120"
-              Height="40"
-              HorizontalAlignment="Right"
-              FontSize="14"
-              FontWeight="Bold"
-              Background="#28A745"
-              Foreground="White"
-              BorderThickness="0">
+      <!--  Right: Send to Settings Button  -->
+      <Button
+        Grid.Column="1"
+        Width="120"
+        Height="40"
+        HorizontalAlignment="Right"
+        Background="#28A745"
+        BorderThickness="0"
+        Command="{Binding SendToSettingsCommand}"
+        Content="설정으로 전송"
+        FontSize="14"
+        FontWeight="Bold"
+        Foreground="White">
         <Button.Style>
           <Style TargetType="Button">
             <Setter Property="Template">
               <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                  <Border Background="{TemplateBinding Background}"
-                          BorderBrush="{TemplateBinding BorderBrush}"
-                          BorderThickness="{TemplateBinding BorderThickness}"
-                          CornerRadius="5">
-                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  <Border
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="5">
+                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                   </Border>
                 </ControlTemplate>
               </Setter.Value>
             </Setter>
             <Style.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#218838"/>
+                <Setter Property="Background" Value="#218838" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#1E7E34"/>
+                <Setter Property="Background" Value="#1E7E34" />
               </Trigger>
             </Style.Triggers>
           </Style>
@@ -109,111 +120,174 @@
       </Button>
     </Grid>
 
-    <!-- Main Content Area -->
+    <!--  Main Content Area  -->
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="2*"/>
-        <ColumnDefinition Width="5"/>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="2*" />
+        <ColumnDefinition Width="5" />
+        <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
 
-      <!-- Window List (Left) - Using Custom Control -->
-      <controls:WindowListControl Grid.Column="0"
-                                  Windows="{Binding Windows}"
-                                  SelectedWindow="{Binding SelectedWindow, Mode=TwoWay}"/>
+      <!--  Window List (Left) - Using Custom Control  -->
+      <controls:WindowListControl
+        Grid.Column="0"
+        SelectedWindow="{Binding SelectedWindow, Mode=TwoWay}"
+        Windows="{Binding Windows}" />
 
-      <!-- Splitter -->
-      <GridSplitter Grid.Column="1"
-                    Width="5"
-                    HorizontalAlignment="Stretch"
-                    Background="LightGray"/>
+      <!--  Splitter  -->
+      <GridSplitter
+        Grid.Column="1"
+        Width="5"
+        HorizontalAlignment="Stretch"
+        Background="LightGray" />
 
-      <!-- Image Settings (Right) -->
-      <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10">
+      <!--  Image Settings (Right)  -->
+      <Border
+        Grid.Column="2"
+        Padding="10"
+        BorderBrush="Gray"
+        BorderThickness="1"
+        CornerRadius="5">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel>
-            <TextBlock Text="이미지 기반 설정"
-                       FontSize="18"
-                       FontWeight="Bold"
-                       Margin="0,0,0,10"/>
+            <TextBlock
+              Margin="0,0,0,10"
+              FontSize="18"
+              FontWeight="Bold"
+              Text="이미지 기반 설정" />
 
-            <!-- Selected Window Info -->
-            <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,10" Background="WhiteSmoke">
+            <!--  Selected Window Info  -->
+            <Border
+              Margin="0,0,0,10"
+              Padding="10"
+              Background="WhiteSmoke"
+              BorderBrush="LightGray"
+              BorderThickness="1"
+              CornerRadius="5">
               <StackPanel>
-                <TextBlock Text="선택된 윈도우" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                <TextBlock Text="{Binding SelectedWindow.Title}" TextWrapping="Wrap" Margin="0,0,0,3"/>
+                <TextBlock
+                  Margin="0,0,0,5"
+                  FontWeight="SemiBold"
+                  Text="선택된 윈도우" />
+                <TextBlock
+                  Margin="0,0,0,3"
+                  Text="{Binding SelectedWindow.Title}"
+                  TextWrapping="Wrap" />
                 <TextBlock FontSize="11" Foreground="Gray">
-                  <Run Text="클래스: "/>
-                  <Run Text="{Binding SelectedWindow.ClassName}"/>
+                  <Run Text="클래스: " />
+                  <Run Text="{Binding SelectedWindow.ClassName}" />
                 </TextBlock>
               </StackPanel>
             </Border>
 
-            <!-- Name Input -->
-            <TextBlock Text="이미지 이름:" Margin="0,0,0,5" FontWeight="SemiBold"/>
-            <TextBox Text="{Binding CustomImageName, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="0,0,0,10"
-                     Height="30"/>
+            <!--  Name Input  -->
+            <TextBlock
+              Margin="0,0,0,5"
+              FontWeight="SemiBold"
+              Text="이미지 이름:" />
+            <TextBox
+              Height="30"
+              Margin="0,0,0,10"
+              Text="{Binding CustomImageName, UpdateSourceTrigger=PropertyChanged}" />
 
-            <!-- Region Specification -->
-            <TextBlock Text="이미지 영역 (px):" Margin="0,0,0,5" FontWeight="SemiBold"/>
+            <!--  Region Specification  -->
+            <TextBlock
+              Margin="0,0,0,5"
+              FontWeight="SemiBold"
+              Text="이미지 영역 (px):" />
             <Grid Margin="0,0,0,10">
               <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
               <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
               </Grid.ColumnDefinitions>
 
-              <!-- X, Y -->
+              <!--  X, Y  -->
               <StackPanel Grid.Row="0" Grid.Column="0">
-                <TextBlock Text="X:" FontSize="11" Margin="0,0,0,2"/>
-                <TextBox Text="{Binding RectX, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+                <TextBlock
+                  Margin="0,0,0,2"
+                  FontSize="11"
+                  Text="X:" />
+                <TextBox Height="30" Text="{Binding RectX, UpdateSourceTrigger=PropertyChanged}" />
               </StackPanel>
               <StackPanel Grid.Row="0" Grid.Column="2">
-                <TextBlock Text="Y:" FontSize="11" Margin="0,0,0,2"/>
-                <TextBox Text="{Binding RectY, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+                <TextBlock
+                  Margin="0,0,0,2"
+                  FontSize="11"
+                  Text="Y:" />
+                <TextBox Height="30" Text="{Binding RectY, UpdateSourceTrigger=PropertyChanged}" />
               </StackPanel>
 
-              <!-- Width, Height -->
-              <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5,0,0">
-                <TextBlock Text="Width:" FontSize="11" Margin="0,0,0,2"/>
-                <TextBox Text="{Binding RectWidth, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+              <!--  Width, Height  -->
+              <StackPanel
+                Grid.Row="1"
+                Grid.Column="0"
+                Margin="0,5,0,0">
+                <TextBlock
+                  Margin="0,0,0,2"
+                  FontSize="11"
+                  Text="Width:" />
+                <TextBox Height="30" Text="{Binding RectWidth, UpdateSourceTrigger=PropertyChanged}" />
               </StackPanel>
-              <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,5,0,0">
-                <TextBlock Text="Height:" FontSize="11" Margin="0,0,0,2"/>
-                <TextBox Text="{Binding RectHeight, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+              <StackPanel
+                Grid.Row="1"
+                Grid.Column="2"
+                Margin="0,5,0,0">
+                <TextBlock
+                  Margin="0,0,0,2"
+                  FontSize="11"
+                  Text="Height:" />
+                <TextBox Height="30" Text="{Binding RectHeight, UpdateSourceTrigger=PropertyChanged}" />
               </StackPanel>
             </Grid>
 
-            <!-- Original Image -->
-            <TextBlock Text="원본 이미지:" FontWeight="SemiBold" Margin="0,0,0,5"/>
-            <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Margin="0,0,0,10" Height="200">
-              <Image Source="{Binding SelectedWindowImage}"
-                     Stretch="Uniform"
-                     RenderOptions.BitmapScalingMode="HighQuality"/>
+            <!--  Original Image  -->
+            <TextBlock
+              Margin="0,0,0,5"
+              FontWeight="SemiBold"
+              Text="원본 이미지:" />
+            <Border
+              Height="200"
+              Margin="0,0,0,10"
+              BorderBrush="LightGray"
+              BorderThickness="1"
+              CornerRadius="3">
+              <Image
+                RenderOptions.BitmapScalingMode="HighQuality"
+                Source="{Binding SelectedWindowImage}"
+                Stretch="Uniform" />
             </Border>
 
-            <!-- Cropped Image Preview -->
-            <TextBlock Text="잘라진 영역 미리보기:" FontWeight="SemiBold" Margin="0,0,0,5"/>
-            <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Height="150">
+            <!--  Cropped Image Preview  -->
+            <TextBlock
+              Margin="0,0,0,5"
+              FontWeight="SemiBold"
+              Text="잘라진 영역 미리보기:" />
+            <Border
+              Height="150"
+              BorderBrush="LightGray"
+              BorderThickness="1"
+              CornerRadius="3">
               <Grid>
-                <Image Source="{Binding CroppedImage}"
-                       Stretch="Uniform"
-                       RenderOptions.BitmapScalingMode="HighQuality"/>
-                <TextBlock Text="영역을 지정하면 자동으로 미리보기가 표시됩니다"
-                           Foreground="Gray"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center">
+                <Image
+                  RenderOptions.BitmapScalingMode="HighQuality"
+                  Source="{Binding CroppedImage}"
+                  Stretch="Uniform" />
+                <TextBlock
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Foreground="Gray"
+                  Text="영역을 지정하면 자동으로 미리보기가 표시됩니다">
                   <TextBlock.Style>
                     <Style TargetType="TextBlock">
-                      <Setter Property="Visibility" Value="Collapsed"/>
+                      <Setter Property="Visibility" Value="Collapsed" />
                       <Style.Triggers>
                         <DataTrigger Binding="{Binding CroppedImage}" Value="{x:Null}">
-                          <Setter Property="Visibility" Value="Visible"/>
+                          <Setter Property="Visibility" Value="Visible" />
                         </DataTrigger>
                       </Style.Triggers>
                     </Style>
@@ -222,17 +296,34 @@
               </Grid>
             </Border>
 
-            <!-- Settings Info -->
-            <Border BorderBrush="#2196F3" BorderThickness="2" CornerRadius="5" Padding="10" Margin="0,15,0,0" Background="#E3F2FD">
+            <!--  Settings Info  -->
+            <Border
+              Margin="0,15,0,0"
+              Padding="10"
+              Background="#E3F2FD"
+              BorderBrush="#2196F3"
+              BorderThickness="2"
+              CornerRadius="5">
               <StackPanel>
-                <TextBlock Text="현재 설정 값" FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,5"/>
-                <TextBlock FontSize="11" Foreground="#424242" TextWrapping="Wrap">
-                  <Run Text="이름: " FontWeight="SemiBold"/>
-                  <Run Text="{Binding CustomImageName}"/>
+                <TextBlock
+                  Margin="0,0,0,5"
+                  FontWeight="Bold"
+                  Foreground="#1976D2"
+                  Text="현재 설정 값" />
+                <TextBlock
+                  FontSize="11"
+                  Foreground="#424242"
+                  TextWrapping="Wrap">
+                  <Run FontWeight="SemiBold" Text="이름: " />
+                  <Run Text="{Binding CustomImageName}" />
                 </TextBlock>
-                <TextBlock FontSize="11" Foreground="#424242" TextWrapping="Wrap" Margin="0,2,0,0">
-                  <Run Text="영역: " FontWeight="SemiBold"/>
-                  <Run Text="{Binding CustomImageRect}"/>
+                <TextBlock
+                  Margin="0,2,0,0"
+                  FontSize="11"
+                  Foreground="#424242"
+                  TextWrapping="Wrap">
+                  <Run FontWeight="SemiBold" Text="영역: " />
+                  <Run Text="{Binding CustomImageRect}" />
                 </TextBlock>
               </StackPanel>
             </Border>

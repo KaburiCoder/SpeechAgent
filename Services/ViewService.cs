@@ -4,6 +4,7 @@ using SpeechAgent.Bases;
 using SpeechAgent.Features.Main;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Features.Settings.FindWin;
+using SpeechAgent.Features.UpdateHistory;
 
 namespace SpeechAgent.Services
 {
@@ -15,6 +16,7 @@ namespace SpeechAgent.Services
     void ShowFindWinApiView(Window parent);
     void ShowFindWinImageView(Window parent);
     void ShowShortcutSettingsView(Window parent);
+    void ShowUpdateHistoryView(Window parent);
   }
 
   public class ViewService : IViewService
@@ -64,6 +66,11 @@ namespace SpeechAgent.Services
     public void ShowShortcutSettingsView(Window parent)
     {
       ShowDialogCommon<ShortcutSettingsView, ShortcutSettingsViewModel>(parent);
+    }
+
+    public void ShowUpdateHistoryView(Window parent)
+    {
+      ShowDialogCommon<UpdateHistoryView, UpdateHistoryViewModel>(parent);
     }
   }
 }

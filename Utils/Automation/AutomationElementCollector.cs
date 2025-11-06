@@ -30,7 +30,8 @@ namespace SpeechAgent.Utils.Automation
 
       var windows = rootElement.FindAll(
         TreeScope.Children,
-        new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window));
+        new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window)
+      );
 
       foreach (AutomationElement window in windows)
       {
@@ -114,29 +115,29 @@ namespace SpeechAgent.Utils.Automation
 
       // 유효한 요소들만 정렬
       return validElements
-         .OrderBy(e =>
-           {
-             try
-             {
-               return e.Current.BoundingRectangle.Left;
-             }
-             catch
-             {
-               return int.MaxValue; // 오류 발생 시 끝에 배치
-             }
-           })
-           .ThenBy(e =>
-           {
-             try
-             {
-               return e.Current.BoundingRectangle.Top;
-             }
-             catch
-             {
-               return int.MaxValue;
-             }
-           })
-           .ToList();
+        .OrderBy(e =>
+        {
+          try
+          {
+            return e.Current.BoundingRectangle.Left;
+          }
+          catch
+          {
+            return int.MaxValue; // 오류 발생 시 끝에 배치
+          }
+        })
+        .ThenBy(e =>
+        {
+          try
+          {
+            return e.Current.BoundingRectangle.Top;
+          }
+          catch
+          {
+            return int.MaxValue;
+          }
+        })
+        .ToList();
     }
 
     public AutomationElement? GetElementByHandle(IntPtr handle)
@@ -158,15 +159,18 @@ namespace SpeechAgent.Utils.Automation
 
       var allWindows = rootElement.FindAll(
         TreeScope.Children,
-        new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window));
+        new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window)
+      );
 
       foreach (AutomationElement window in allWindows)
       {
         try
         {
           // 빈 창이나 숨겨진 창 제외
-          if (!string.IsNullOrEmpty(window.Current.Name) &&
-            window.Current.BoundingRectangle.Width > 0)
+          if (
+            !string.IsNullOrEmpty(window.Current.Name)
+            && window.Current.BoundingRectangle.Width > 0
+          )
           {
             windows.Add(window);
           }

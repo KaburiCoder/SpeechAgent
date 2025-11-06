@@ -1,6 +1,6 @@
 using System.Windows.Media.Imaging;
-using Tesseract;
 using OpenCvSharp;
+using Tesseract;
 
 namespace SpeechAgent.Utils
 {
@@ -33,7 +33,10 @@ namespace SpeechAgent.Utils
               return string.Empty;
 
             // 전처리 이미지를 임시 파일로 저장
-            string preprocessedPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"ocr_pre_{Guid.NewGuid()}.png");
+            string preprocessedPath = System.IO.Path.Combine(
+              System.IO.Path.GetTempPath(),
+              $"ocr_pre_{Guid.NewGuid()}.png"
+            );
             Cv2.ImWrite(preprocessedPath, preprocessedMat);
             try
             {
@@ -129,13 +132,21 @@ namespace SpeechAgent.Utils
         //6. 좌측40% crop
         int cropX = (int)(result.Cols * 0.4);
         int cropWidth = result.Cols - cropX;
-        if (cropWidth <= 0) cropWidth = result.Cols; // 안전장치
+        if (cropWidth <= 0)
+          cropWidth = result.Cols; // 안전장치
         cropped = new Mat(result, new OpenCvSharp.Rect(cropX, 0, cropWidth, result.Rows));
 
         //7. 크기 확대 (5배)
         double scale = 5.0;
         resized = new Mat();
-        Cv2.Resize(cropped, resized, new OpenCvSharp.Size(0, 0), scale, scale, InterpolationFlags.Cubic);
+        Cv2.Resize(
+          cropped,
+          resized,
+          new OpenCvSharp.Size(0, 0),
+          scale,
+          scale,
+          InterpolationFlags.Cubic
+        );
 
         return resized;
       }

@@ -5,6 +5,8 @@
   xmlns:converters="clr-namespace:SpeechAgent.Converters"
   xmlns:local="clr-namespace:SpeechAgent"
   xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+  xmlns:md="http://schemas.lepo.co/wpfui/2022/xaml/markdown"
+  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
   Startup="Application_Startup">
   <Application.Resources>
     <ResourceDictionary>
@@ -19,6 +21,10 @@
           SecondaryColor="Lime" />
 
         <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
+        <ui:ThemesDictionary Theme="Light" />
+        <ui:ControlsDictionary />
+        <md:ThemesDictionary Theme="Light" />
+        <md:ControlsDictionary />
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Application.Resources>

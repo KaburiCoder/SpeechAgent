@@ -1,3 +1,8 @@
+using System.Diagnostics;
+using System.Drawing;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Windows.Media.Imaging;
 using SpeechAgent.Constants;
 using SpeechAgent.Database.Schemas;
 using SpeechAgent.Database.Utils;
@@ -8,11 +13,6 @@ using SpeechAgent.Services.Api;
 using SpeechAgent.Utils;
 using SpeechAgent.Utils.Automation;
 using SpeechAgent.Utils.Converters;
-using System.Diagnostics;
-using System.Drawing;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Windows.Media.Imaging;
 using Tesseract;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -29,7 +29,8 @@ namespace SpeechAgent.Services
     ISettingsService _settingsService,
     IWindowCaptureService _windowCaptureService,
     ILlmApi llmApi,
-    IClickSoftControlSearchService _clickSoftControlSearchService) : IPatientSearchService
+    IClickSoftControlSearchService _clickSoftControlSearchService
+  ) : IPatientSearchService
   {
     private AutomationAppControls _appControls = new();
     private PatientImageResult _previousImageResult = new();
@@ -37,11 +38,14 @@ namespace SpeechAgent.Services
     private const int MaxNullCount = 10; // 초기화 기준 횟수
 
     LocalSettings Settings => _settingsService.Settings;
-    bool IsCustom => Settings.TargetAppName == AppKey.CustomUser ||
-      Settings.TargetAppName == AppKey.CustomUserWinApi ||
-      Settings.TargetAppName == AppKey.CustomUserImage;
+    bool IsCustom =>
+      Settings.TargetAppName == AppKey.CustomUser
+      || Settings.TargetAppName == AppKey.CustomUserWinApi
+      || Settings.TargetAppName == AppKey.CustomUserImage;
 
-    bool IsCustomNotImage => Settings.TargetAppName == AppKey.CustomUser || Settings.TargetAppName == AppKey.CustomUserWinApi;
+    bool IsCustomNotImage =>
+      Settings.TargetAppName == AppKey.CustomUser
+      || Settings.TargetAppName == AppKey.CustomUserWinApi;
 
     /// <summary>
     /// 컨트롤 검색 성공 시 _nullCount를 초기화합니다.
@@ -77,12 +81,20 @@ namespace SpeechAgent.Services
         {
           if (Settings.TargetAppName == AppKey.USarang)
           {
-            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실") && title.Contains("툴버전")))
+            if (
+              !_searcher.FindWindowByTitle(title =>
+                title.Contains("진료실") && title.Contains("툴버전")
+              )
+            )
               return false;
           }
           else if (Settings.TargetAppName == AppKey.Brain)
           {
-            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실") && title.Contains("ver")))
+            if (
+              !_searcher.FindWindowByTitle(title =>
+                title.Contains("진료실") && title.Contains("ver")
+              )
+            )
               return false;
           }
           else
@@ -126,24 +138,43 @@ namespace SpeechAgent.Services
       return null;
     }
 
-    private AutomationAppControls? FindCustomControls(List<AutomationControlInfo> controls, LocalSettings settings)
+    private AutomationAppControls? FindCustomControls(
+      List<AutomationControlInfo> controls,
+      LocalSettings settings
+    )
     {
       AutomationControlInfo? chartEdit = null;
       AutomationControlInfo? nameEdit = null;
 
-      if (!string.IsNullOrEmpty(settings.CustomChartControlType) && !string.IsNullOrEmpty(settings.CustomChartIndex))
+      if (
+        !string.IsNullOrEmpty(settings.CustomChartControlType)
+        && !string.IsNullOrEmpty(settings.CustomChartIndex)
+      )
       {
-        var chartControls = controls.Where(c => c.ControlType == settings.CustomChartControlType).ToList();
-        if (int.TryParse(settings.CustomChartIndex, out int chartIndex) && chartIndex < chartControls.Count)
+        var chartControls = controls
+          .Where(c => c.ControlType == settings.CustomChartControlType)
+          .ToList();
+        if (
+          int.TryParse(settings.CustomChartIndex, out int chartIndex)
+          && chartIndex < chartControls.Count
+        )
         {
           chartEdit = chartControls[chartIndex];
         }
       }
 
-      if (!string.IsNullOrEmpty(settings.CustomNameControlType) && !string.IsNullOrEmpty(settings.CustomNameIndex))
+      if (
+        !string.IsNullOrEmpty(settings.CustomNameControlType)
+        && !string.IsNullOrEmpty(settings.CustomNameIndex)
+      )
       {
-        var nameControls = controls.Where(c => c.ControlType == settings.CustomNameControlType).ToList();
-        if (int.TryParse(settings.CustomNameIndex, out int nameIndex) && nameIndex < nameControls.Count)
+        var nameControls = controls
+          .Where(c => c.ControlType == settings.CustomNameControlType)
+          .ToList();
+        if (
+          int.TryParse(settings.CustomNameIndex, out int nameIndex)
+          && nameIndex < nameControls.Count
+        )
         {
           nameEdit = nameControls[nameIndex];
         }
@@ -175,8 +206,12 @@ namespace SpeechAgent.Services
       {
         // newClick
         var appControls = new AutomationAppControls();
-        chartTextBox = controls.FirstOrDefault(c => c.ControlType == "ControlType.Edit" && c.Index == 1);
-        nameTextBox = controls.FirstOrDefault(c => c.ControlType == "ControlType.Edit" && c.Index == 7);
+        chartTextBox = controls.FirstOrDefault(c =>
+          c.ControlType == "ControlType.Edit" && c.Index == 1
+        );
+        nameTextBox = controls.FirstOrDefault(c =>
+          c.ControlType == "ControlType.Edit" && c.Index == 7
+        );
         appControls.SetControls(chartTextBox, nameTextBox);
         return appControls;
       }
@@ -203,18 +238,24 @@ namespace SpeechAgent.Services
       // ControlType.Edit인 컨트롤들을 필터링
       var editControls = controls.Where(c => c.ControlType == "ControlType.Edit").ToList();
 
-      if (editControls.Count < 2) return null;
+      if (editControls.Count < 2)
+        return null;
 
       // 한 라인에 가장 많은 컨트롤이 있는 그룹 찾기
       var maxGroup = editControls
-          .GroupBy(x => x.RectTop)
-          .OrderByDescending(g => g.Count())
-          .FirstOrDefault();
+        .GroupBy(x => x.RectTop)
+        .OrderByDescending(g => g.Count())
+        .FirstOrDefault();
 
       var chartControl = maxGroup?.First();
 
       // 나머지 컨트롤 중에서 X값이 가장 가까운 컨트롤을 찾기
-      var nameControl = maxGroup?.Where(c => c != chartControl).OrderBy(c => Math.Abs(c.BoundingRectangle.Left - chartControl?.BoundingRectangle.Left ?? 0)).First();
+      var nameControl = maxGroup
+        ?.Where(c => c != chartControl)
+        .OrderBy(c =>
+          Math.Abs(c.BoundingRectangle.Left - chartControl?.BoundingRectangle.Left ?? 0)
+        )
+        .First();
       chartControl = _searcher.CreateControlInfo(chartControl?.Element);
 
       if (chartControl == null || nameControl == null)
@@ -236,7 +277,12 @@ namespace SpeechAgent.Services
           Vanara.PInvoke.User32.GetWindowRect(new Vanara.PInvoke.HWND(hWnd), out var windowRect);
 
           // 절대 좌표를 윈도우 상대 좌표로 변환
-          var chartRectRelative = new Rectangle(chartControl.BoundingRectangle.X - windowRect.X, chartControl.BoundingRectangle.Y - windowRect.Y, chartControl.BoundingRectangle.Width, chartControl.BoundingRectangle.Height);
+          var chartRectRelative = new Rectangle(
+            chartControl.BoundingRectangle.X - windowRect.X,
+            chartControl.BoundingRectangle.Y - windowRect.Y,
+            chartControl.BoundingRectangle.Width,
+            chartControl.BoundingRectangle.Height
+          );
           var chartImg = _windowCaptureService.CaptureWindow(hWnd, chartRectRelative);
 
           // 이전 이미지와 유사하면 캐시된 정보 사용
@@ -253,7 +299,7 @@ namespace SpeechAgent.Services
             if (previousChart != chartControl.Text)
             {
               nameControl.Text = string.IsNullOrWhiteSpace(chartControl.Text)
-             ? ""
+                ? ""
                 : _searcher.GetControlText(nameControl.Element);
             }
           }
@@ -267,7 +313,10 @@ namespace SpeechAgent.Services
       catch (Exception ex)
       {
         var infoText = $"Error: {ex.ToString()}";
-        var filePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "USarangControls.txt");
+        var filePath = System.IO.Path.Combine(
+          System.AppDomain.CurrentDomain.BaseDirectory,
+          "USarangControls.txt"
+        );
         System.IO.File.WriteAllText(filePath, infoText);
       }
 
@@ -287,7 +336,11 @@ namespace SpeechAgent.Services
       if (Settings.TargetAppName == AppKey.ClickSoft)
       {
         var win32Result = _clickSoftControlSearchService.FindControls();
-        if (win32Result != null && win32Result.ChartTextBox != null && win32Result.NameTextBox != null)
+        if (
+          win32Result != null
+          && win32Result.ChartTextBox != null
+          && win32Result.NameTextBox != null
+        )
         {
           _appControls.SetControls(win32Result.ChartTextBox, win32Result.NameTextBox);
           ResetNullCount();
@@ -298,7 +351,7 @@ namespace SpeechAgent.Services
         // Win32로 못 찾으면 Automation으로 계속 시도
       }
 
-      // 윈도우 타이틀로 핸들 찾기   
+      // 윈도우 타이틀로 핸들 찾기
       if (!FindWindowByTitle(out bool isNewCreated))
       {
         _searcher.ClearFoundControls();
@@ -312,16 +365,22 @@ namespace SpeechAgent.Services
         IntPtr hWnd = _searcher.GetWindowHandle();
         PatientInfo patientInfo = new PatientInfo();
 
-        if (hWnd == IntPtr.Zero) return patientInfo;
+        if (hWnd == IntPtr.Zero)
+          return patientInfo;
 
-        BitmapSource? bitmapSource = _windowCaptureService.CaptureWindow(hWnd, captureRect: _settingsService.Settings.ParseCustomImageRect());
+        BitmapSource? bitmapSource = _windowCaptureService.CaptureWindow(
+          hWnd,
+          captureRect: _settingsService.Settings.ParseCustomImageRect()
+        );
         if (bitmapSource == null)
         {
           _previousImageResult.Clear();
         }
         // 이전 이미지와 유사하면 캐시된 정보 사용
-        else if (_previousImageResult.BitmapSource == null ||
-               !OpenCvUtils.AreImagesSimilar(_previousImageResult.BitmapSource, bitmapSource, 1))
+        else if (
+          _previousImageResult.BitmapSource == null
+          || !OpenCvUtils.AreImagesSimilar(_previousImageResult.BitmapSource, bitmapSource, 1)
+        )
         {
           var patientInfoDto = await llmApi.GetPatientInfoByImage(bitmapSource.ToDataUrl());
           patientInfo = new PatientInfo(patientInfoDto.Chart, patientInfoDto.Name);
@@ -354,9 +413,8 @@ namespace SpeechAgent.Services
           }
         }
 
-        var controls = _searcher.FoundControls.Count != 0
-          ? _searcher.FoundControls
-       : _searcher.SearchControls();
+        var controls =
+          _searcher.FoundControls.Count != 0 ? _searcher.FoundControls : _searcher.SearchControls();
 
         // 차트, 수진자명 컨트롤 찾아서 전달
         GetAppControls(controls);
@@ -364,7 +422,6 @@ namespace SpeechAgent.Services
         return CreatePatientInfo();
       }
     }
-
 
     private string ApplyRegexOrDefault(string? input, string pattern, int groupIndex)
     {
@@ -382,22 +439,23 @@ namespace SpeechAgent.Services
       {
         var splitResults = _appControls.ChartTextBox?.Text?.Split(" ", 2);
         if (splitResults != null && splitResults.Length >= 2)
-          return new PatientInfo
-          {
-            Chart = splitResults[0].Trim(),
-            Name = splitResults[1].Trim(),
-          };
+          return new PatientInfo { Chart = splitResults[0].Trim(), Name = splitResults[1].Trim() };
       }
 
-      string chart = ApplyRegexOrDefault(_appControls.ChartTextBox?.Text, Settings.CustomChartRegex, Settings.CustomChartRegexIndex);
-      string name = ApplyRegexOrDefault(_appControls.NameTextBox?.Text, Settings.CustomNameRegex, Settings.CustomNameRegexIndex);
+      string chart = ApplyRegexOrDefault(
+        _appControls.ChartTextBox?.Text,
+        Settings.CustomChartRegex,
+        Settings.CustomChartRegexIndex
+      );
+      string name = ApplyRegexOrDefault(
+        _appControls.NameTextBox?.Text,
+        Settings.CustomNameRegex,
+        Settings.CustomNameRegexIndex
+      );
 
-      return new PatientInfo
-      {
-        Chart = chart,
-        Name = name,
-      };
+      return new PatientInfo { Chart = chart, Name = name };
     }
+
     public void Clear()
     {
       _clickSoftControlSearchService.Clear();

@@ -12,10 +12,12 @@ namespace SpeechAgent.Services
     private MainView? _mainView;
     private bool _disposed = false;
     private readonly ISettingsService _settingsService;
+    private readonly IViewService _viewService;
 
-    public TrayIconService(ISettingsService settingsService)
+    public TrayIconService(ISettingsService settingsService, IViewService viewService)
     {
       _settingsService = settingsService;
+      this._viewService = viewService;
     }
 
     public void Initialize(MainView mainView)
@@ -43,6 +45,7 @@ namespace SpeechAgent.Services
       // 컨텍스트 메뉴 생성
       var contextMenu = new ContextMenuStrip();
       var showMenuItem = new ToolStripMenuItem("보이기", null, OnShow);
+      var updateHistoryMenuItem = new ToolStripMenuItem("업데이트 확인", null, OnShowUpdateHistory);
       var popupVoiceMedicMenuItem = new ToolStripMenuItem(
         "VoiceMedic 브라우저 열기",
         null,
@@ -55,6 +58,7 @@ namespace SpeechAgent.Services
       contextMenu.Items.Add(popupVoiceMedicMenuItem);
       contextMenu.Items.Add(new ToolStripSeparator());
       contextMenu.Items.Add(versionLabel);
+      contextMenu.Items.Add(updateHistoryMenuItem);
       contextMenu.Items.Add(new ToolStripSeparator());
       contextMenu.Items.Add(exitMenuItem);
 
@@ -121,6 +125,13 @@ namespace SpeechAgent.Services
       _mainView.Show();
       _mainView.WindowState = WindowState.Normal;
       _mainView.Activate();
+    }
+
+    private void OnShowUpdateHistory(object? sender, EventArgs e)
+    {
+      if (_mainView == null)
+        return;
+      _viewService.ShowUpdateHistoryView(_mainView);
     }
 
     private void OnExit(object? sender, EventArgs e)

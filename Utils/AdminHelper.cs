@@ -27,10 +27,14 @@ namespace SpeechAgent.Utils
     /// </summary>
     public static void RequireAdminOrExit()
     {
+#if DEBUG
+      return;
+#else
       if (IsRunningAsAdmin())
         return;
 
       RestartAsAdmin();
+#endif
     }
 
     /// <summary>

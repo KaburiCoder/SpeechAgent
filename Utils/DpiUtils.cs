@@ -16,11 +16,9 @@ namespace SpeechAgent.Utils
     {
       try
       {
-        using (var graphics = Graphics.FromHwnd(hWnd))
-        {
-          double dpiX = graphics.DpiX / 96.0; // 96 = 100%
-          return dpiX;
-        }
+        using var graphics = Graphics.FromHwnd(hWnd);
+        double dpiX = graphics.DpiX / 96.0; // 96 = 100%
+        return dpiX;
       }
       catch (Exception ex)
       {

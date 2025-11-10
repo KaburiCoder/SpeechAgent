@@ -19,10 +19,6 @@ namespace SpeechAgent.Utils
         using (var graphics = Graphics.FromHwnd(hWnd))
         {
           double dpiX = graphics.DpiX / 96.0; // 96 = 100%
-          LogUtils.WriteLog(
-            LogLevel.Debug,
-            $"[DpiUtils] DPI Ω∫ƒ…¿œ: {dpiX:F2} (DpiX: {graphics.DpiX})"
-          );
           return dpiX;
         }
       }

@@ -47,7 +47,6 @@ namespace SpeechAgent.Utils
 
             // MSE 계산
             double mse = Cv2.Mean(diff.Mul(diff))[0]; // 제곱 후 평균 계산
-            Debug.Print($"Image MSE: {mse}");
 
             // MSE가 작을수록 유사하므로, threshold 이하인지 확인
             return mse <= threshold;

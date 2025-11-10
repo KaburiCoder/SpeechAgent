@@ -27,25 +27,24 @@ namespace SpeechAgent.Utils
 
         try
         {
-          using (var preprocessedMat = PreprocessImage(tempFilePath))
-          {
-            if (preprocessedMat.Empty())
-              return string.Empty;
+          using var preprocessedMat = PreprocessImage(tempFilePath);
 
-            // 전처리 이미지를 임시 파일로 저장
-            string preprocessedPath = System.IO.Path.Combine(
-              System.IO.Path.GetTempPath(),
-              $"ocr_pre_{Guid.NewGuid()}.png"
-            );
-            Cv2.ImWrite(preprocessedPath, preprocessedMat);
-            try
-            {
-              return ExtractTextFromFile(preprocessedPath, onlyNumber: true);
-            }
-            finally
-            {
-              BitmapSourceExtensions.DeleteTempFile(preprocessedPath);
-            }
+          if (preprocessedMat.Empty())
+            return string.Empty;
+
+          // 전처리 이미지를 임시 파일로 저장
+          string preprocessedPath = System.IO.Path.Combine(
+            System.IO.Path.GetTempPath(),
+            $"ocr_pre_{Guid.NewGuid()}.png"
+          );
+          Cv2.ImWrite(preprocessedPath, preprocessedMat);
+          try
+          {
+            return ExtractTextFromFile(preprocessedPath, onlyNumber: true);
+          }
+          finally
+          {
+            BitmapSourceExtensions.DeleteTempFile(preprocessedPath);
           }
         }
         finally

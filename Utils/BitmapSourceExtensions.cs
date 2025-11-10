@@ -6,6 +6,39 @@ namespace SpeechAgent.Utils
 {
   public static class BitmapSourceExtensions
   {
+    public enum ImageFormat
+    {
+      Png,
+      Jpeg,
+      Bmp,
+      Tiff,
+      Gif,
+    }
+
+    public static void SaveBitmapSourceToFile(
+      this BitmapSource bitmapSource,
+      string filePath,
+      ImageFormat imageFormat = ImageFormat.Png
+    )
+    {
+      BitmapEncoder encoder = imageFormat switch
+      {
+        ImageFormat.Png => new PngBitmapEncoder(),
+        ImageFormat.Jpeg => new JpegBitmapEncoder(),
+        ImageFormat.Bmp => new BmpBitmapEncoder(),
+        ImageFormat.Tiff => new TiffBitmapEncoder(),
+        ImageFormat.Gif => new GifBitmapEncoder(),
+        _ => new PngBitmapEncoder(),
+      };
+
+      encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+      using (FileStream fs = new FileStream(filePath, FileMode.Create))
+      {
+        encoder.Save(fs);
+      }
+    }
+
     /// <summary>
     /// BitmapSource를 Bitmap으로 변환합니다.
     /// 메모리 누수 방지: 반환된 Bitmap은 using 문에서 관리되어야 합니다.
@@ -42,24 +75,13 @@ namespace SpeechAgent.Utils
       {
         if (bitmapSource == null)
           return null;
-
-        using (var bitmap = bitmapSource.ToBitmap())
-        {
-          if (bitmap == null)
-            return null;
-
-          string tempFilePath = System.IO.Path.Combine(
-            System.IO.Path.GetTempPath(),
-            $"ocr_{Guid.NewGuid()}.png"
-          );
-
-          bitmap.Save(tempFilePath, System.Drawing.Imaging.ImageFormat.Png);
-          return tempFilePath;
-        }
+        string tempFilePath = Path.Combine(Path.GetTempPath(), $"ocr_{Guid.NewGuid()}.png");
+        bitmapSource.SaveBitmapSourceToFile(tempFilePath);
+        return tempFilePath;
       }
       catch (Exception ex)
       {
-        LogUtils.WriteTextLog("Error.log", ex.ToString(), append: true);
+        LogUtils.WriteLog(LogLevel.Debug, $"[ToTempFile] {ex}");
         return null;
       }
     }

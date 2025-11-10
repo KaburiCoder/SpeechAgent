@@ -1,6 +1,3 @@
-using System.Diagnostics;
-using System.Drawing;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
 using SpeechAgent.Constants;
@@ -13,8 +10,6 @@ using SpeechAgent.Services.Api;
 using SpeechAgent.Utils;
 using SpeechAgent.Utils.Automation;
 using SpeechAgent.Utils.Converters;
-using Tesseract;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SpeechAgent.Services
 {
@@ -265,25 +260,32 @@ namespace SpeechAgent.Services
       //chartControl = editControls[2];
       //nameControl = editControls[3];
 
-
-
       // OCR 수행
       try
       {
         IntPtr hWnd = _searcher.GetWindowHandle();
         if (hWnd != IntPtr.Zero)
         {
-          // 윈도우의 절대 좌표 얻기
+          // 윌도우의 절대 좌표 얻기
           Vanara.PInvoke.User32.GetWindowRect(new Vanara.PInvoke.HWND(hWnd), out var windowRect);
 
-          // 절대 좌표를 윈도우 상대 좌표로 변환
-          var chartRectRelative = new Rectangle(
-            chartControl.BoundingRectangle.X - windowRect.X,
-            chartControl.BoundingRectangle.Y - windowRect.Y,
-            chartControl.BoundingRectangle.Width,
-            chartControl.BoundingRectangle.Height
+          // 절대 좌표를 윈도우 상대 좌표로 변환 (DPI 스케일 적용)
+          var dpiScale = DpiUtils.GetDpiScale(hWnd);
+          var chartRectRelative = DpiUtils.ConvertToWindowRelativeRect(
+            chartControl.BoundingRectangle,
+            windowRect,
+            dpiScale
           );
+
           var chartImg = _windowCaptureService.CaptureWindow(hWnd, chartRectRelative);
+
+          chartImg?.SaveBitmapSourceToFile(
+            System.IO.Path.Combine(
+              AppDomain.CurrentDomain.BaseDirectory,
+              "Log",
+              "USarang_Chart_OCR.png"
+            )
+          );
 
           // 이전 이미지와 유사하면 캐시된 정보 사용
           if (OpenCvUtils.AreImagesSimilar(_previousImageResult.BitmapSource, chartImg, 1))

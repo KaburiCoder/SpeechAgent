@@ -87,6 +87,9 @@ namespace SpeechAgent
     [STAThread]
     public static void Main()
     {
+      // 작업 디렉토리를 실행 파일 위치로 변경(윈도우 재시작 후 바로가기로 실행 시 문제 방지)
+      Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+
       // 관리자 권한 확인 및 필요시 재실행
       AdminHelper.RequireAdminOrExit();
       // EUC-KR, CP949, 949

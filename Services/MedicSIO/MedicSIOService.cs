@@ -40,7 +40,6 @@ namespace SpeechAgent.Services.MedicSIO
       var sioOptions = new SocketIOOptions
       {
         Path = "/api/socket.io",
-        //Transport = SocketIOClient.Transport.TransportProtocol.WebSocket,
         Reconnection = true,
         ReconnectionAttempts = int.MaxValue,
         ReconnectionDelay = 2000,
@@ -69,9 +68,6 @@ namespace SpeechAgent.Services.MedicSIO
         WeakReferenceMessenger.Default.Send(new MedicSIOConnectionChangedMessage(false));
         IsRoomJoined = false;
       };
-
-      // 에러 이벤트
-      _sio.On("error", response => { });
 
       _sio.On(
         EventNames.PingFromWeb,

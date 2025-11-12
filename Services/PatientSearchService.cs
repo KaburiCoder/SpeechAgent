@@ -279,13 +279,13 @@ namespace SpeechAgent.Services
 
           var chartImg = _windowCaptureService.CaptureWindow(hWnd, chartRectRelative);
 
-          chartImg?.SaveBitmapSourceToFile(
-            System.IO.Path.Combine(
-              AppDomain.CurrentDomain.BaseDirectory,
-              "Log",
-              "USarang_Chart_OCR.png"
-            )
-          );
+          //chartImg?.SaveBitmapSourceToFile(
+          //  System.IO.Path.Combine(
+          //    AppDomain.CurrentDomain.BaseDirectory,
+          //    "Log",
+          //    "USarang_Chart_OCR.png"
+          //  )
+          //);
 
           // 이전 이미지와 유사하면 캐시된 정보 사용
           if (OpenCvUtils.AreImagesSimilar(_previousImageResult.BitmapSource, chartImg, 1))
@@ -319,7 +319,7 @@ namespace SpeechAgent.Services
           System.AppDomain.CurrentDomain.BaseDirectory,
           "USarangControls.txt"
         );
-        System.IO.File.WriteAllText(filePath, infoText);
+        LogUtils.WriteLog(LogLevel.Error, $"[USarang] {infoText}");
       }
 
       if (chartControl != null && nameControl != null)
@@ -374,6 +374,14 @@ namespace SpeechAgent.Services
           hWnd,
           captureRect: _settingsService.Settings.ParseCustomImageRect()
         );
+
+        //bitmapSource?.SaveBitmapSourceToFile(
+        //  System.IO.Path.Combine(
+        //    AppDomain.CurrentDomain.BaseDirectory,
+        //    "Log",
+        //    "CustomUserImage_Capture.png"
+        //  )
+        //);
         if (bitmapSource == null)
         {
           _previousImageResult.Clear();

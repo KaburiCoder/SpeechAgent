@@ -152,7 +152,7 @@
                   Margin="0,0,0,6"
                   materialDesign:HintAssist.Hint="이미지 영역 (x,y,width,height)"
                   IsReadOnly="True"
-                  Text="{Binding Custoㅡ템ㅅㅅㅅmImageRect, UpdateSourceTrigger=PropertyChanged}" />
+                  Text="{Binding CustomImageRect, UpdateSourceTrigger=PropertyChanged}" />
                 <Button Margin="0,6,0,0" Command="{Binding FindImageControlCommand}">
                   이미지 컨트롤 찾기
                 </Button>

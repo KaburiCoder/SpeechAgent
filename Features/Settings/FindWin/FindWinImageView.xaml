@@ -22,7 +22,7 @@
     </Grid.RowDefinitions>
 
     <!--  Top Control Area  -->
-    <Grid Grid.Row="0" Margin="0,0,0,10">
+    <Grid Grid.Row="0" Margin="0,0,0,6">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto" />
         <ColumnDefinition Width="*" />
@@ -151,14 +151,14 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel>
             <TextBlock
-              Margin="0,0,0,10"
+              Margin="0,0,0,6"
               FontSize="18"
               FontWeight="Bold"
               Text="이미지 기반 설정" />
 
             <!--  Selected Window Info  -->
             <Border
-              Margin="0,0,0,10"
+              Margin="0,0,0,6"
               Padding="10"
               Background="WhiteSmoke"
               BorderBrush="LightGray"
@@ -185,17 +185,14 @@
               Margin="0,0,0,5"
               FontWeight="SemiBold"
               Text="이미지 이름:" />
-            <TextBox
-              Height="30"
-              Margin="0,0,0,10"
-              Text="{Binding CustomImageName, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox Margin="0,0,0,6" Text="{Binding CustomImageName, UpdateSourceTrigger=PropertyChanged}" />
 
             <!--  Region Specification  -->
             <TextBlock
               Margin="0,0,0,5"
               FontWeight="SemiBold"
               Text="이미지 영역 (px):" />
-            <Grid Margin="0,0,0,10">
+            <Grid Margin="0,0,0,6">
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -212,14 +209,14 @@
                   Margin="0,0,0,2"
                   FontSize="11"
                   Text="X:" />
-                <TextBox Height="30" Text="{Binding RectX, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Text="{Binding RectX, UpdateSourceTrigger=PropertyChanged}" />
               </StackPanel>
               <StackPanel Grid.Row="0" Grid.Column="2">
                 <TextBlock
                   Margin="0,0,0,2"
                   FontSize="11"
                   Text="Y:" />
-                <TextBox Height="30" Text="{Binding RectY, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Text="{Binding RectY, UpdateSourceTrigger=PropertyChanged}" />
               </StackPanel>
 
               <!--  Width, Height  -->
@@ -231,7 +228,7 @@
                   Margin="0,0,0,2"
                   FontSize="11"
                   Text="Width:" />
-                <TextBox Height="30" Text="{Binding RectWidth, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Text="{Binding RectWidth, UpdateSourceTrigger=PropertyChanged}" />
               </StackPanel>
               <StackPanel
                 Grid.Row="1"
@@ -241,7 +238,7 @@
                   Margin="0,0,0,2"
                   FontSize="11"
                   Text="Height:" />
-                <TextBox Height="30" Text="{Binding RectHeight, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Text="{Binding RectHeight, UpdateSourceTrigger=PropertyChanged}" />
               </StackPanel>
             </Grid>
 
@@ -252,7 +249,7 @@
               Text="원본 이미지:" />
             <Border
               Height="200"
-              Margin="0,0,0,10"
+              Margin="0,0,0,6"
               BorderBrush="LightGray"
               BorderThickness="1"
               CornerRadius="3">

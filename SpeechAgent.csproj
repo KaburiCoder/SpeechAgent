@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>0.0.58</VersionPrefix>
+    <VersionPrefix>0.0.61</VersionPrefix>
     <Utf8Output>true</Utf8Output>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>

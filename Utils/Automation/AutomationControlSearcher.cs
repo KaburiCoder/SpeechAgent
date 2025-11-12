@@ -8,6 +8,7 @@ namespace SpeechAgent.Utils.Automation
     List<AutomationControlInfo> FoundControls { get; }
     AutomationControlInfo? CreateControlInfo(AutomationElement? element);
     bool FindWindowByTitle(Func<string, bool> titlePredicate);
+    bool FindWindowByTitles(params string[] titleSubstrings);
     bool FindWindowByHandle(IntPtr handle);
     List<AutomationControlInfo> SearchControls();
     string GetControlText(AutomationElement element);
@@ -23,6 +24,11 @@ namespace SpeechAgent.Utils.Automation
     private readonly AutomationElementCollector _collector = new();
 
     public List<AutomationControlInfo> FoundControls => _foundControls;
+
+    public bool FindWindowByTitles(params string[] titleSubstrings)
+    {
+      return FindWindowByTitle(title => titleSubstrings.All(sub => title.Contains(sub)));
+    }
 
     public bool FindWindowByTitle(Func<string, bool> titlePredicate)
     {

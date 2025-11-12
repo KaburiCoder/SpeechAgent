@@ -1,4 +1,5 @@
 using System.Windows.Automation;
+using SpeechAgent.Services;
 
 namespace SpeechAgent.Models
 {
@@ -12,6 +13,8 @@ namespace SpeechAgent.Models
     public string Text { get; set; } = string.Empty;
     public System.Drawing.Rectangle BoundingRectangle { get; set; }
     public int Index { get; set; }
+
+    public RegexInfo? Regex { get; set; } = null;
 
     // WPF 바인딩을 위한 속성들
     public int RectLeft => BoundingRectangle.Left;

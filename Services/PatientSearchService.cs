@@ -38,7 +38,7 @@ namespace SpeechAgent.Services
       || Settings.TargetAppName == AppKey.CustomUserWinApi
       || Settings.TargetAppName == AppKey.CustomUserImage;
 
-    bool IsCustomNotImage =>
+    bool IsCustomUserWithoutImage =>
       Settings.TargetAppName == AppKey.CustomUser
       || Settings.TargetAppName == AppKey.CustomUserWinApi;
 
@@ -74,28 +74,29 @@ namespace SpeechAgent.Services
         }
         else
         {
-          if (Settings.TargetAppName == AppKey.USarang)
+          switch (Settings.TargetAppName)
           {
-            if (
-              !_searcher.FindWindowByTitle(title =>
-                title.Contains("진료실") && title.Contains("툴버전")
-              )
-            )
-              return false;
-          }
-          else if (Settings.TargetAppName == AppKey.Brain)
-          {
-            if (
-              !_searcher.FindWindowByTitle(title =>
-                title.Contains("진료실") && title.Contains("ver")
-              )
-            )
-              return false;
-          }
-          else
-          {
-            if (!_searcher.FindWindowByTitle(title => title.Contains("진료실[")))
-              return false;
+            case AppKey.USarang:
+              if (!_searcher.FindWindowByTitles("진료실", "툴버전"))
+                return false;
+              break;
+            case AppKey.Brain:
+              if (!_searcher.FindWindowByTitles("진료실", "ver"))
+                return false;
+              break;
+            case AppKey.DRChart:
+            case AppKey.BitUChart:
+              if (!_searcher.FindWindowByTitles("진료실"))
+                return false;
+              break;
+            case AppKey.Doctors:
+              if (!_searcher.FindWindowByTitles("진료실", "◎"))
+                return false;
+              break;
+            default:
+              if (!_searcher.FindWindowByTitles("진료실["))
+                return false;
+              break;
           }
         }
         isNewCreated = true;
@@ -115,6 +116,47 @@ namespace SpeechAgent.Services
           break;
         case AppKey.USarang:
           result = FindUSarangControls(controls);
+          break;
+        case AppKey.BitUChart:
+          result = FindControls(
+            controls,
+            chartInfo: new() { Index = 1 },
+            nameInfo: new() { ControlType = "ControlType.Text", Index = 8 }
+          );
+          break;
+        case AppKey.Doctors:
+          result = FindControls(
+            controls,
+            chartInfo: new()
+            {
+              ControlType = "ControlType.Title",
+              Index = 0,
+              Regex = new() { GroupIndex = 1, Pattern = @"◎\s+(\S+)\s+([^\s◎]+)" },
+            },
+            nameInfo: new()
+            {
+              ControlType = "ControlType.Title",
+              Index = 0,
+              Regex = new() { GroupIndex = 2, Pattern = @"◎\s+(\S+)\s+([^\s◎]+)" },
+            }
+          );
+          break;
+        case AppKey.DRChart:
+          result = FindControls(
+            controls,
+            chartInfo: new()
+            {
+              ControlType = "ControlType.TitleBar",
+              Index = 0,
+              Regex = new() { GroupIndex = 2, Pattern = @"^(.?)((\d+)).*" },
+            },
+            nameInfo: new()
+            {
+              ControlType = "ControlType.TitleBar",
+              Index = 0,
+              Regex = new() { GroupIndex = 1, Pattern = @"^(.?)((\d+)).*" },
+            }
+          );
           break;
         case AppKey.CustomUser:
           result = FindCustomControls(controls, Settings);
@@ -220,6 +262,32 @@ namespace SpeechAgent.Services
 
       if (chartControl != null && nameControl != null)
       {
+        var appControls = new AutomationAppControls();
+        appControls.SetControls(chartControl, nameControl);
+        return appControls;
+      }
+
+      return null;
+    }
+
+    private AutomationAppControls? FindControls(
+      List<AutomationControlInfo> controls,
+      FindControlInfo chartInfo,
+      FindControlInfo nameInfo
+    )
+    {
+      var chartControl = controls.FirstOrDefault(c =>
+        c.ControlType == chartInfo.ControlType && c.Index == chartInfo.Index
+      );
+      var nameControl = controls.FirstOrDefault(c =>
+        c.ControlType == nameInfo.ControlType && c.Index == nameInfo.Index
+      );
+
+      if (chartControl != null && nameControl != null)
+      {
+        // 정규식 정의 되어있는 경우 전달
+        chartControl.Regex = chartInfo.Regex;
+        nameControl.Regex = nameInfo.Regex;
         var appControls = new AutomationAppControls();
         appControls.SetControls(chartControl, nameControl);
         return appControls;
@@ -433,35 +501,40 @@ namespace SpeechAgent.Services
       }
     }
 
-    private string ApplyRegexOrDefault(string? input, string pattern, int groupIndex)
-    {
-      if (!IsCustomNotImage || string.IsNullOrWhiteSpace(pattern))
-        return input ?? string.Empty;
-
-      Match match = Regex.Match(input ?? string.Empty, pattern);
-      var group = match.Groups.Cast<Group>().ElementAtOrDefault(groupIndex);
-      return group?.Value?.Trim() ?? string.Empty;
-    }
-
     private PatientInfo CreatePatientInfo()
     {
+      var chartTextBox = _appControls.ChartTextBox;
+      var nameTextBox = _appControls.NameTextBox;
+
       if (Settings.TargetAppName == AppKey.Brain)
       {
-        var splitResults = _appControls.ChartTextBox?.Text?.Split(" ", 2);
+        var splitResults = chartTextBox?.Text?.Split(" ", 2);
         if (splitResults != null && splitResults.Length >= 2)
           return new PatientInfo { Chart = splitResults[0].Trim(), Name = splitResults[1].Trim() };
       }
 
-      string chart = ApplyRegexOrDefault(
-        _appControls.ChartTextBox?.Text,
-        Settings.CustomChartRegex,
-        Settings.CustomChartRegexIndex
-      );
-      string name = ApplyRegexOrDefault(
-        _appControls.NameTextBox?.Text,
-        Settings.CustomNameRegex,
-        Settings.CustomNameRegexIndex
-      );
+      string chartPattern = "",
+        namePattern = ""; // Settings.CustomChartRegex ?? chartTextBox?.Regex?.Pattern ?? "";
+      int chartRegexIndex = 0,
+        nameRegexIndex = 0;
+
+      if (IsCustomUserWithoutImage)
+      {
+        chartPattern = Settings.CustomChartRegex;
+        namePattern = Settings.CustomNameRegex;
+        chartRegexIndex = Settings.CustomChartRegexIndex;
+        nameRegexIndex = Settings.CustomNameRegexIndex;
+      }
+      else
+      {
+        chartPattern = chartTextBox?.Regex?.Pattern ?? "";
+        namePattern = nameTextBox?.Regex?.Pattern ?? "";
+        chartRegexIndex = chartTextBox?.Regex?.GroupIndex ?? 0;
+        nameRegexIndex = nameTextBox?.Regex?.GroupIndex ?? 0;
+      }
+
+      string chart = chartTextBox?.Text?.GetRegexString(chartPattern, chartRegexIndex) ?? "";
+      string name = nameTextBox?.Text?.GetRegexString(namePattern, nameRegexIndex) ?? "";
 
       return new PatientInfo { Chart = chart, Name = name };
     }
@@ -473,42 +546,6 @@ namespace SpeechAgent.Services
       _appControls.ClearControls();
       _previousImageResult.Clear();
       _nullCount = 0;
-    }
-  }
-
-  public class AutomationAppControls
-  {
-    public AutomationControlInfo? ChartTextBox { get; private set; }
-    public AutomationControlInfo? NameTextBox { get; private set; }
-
-    public void SetControls(AutomationControlInfo? chartTextBox, AutomationControlInfo? nameTextBox)
-    {
-      ChartTextBox = chartTextBox;
-      NameTextBox = nameTextBox;
-    }
-
-    public void ClearControls()
-    {
-      ChartTextBox = null;
-      NameTextBox = null;
-    }
-  }
-
-  public class PatientImageResult
-  {
-    public PatientInfo? PatientInfo { get; set; }
-    public BitmapSource? BitmapSource { get; set; }
-
-    public void SetResult(PatientInfo? patientInfo, BitmapSource? bitmapSource)
-    {
-      PatientInfo = patientInfo;
-      BitmapSource = bitmapSource;
-    }
-
-    public void Clear()
-    {
-      PatientInfo = null;
-      BitmapSource = null;
     }
   }
 }

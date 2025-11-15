@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>0.0.62</VersionPrefix>
+    <VersionPrefix>0.0.63</VersionPrefix>
     <Utf8Output>true</Utf8Output>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -33,6 +33,7 @@
     <PackageReference Include="Vanara.PInvoke.DwmApi" Version="4.2.1" />
     <PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.2.1" />
     <PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.2.1" />
+    <PackageReference Include="WindowsShortcutFactory" Version="1.2.0" />
     <PackageReference Include="WPF-UI.Markdown" Version="4.0.2" />
     <Resource Include="Resources\main.ico" />
     <Page Include="App.xaml" />

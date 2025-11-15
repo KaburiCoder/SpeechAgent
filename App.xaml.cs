@@ -139,6 +139,10 @@ namespace SpeechAgent
       //testView.Show();
       //return;
 
+      // Shortcut Migrate
+      var autoStartService = Services.GetRequiredService<IAutoStartService>();
+      autoStartService.MigrateToShortcutIfNeeded();
+
       // UpdateService 시작
       var updateService = Services.GetRequiredService<IUpdateService>();
       await updateService.CheckForUpdatesAsync();

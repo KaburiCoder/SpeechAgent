@@ -110,8 +110,13 @@ namespace SpeechAgent.Features.Settings
         customImageRect: CustomImageRect,
         isBootPopupBrowserEnabled: IsBootPopupBrowserEnabled
       );
-      // Apply auto start setting
-      _autoStartService.SetAutoStart(AutoStartEnabled);
+      // 기존 레지스트리는 무조건 제거
+      _autoStartService.SetAutoStartLegacy(false);
+      // 새로 설정
+      if (AutoStartEnabled)
+        _autoStartService.CreateStartupShortcut();
+      else
+        _autoStartService.DeleteStartupShortcut();
 
       View.Close();
     }

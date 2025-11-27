@@ -133,7 +133,7 @@ namespace SpeechAgent
       Services = ConfigureServices();
     }
 
-    private async void Application_Startup(object sender, StartupEventArgs e)
+    private void Application_Startup(object sender, StartupEventArgs e)
     {
       //var testView = new TestApp();
       //testView.Show();
@@ -145,7 +145,6 @@ namespace SpeechAgent
 
       // UpdateService 시작
       var updateService = Services.GetRequiredService<IUpdateService>();
-      await updateService.CheckForUpdatesAsync();
       updateService.UpdateError += OnUpdateError;
       updateService.StartPeriodicCheck();
 

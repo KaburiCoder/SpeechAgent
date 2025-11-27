@@ -88,9 +88,9 @@ namespace SpeechAgent.Services.MedicSIO
         response =>
         {
           var data = response.GetValue<ReceiveAudioArgs>();
-
+          var saveDir = _settingsService.Settings.AudioFileSaveDir;
           // data.OpusBuffer 를 파일로 저장
-          var di = new DirectoryInfo($@"c:\VoiceMedic\{data.Chart}");
+          var di = new DirectoryInfo(Path.Combine(saveDir, data.Chart));
           if (!di.Exists)
             di.Create();
 

@@ -41,6 +41,7 @@ namespace SpeechAgent.Database
       modelBuilder.Entity<LocalSettings>(entity =>
       {
         entity.Property(ls => ls.IsBootPopupBrowserEnabled).HasDefaultValue(true);
+        entity.Property(ls => ls.AudioFileSaveDir).HasDefaultValue("C:\\VoiceMedic");
       });
     }
   }

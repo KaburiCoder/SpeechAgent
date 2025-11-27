@@ -12,6 +12,9 @@ namespace SpeechAgent.Constants
 #if DEBUG
     public const string SpeechBaseUrl = "http://localhost:3100/api/";
     public const string SocketBaseUrl = "http://localhost:3100/agent";
+
+    //public const string SocketBaseUrl = "https://medic.clickcns.com/agent";
+    //public const string SpeechBaseUrl = "https://medic.clickcns.com/api/";
 #else
     public const string SocketBaseUrl = "https://medic.clickcns.com/agent";
     public const string SpeechBaseUrl = "https://medic.clickcns.com/api/";

@@ -24,7 +24,8 @@ namespace SpeechAgent.Features.Settings
       string? customNameRegex = null,
       string? customNameRegexIndex = null,
       string? customImageRect = null,
-      bool? isBootPopupBrowserEnabled = null
+      bool? isBootPopupBrowserEnabled = null,
+      string? audioFileSavePath = null
     );
 
     bool UseCustomUserImage { get; }
@@ -58,7 +59,8 @@ namespace SpeechAgent.Features.Settings
       string? customNameRegex = null,
       string? customNameRegexIndex = null,
       string? customImageRect = null,
-      bool? isBootPopupBrowserEnabled = null
+      bool? isBootPopupBrowserEnabled = null,
+      string? audioFileSavePath = null
     )
     {
       using var db = new AppDbContext();
@@ -103,6 +105,8 @@ namespace SpeechAgent.Features.Settings
         currentSetting.CustomImageRect = customImageRect.Trim();
       if (isBootPopupBrowserEnabled != null)
         currentSetting.IsBootPopupBrowserEnabled = isBootPopupBrowserEnabled.Value;
+      if (audioFileSavePath != null)
+        currentSetting.AudioFileSaveDir = audioFileSavePath.Trim();
 
       // ------------------------------
       if (dbSetting == null)

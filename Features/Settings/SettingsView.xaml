@@ -159,6 +159,23 @@
               </StackPanel>
             </Border>
 
+            <!--  음성 파일 저장 경로 섹션  -->
+            <Border
+              Margin="0,0,0,10"
+              Padding="10"
+              Background="#F8F9FA"
+              CornerRadius="5">
+              <StackPanel>
+                <TextBlock
+                  Margin="0,0,0,6"
+                  FontSize="12"
+                  FontWeight="SemiBold"
+                  Foreground="#424242"
+                  Text="음성 파일 저장 경로" />
+                <controls:DirectoryControl Margin="0,0,0,6" DirPath="{Binding AudioFileSaveDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+              </StackPanel>
+            </Border>
+
             <!--  자동 시작 섹션  -->
             <Border
               Margin="0,0,0,12"

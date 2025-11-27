@@ -16,6 +16,7 @@
     public int CustomNameRegexIndex { get; set; } = 0;
     public string CustomImageRect { get; set; } = "";
 
+    public string AudioFileSaveDir { get; set; } = "C:\\VoiceMedic";
     public bool IsBootPopupBrowserEnabled { get; set; } = true;
   }
 }

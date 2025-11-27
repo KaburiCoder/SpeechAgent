@@ -79,6 +79,9 @@ namespace SpeechAgent.Features.Settings
     [ObservableProperty]
     private bool isBootPopupBrowserEnabled = true;
 
+    [ObservableProperty]
+    private string audioFileSaveDir = "";
+
     public bool IsCustomSelected => SelectedOption?.Value == AppKey.CustomUser;
     public bool IsCustomImageSelected => SelectedOption?.Value == AppKey.CustomUserImage;
     public bool IsCustomWinApiSelected => SelectedOption?.Value == AppKey.CustomUserWinApi;
@@ -108,7 +111,8 @@ namespace SpeechAgent.Features.Settings
         customNameRegex: NameRegex,
         customNameRegexIndex: NameRegexIndex,
         customImageRect: CustomImageRect,
-        isBootPopupBrowserEnabled: IsBootPopupBrowserEnabled
+        isBootPopupBrowserEnabled: IsBootPopupBrowserEnabled,
+        audioFileSavePath: AudioFileSaveDir
       );
       // 기존 레지스트리는 무조건 제거
       _autoStartService.SetAutoStartLegacy(false);
@@ -175,6 +179,7 @@ namespace SpeechAgent.Features.Settings
       NameRegexIndex = _settingsService.Settings.CustomNameRegexIndex.ToString();
       CustomImageRect = _settingsService.Settings.CustomImageRect;
       IsBootPopupBrowserEnabled = _settingsService.Settings.IsBootPopupBrowserEnabled;
+      AudioFileSaveDir = _settingsService.Settings.AudioFileSaveDir;
 
       SelectedOption = Options.FirstOrDefault(o => o.Value == TargetAppName) ?? Options[0];
 

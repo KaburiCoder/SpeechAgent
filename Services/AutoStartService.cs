@@ -21,6 +21,12 @@ namespace SpeechAgent.Services
     private const string AppName = "VoiceMedicAgent";
     private const string RegistryKeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
 
+    private string GetShortcutPath()
+    {
+      string startupFolder = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+      return Path.Combine(startupFolder, $"{AppName}.lnk");
+    }
+
     public bool IsAutoStartEnabledLegacy()
     {
       try
@@ -120,9 +126,8 @@ namespace SpeechAgent.Services
     {
       try
       {
-        string startupFolder = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
         string targetPath = GetSafeExecutablePath();
-        string shortcutPath = Path.Combine(startupFolder, $"{AppName}.lnk");
+        string shortcutPath = GetShortcutPath();
 
         bool exists = File.Exists(shortcutPath);
         LogUtils.WriteLog(
@@ -150,8 +155,7 @@ namespace SpeechAgent.Services
       {
         string startupFolder = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
         string targetPath = GetSafeExecutablePath();
-        string appName = Path.GetFileNameWithoutExtension(targetPath);
-        string shortcutPath = Path.Combine(startupFolder, $"{appName}.lnk");
+        string shortcutPath = GetShortcutPath();
 
         if (File.Exists(shortcutPath))
         {

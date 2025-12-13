@@ -178,6 +178,7 @@ DocProject/Help/html
 
 # Click-Once directory
 publish*
+!publish.ps1
 Releases/
 
 # Publish Web Output

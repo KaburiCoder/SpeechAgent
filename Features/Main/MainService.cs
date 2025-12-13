@@ -1,7 +1,6 @@
 using System.Timers;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.Messaging;
-using SpeechAgent.Constants;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Messages;
 using SpeechAgent.Models;
@@ -21,7 +20,6 @@ namespace SpeechAgent.Features.Main
   {
     private readonly IPatientSearchService _patientSearchService;
     private readonly IMedicSIOService _medicSIOService;
-    private readonly ISettingsService _settingsService;
     private readonly System.Timers.Timer _timer;
     private readonly Dispatcher _uiDispatcher;
     private PatientInfo _patientInfo = new("", "", DateTime.MinValue);
@@ -30,17 +28,17 @@ namespace SpeechAgent.Features.Main
     public MainService(
       IPatientSearchService patientSearchService,
       IMedicSIOService medicSIOService,
-      ISettingsService settingsService
+      ISettingsService settingsService,
+      IUserNotificationService userNotificationService
     )
     {
       _patientSearchService = patientSearchService;
       _medicSIOService = medicSIOService;
-      this._settingsService = settingsService;
       _timer = new System.Timers.Timer();
       _timer.AutoReset = false; // 중복 실행 방지
       _timer.Elapsed += Timer_Elapsed;
       _uiDispatcher = Dispatcher.CurrentDispatcher;
-
+      userNotificationService.StartIntervalFeedbackNotification();
       WeakReferenceMessenger.Default.Register<LocalSettingsChangedMessage>(
         this,
         async (r, m) =>
@@ -115,7 +113,7 @@ namespace SpeechAgent.Features.Main
 
     public void StartReadChartTimer()
     {
-      int intervalSec = (_settingsService.Settings.TargetAppName == AppKey.CustomUserImage) ? 3 : 1;
+      int intervalSec = 1; // (_settingsService.Settings.TargetAppName == AppKey.CustomUserImage) ? 3 : 1;
       _timer.Interval = intervalSec * 1000; // 밀리초 단위
       _shouldRun = true;
       _timer.Start();

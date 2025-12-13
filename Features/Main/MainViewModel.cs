@@ -71,6 +71,7 @@ namespace SpeechAgent.Features.Main
 
     private void BootPopupBrowser(IUpdateService updateService)
     {
+#if !DEBUG
       var isUpdateApplied = updateService.IsUpdateApplied;
       updateService.IsUpdateApplied = false; // 플래그 초기화
       if (isUpdateApplied)
@@ -81,6 +82,7 @@ namespace SpeechAgent.Features.Main
       {
         BrowserLauncher.OpenMedic();
       }
+#endif
     }
 
     private void OnWebPingReceived(DateTime pingTime)

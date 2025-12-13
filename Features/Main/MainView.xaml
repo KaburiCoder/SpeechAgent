@@ -6,6 +6,7 @@
   xmlns:local="clr-namespace:SpeechAgent.Features.Main"
   xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:notifications="clr-namespace:Notification.Wpf.Controls;assembly=Notification.Wpf"
   xmlns:vm="clr-namespace:SpeechAgent.Features.Main"
   Title="Voice Medic Agent"
   Width="400"
@@ -16,6 +17,7 @@
   WindowStartupLocation="CenterScreen"
   WindowStyle="None"
   mc:Ignorable="d">
+
 
   <!--  전체 윈도우를 위한 둥근 테두리와 그림자  -->
   <Border
@@ -37,7 +39,12 @@
         <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
       </Grid.RowDefinitions>
-
+      <Button Grid.Row="1" Click="Button_Click">dsaddadasd</Button>
+      <!--  알림 영역  -->
+      <notifications:NotificationArea
+        x:Name="WindowArea"
+        MaxItems="3"
+        Position="BottomRight" />
       <!--  커스텀 타이틀바  -->
       <Border
         Grid.Row="0"

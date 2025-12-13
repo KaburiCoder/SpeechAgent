@@ -54,6 +54,7 @@ namespace SpeechAgent
       services.AddSingleton<TrayIconService>();
       services.AddSingleton<IUpdateService, UpdateService>();
       services.AddSingleton<IAutoStartService, AutoStartService>();
+      services.AddSingleton<IUserNotificationService, UserNotificationService>();
 
       services.AddSingleton<IGlobalKeyHook, GlobalKeyHook>();
 
@@ -79,6 +80,8 @@ namespace SpeechAgent
       services.AddTransient<IUpdateHistoryService, UpdateHistoryService>();
 
       services.AddTransient<ILlmApi, LlmApi>();
+      services.AddTransient<IUserNotificationsApi, UserNotificationsApi>();
+
       return services.BuildServiceProvider();
     }
 

@@ -161,8 +161,8 @@ namespace SpeechAgent
 
     private void OnUpdateError(object? sender, UpdateErrorEventArgs e)
     {
-      // 오류 발생 시 메시지박스 표시 (기존 동작 유지)
-      System.Windows.MessageBox.Show($"업데이트 오류: {e.Message}");
+      // 오류 발생 시 에러 로그 추가 (기존 동작 유지)
+      LogUtils.WriteLog(LogLevel.Error, $"업데이트 오류: {e.Message}");
     }
   }
 }

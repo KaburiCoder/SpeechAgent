@@ -46,27 +46,6 @@ namespace SpeechAgent.Features.Main
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
       this.Close();
-    }
-
-    private void Button_Click(object sender, RoutedEventArgs e)
-    {
-      var notificationManager = new NotificationManager();
-      var content = new NotificationContent
-      {
-        Title = "Sample notification",
-        Message =
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        Type = NotificationType.Information,
-        RowsCount = 3, //Will show 3 rows and trim after
-        LeftButtonContent = "확인", // Content of left button
-        RightButtonContent = "취소", // Content of right button
-        LeftButtonAction = () => { },
-        RightButtonAction = () => { },
-        CloseOnClick = true, // Set true if u want close message when left mouse button click on message (base = true)
-        Background = new SolidColorBrush(Colors.White),
-        Foreground = new SolidColorBrush(Colors.DarkRed),
-      };
-      notificationManager.Show(content, expirationTime: TimeSpan.MaxValue);
-    }
+    } 
   }
 }

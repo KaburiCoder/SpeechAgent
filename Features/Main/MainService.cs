@@ -1,5 +1,3 @@
-using System.Timers;
-using System.Windows.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using SpeechAgent.Features.Settings;
 using SpeechAgent.Messages;
@@ -7,6 +5,9 @@ using SpeechAgent.Models;
 using SpeechAgent.Services;
 using SpeechAgent.Services.MedicSIO;
 using SpeechAgent.Services.MedicSIO.Dto;
+using SpeechAgent.Services.NamedPipe;
+using System.Timers;
+using System.Windows.Threading;
 
 namespace SpeechAgent.Features.Main
 {
@@ -19,7 +20,7 @@ namespace SpeechAgent.Features.Main
   public class MainService : IMainService
   {
     private readonly IPatientSearchService _patientSearchService;
-    private readonly IMedicSIOService _medicSIOService;
+    private readonly INamedPipeService _namedPipeService;
     private readonly System.Timers.Timer _timer;
     private readonly Dispatcher _uiDispatcher;
     private PatientInfo _patientInfo = new("", "", DateTime.MinValue);
@@ -27,13 +28,18 @@ namespace SpeechAgent.Features.Main
 
     public MainService(
       IPatientSearchService patientSearchService,
-      IMedicSIOService medicSIOService,
       ISettingsService settingsService,
-      IUserNotificationService userNotificationService
+      IUserNotificationService userNotificationService,
+      INamedPipeService namedPipeService
     )
     {
       _patientSearchService = patientSearchService;
-      _medicSIOService = medicSIOService;
+      _namedPipeService = namedPipeService;
+      _namedPipeService.Connected += (s, e) => OnNamedPipeConnectChanged(true);
+      _namedPipeService.Disconnected += (s, e) => OnNamedPipeConnectChanged(false);
+      _namedPipeService.ConnectionError += (s, e) => OnNamedPipeConnectChanged(false);
+      _namedPipeService.ConnectAsync();
+
       _timer = new System.Timers.Timer();
       _timer.AutoReset = false; // 중복 실행 방지
       _timer.Elapsed += Timer_Elapsed;
@@ -51,17 +57,13 @@ namespace SpeechAgent.Features.Main
           {
             StartReadChartTimer();
           }
-
-          var prevKey = m.Value.PreviousSettings?.ConnectKey;
-          var newKey = m.Value.Settings.ConnectKey;
-          if (prevKey != newKey)
-          {
-            if (!string.IsNullOrWhiteSpace(prevKey))
-              await _medicSIOService.LeaveRoom(prevKey);
-            await _medicSIOService.JoinRoom();
-          }
         }
       );
+    }
+
+    private void OnNamedPipeConnectChanged(bool isConnected)
+    {
+      WeakReferenceMessenger.Default.Send(new PipeConnectMessage(new PipeConnectData(isConnected)));
     }
 
     private async void Timer_Elapsed(object? sender, ElapsedEventArgs e)
@@ -99,9 +101,10 @@ namespace SpeechAgent.Features.Main
     {
       try
       {
-        await _medicSIOService.SendPatientInfo(
-          new PatientInfoDto { Chart = patientInfo.Chart, Name = patientInfo.Name }
-        );
+        if (_namedPipeService.IsConnected)
+        {
+          await _namedPipeService.SendAsync(new NamedPipeData(NamedPipeAction.LOAD_PATIENT, patientInfo));
+        }
 
         WeakReferenceMessenger.Default.Send(new PatientInfoUpdatedMessage(patientInfo));
       }

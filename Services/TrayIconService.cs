@@ -11,12 +11,10 @@ namespace SpeechAgent.Services
     private NotifyIcon? _notifyIcon;
     private MainView? _mainView;
     private bool _disposed = false;
-    private readonly ISettingsService _settingsService;
     private readonly IViewService _viewService;
 
-    public TrayIconService(ISettingsService settingsService, IViewService viewService)
+    public TrayIconService(IViewService viewService)
     {
-      _settingsService = settingsService;
       this._viewService = viewService;
     }
 
@@ -26,11 +24,8 @@ namespace SpeechAgent.Services
       CreateNotifyIcon();
       SetupMainViewEvents();
 
-      // ConnectKey가 비어있지 않으면 실행 시 바로 트레이로 숨김
-      if (!string.IsNullOrWhiteSpace(_settingsService.Settings.ConnectKey))
-      {
-        HideToTray();
-      }
+      // 바로 트레이로 숨김
+      HideToTray();
     }
 
     private void CreateNotifyIcon()
@@ -113,8 +108,6 @@ namespace SpeechAgent.Services
 
       _mainView.Hide();
       _notifyIcon.Visible = true;
-
-      _notifyIcon.ShowBalloonTip(1500, "Voice Medic Agent", "Minimized to tray.", ToolTipIcon.Info);
     }
 
     private void OnShow(object? sender, EventArgs e)

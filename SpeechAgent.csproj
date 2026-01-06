@@ -47,7 +47,7 @@
     <PackageReference Include="Velopack" Version="0.0.1298" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets/tessdata/**" CopyToPublishDirectory="PreserveNewest" Link="tessdata/%(Filename)%(Extension)" />
+    <Content Include="Assets/tessdata/**" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest"  Link="tessdata/%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="_Updates\\**\\*.*">

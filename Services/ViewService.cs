@@ -15,7 +15,6 @@ namespace SpeechAgent.Services
     void ShowFindWinView(Window parent);
     void ShowFindWinApiView(Window parent);
     void ShowFindWinImageView(Window parent);
-    void ShowShortcutSettingsView(Window parent);
     void ShowUpdateHistoryView(Window parent);
   }
 
@@ -62,12 +61,7 @@ namespace SpeechAgent.Services
     {
       ShowDialogCommon<FindWinImageView, FindWinImageViewModel>(parent);
     }
-
-    public void ShowShortcutSettingsView(Window parent)
-    {
-      ShowDialogCommon<ShortcutSettingsView, ShortcutSettingsViewModel>(parent);
-    }
-
+     
     public void ShowUpdateHistoryView(Window parent)
     {
       ShowDialogCommon<UpdateHistoryView, UpdateHistoryViewModel>(parent);

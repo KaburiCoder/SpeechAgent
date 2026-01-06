@@ -12,7 +12,6 @@ namespace SpeechAgent.Features.Settings
     LocalSettings Settings { get; }
     void LoadSettings();
     void UpdateSettings(
-      string? connectKey = null,
       string? targetAppName = null,
       string? customExeTitle = null,
       string? customChartControlType = null,
@@ -47,7 +46,6 @@ namespace SpeechAgent.Features.Settings
     }
 
     public void UpdateSettings(
-      string? connectKey = null,
       string? targetAppName = null,
       string? customExeTitle = null,
       string? customChartControlType = null,
@@ -73,8 +71,6 @@ namespace SpeechAgent.Features.Settings
       currentSetting = dbSetting == null ? new LocalSettings() : dbSetting;
       LocalSettings previousSettings = currentSetting.DeepCopy();
 
-      if (connectKey != null)
-        currentSetting.ConnectKey = connectKey.Trim();
       if (targetAppName != null)
         currentSetting.TargetAppName = targetAppName.Trim();
       if (customExeTitle != null)

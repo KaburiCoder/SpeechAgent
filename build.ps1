@@ -6,8 +6,8 @@ Write-Host "✓ 폴더 정리 완료"
 
 # 64비트 빌드
 Write-Host "[빌드] 64비트 빌드 시작..."
-dotnet publish SpeechAgent.csproj --self-contained -r win-x64 -o .\publish
+dotnet publish SpeechAgent.csproj --self-contained -p:PublishSingleFile=true -r win-x64 -o .\publish
 
 # 64비트 팩 및 업로드
-Write-Host "[팩] 64비트 팩 생성..."
-vpk pack --packId VoiceMedicAgent --packVersion 0.0.63 --packDir .\publish --mainExe SpeechAgent.exe
+# Write-Host "[팩] 64비트 팩 생성..."
+# vpk pack --packId VoiceMedicAgent --packVersion 0.0.63 --packDir .\publish --mainExe SpeechAgent.exe

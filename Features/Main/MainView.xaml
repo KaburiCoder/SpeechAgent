@@ -38,7 +38,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
-      </Grid.RowDefinitions>      
+      </Grid.RowDefinitions>
       <!--  알림 영역  -->
       <notifications:NotificationArea
         x:Name="WindowArea"
@@ -79,21 +79,6 @@
             Foreground="White"
             Text="Voice Medic Agent" />
 
-          <!--  단축키 버튼  -->
-          <Button
-            Grid.Column="2"
-            Width="35"
-            Height="35"
-            Margin="5,0"
-            Command="{Binding ShowShortcutSettingsCommand}"
-            Foreground="White"
-            Style="{StaticResource MaterialDesignIconButton}"
-            ToolTip="설정">
-            <materialDesign:PackIcon
-              Width="18"
-              Height="18"
-              Kind="Keyboard" />
-          </Button>
           <!--  설정 버튼  -->
           <Button
             Grid.Column="3"
@@ -142,98 +127,30 @@
           Padding="12"
           Background="#F8F9FA"
           CornerRadius="8">
-          <Grid>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+          <!--  서버 연결 상태  -->
+          <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-            <!--  서버 연결 상태  -->
-            <Grid Grid.Row="0" Margin="0,0,0,6">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-              </Grid.ColumnDefinitions>
+            <Ellipse
+              Grid.Column="0"
+              Width="8"
+              Height="8"
+              Margin="0,0,8,0"
+              VerticalAlignment="Center">
+              <Ellipse.Fill>
+                <SolidColorBrush Color="{Binding IsPipeConnected, Converter={StaticResource BooleanToStringConverter}, ConverterParameter='#4CAF50,#F44336'}" />
+              </Ellipse.Fill>
+            </Ellipse>
 
-              <Ellipse
-                Grid.Column="0"
-                Width="8"
-                Height="8"
-                Margin="0,0,8,0"
-                VerticalAlignment="Center">
-                <Ellipse.Fill>
-                  <SolidColorBrush Color="{Binding IsSIOConnected, Converter={StaticResource BooleanToStringConverter}, ConverterParameter='#4CAF50,#F44336'}" />
-                </Ellipse.Fill>
-              </Ellipse>
-
-              <TextBlock
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                FontSize="13"
-                Foreground="#424242"
-                Text="서버 연결" />
-            </Grid>
-
-            <!--  방 접속 상태  -->
-            <Grid Grid.Row="1" Margin="0,0,0,6">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-              </Grid.ColumnDefinitions>
-
-              <Ellipse
-                Grid.Column="0"
-                Width="8"
-                Height="8"
-                Margin="0,0,8,0"
-                VerticalAlignment="Center">
-                <Ellipse.Fill>
-                  <SolidColorBrush Color="{Binding IsJoinedRoom, Converter={StaticResource BooleanToStringConverter}, ConverterParameter='#4CAF50,#F44336'}" />
-                </Ellipse.Fill>
-              </Ellipse>
-
-              <TextBlock
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                FontSize="13"
-                Foreground="#424242"
-                Text="방 접속" />
-            </Grid>
-
-            <!--  웹 Ping 상태  -->
-            <Grid Grid.Row="2">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-              </Grid.ColumnDefinitions>
-
-              <Ellipse
-                Grid.Column="0"
-                Width="8"
-                Height="8"
-                Margin="0,0,8,0"
-                VerticalAlignment="Center">
-                <Ellipse.Fill>
-                  <SolidColorBrush Color="{Binding IsPingHealthy, Converter={StaticResource BooleanToStringConverter}, ConverterParameter='#4CAF50,#F44336'}" />
-                </Ellipse.Fill>
-              </Ellipse>
-
-              <TextBlock
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                FontSize="13"
-                Foreground="#424242"
-                Text="웹 연결" />
-
-              <TextBlock
-                Grid.Column="2"
-                VerticalAlignment="Center"
-                FontSize="11"
-                Foreground="#9E9E9E"
-                Text="{Binding PingStatusText}" />
-            </Grid>
+            <TextBlock
+              Grid.Column="1"
+              VerticalAlignment="Center"
+              FontSize="13"
+              Foreground="#424242"
+              Text="서버 연결" />
           </Grid>
         </Border>
 

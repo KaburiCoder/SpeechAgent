@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -42,6 +43,8 @@ namespace SpeechAgent.Utils
 
         // 로그 라인 형식: [Level] HH:mm:ss 텍스트
         string logLine = $"[{level}] {DateTime.Now:HH:mm:ss} {text}";
+
+        Debug.WriteLine(logLine);
 
         // 파일에 추가
         File.AppendAllText(filePath, logLine + Environment.NewLine, System.Text.Encoding.UTF8);

@@ -55,7 +55,7 @@ namespace SpeechAgent.Utils
       }
       catch (Exception ex)
       {
-        LogUtils.WriteTextLog("Error.log", ex.ToString(), append: true);
+        LogUtils.WriteLog(LogLevel.Error, ex.ToString());
         return string.Empty;
       }
     }

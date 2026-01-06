@@ -1,8 +1,4 @@
-﻿using System.IO;
-using System.Net.Http;
-using System.Text;
-using System.Windows;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SpeechAgent.Constants;
@@ -14,10 +10,13 @@ using SpeechAgent.Features.Settings.FindWin.Services;
 using SpeechAgent.Features.UpdateHistory;
 using SpeechAgent.Services;
 using SpeechAgent.Services.Api;
-using SpeechAgent.Services.Globals;
-using SpeechAgent.Services.MedicSIO;
+using SpeechAgent.Services.NamedPipe;
 using SpeechAgent.Utils;
 using SpeechAgent.Utils.Automation;
+using System.IO;
+using System.Net.Http;
+using System.Text;
+using System.Windows;
 using Velopack;
 
 namespace SpeechAgent
@@ -50,13 +49,11 @@ namespace SpeechAgent
       services.AddSingleton<IViewModelFactory, ViewModelFactory>();
       services.AddSingleton<IPatientSearchService, PatientSearchService>();
       services.AddSingleton<ISettingsService, SettingsService>();
-      services.AddSingleton<IMedicSIOService, MedicSIOService>();
       services.AddSingleton<TrayIconService>();
       services.AddSingleton<IUpdateService, UpdateService>();
       services.AddSingleton<IAutoStartService, AutoStartService>();
       services.AddSingleton<IUserNotificationService, UserNotificationService>();
-
-      services.AddSingleton<IGlobalKeyHook, GlobalKeyHook>();
+      services.AddSingleton<INamedPipeService, NamedPipeService>();
 
       // Views
       services.AddSingleton<MainView>();
@@ -67,7 +64,6 @@ namespace SpeechAgent
       services.AddTransient<FindWinViewModel>();
       services.AddTransient<FindWinApiViewModel>();
       services.AddTransient<FindWinImageViewModel>();
-      services.AddTransient<ShortcutSettingsViewModel>();
       services.AddTransient<UpdateHistoryViewModel>();
 
       // Services
@@ -76,7 +72,6 @@ namespace SpeechAgent
       services.AddTransient<IAutomationControlSearcher, AutomationControlSearcher>();
       services.AddTransient<IControlSearcher, ControlSearcher>();
       services.AddTransient<IClickSoftControlSearchService, ClickSoftControlSearchService>();
-      services.AddTransient<IShortcutSettingsService, ShortcutSettingsService>();
       services.AddTransient<IUpdateHistoryService, UpdateHistoryService>();
 
       services.AddTransient<ILlmApi, LlmApi>();
@@ -144,12 +139,7 @@ namespace SpeechAgent
 
       // Shortcut Migrate
       var autoStartService = Services.GetRequiredService<IAutoStartService>();
-      autoStartService.MigrateToShortcutIfNeeded();
-
-      // UpdateService 시작
-      var updateService = Services.GetRequiredService<IUpdateService>();
-      updateService.UpdateError += OnUpdateError;
-      updateService.StartPeriodicCheck();
+      autoStartService.MigrateToShortcutIfNeeded();       
 
       // 설정 로드
       var settingsService = Services.GetRequiredService<ISettingsService>();

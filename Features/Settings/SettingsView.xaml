@@ -52,23 +52,6 @@
       <Grid Grid.Row="1" Margin="12">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel>
-            <!--  연결 키 섹션  -->
-            <Border
-              Margin="0,0,0,10"
-              Padding="10"
-              Background="#F8F9FA"
-              CornerRadius="5">
-              <StackPanel>
-                <TextBlock
-                  Margin="0,0,0,6"
-                  FontSize="12"
-                  FontWeight="SemiBold"
-                  Foreground="#424242"
-                  Text="연결 키" />
-                <TextBox materialDesign:HintAssist.Hint="Connect Key를 입력하세요" Text="{Binding ConnectKey, UpdateSourceTrigger=PropertyChanged}" />
-              </StackPanel>
-            </Border>
-
             <!--  앱 선택 섹션  -->
             <Border
               Margin="0,0,0,10"

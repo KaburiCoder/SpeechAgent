@@ -38,10 +38,7 @@ namespace SpeechAgent.Features.Settings
     private Option? selectedOption = null;
 
     [ObservableProperty]
-    private string targetAppName = "";
-
-    [ObservableProperty]
-    private string connectKey = "";
+    private string targetAppName = "";     
 
     [ObservableProperty]
     private bool autoStartEnabled = false;
@@ -99,7 +96,6 @@ namespace SpeechAgent.Features.Settings
       TargetAppName = SelectedOption?.Value ?? "";
       // Save settings
       _settingsService.UpdateSettings(
-        connectKey: ConnectKey,
         targetAppName: TargetAppName,
         customExeTitle: ExeTitle,
         customChartControlType: ChartControlType,
@@ -166,7 +162,6 @@ namespace SpeechAgent.Features.Settings
       ];
 
       _settingsService.LoadSettings();
-      ConnectKey = _settingsService.Settings.ConnectKey;
       TargetAppName = _settingsService.Settings.TargetAppName;
       ExeTitle = _settingsService.Settings.CustomExeTitle;
       ChartControlType = _settingsService.Settings.CustomChartControlType;

@@ -38,10 +38,7 @@ namespace SpeechAgent.Features.Settings
     private Option? selectedOption = null;
 
     [ObservableProperty]
-    private string targetAppName = "";     
-
-    [ObservableProperty]
-    private bool autoStartEnabled = false;
+    private string targetAppName = "";
 
     [ObservableProperty]
     private string exeTitle = "";
@@ -73,12 +70,6 @@ namespace SpeechAgent.Features.Settings
     [ObservableProperty]
     private string customImageRect = "";
 
-    [ObservableProperty]
-    private bool isBootPopupBrowserEnabled = true;
-
-    [ObservableProperty]
-    private string audioFileSaveDir = "";
-
     public bool IsCustomSelected => SelectedOption?.Value == AppKey.CustomUser;
     public bool IsCustomImageSelected => SelectedOption?.Value == AppKey.CustomUserImage;
     public bool IsCustomWinApiSelected => SelectedOption?.Value == AppKey.CustomUserWinApi;
@@ -106,17 +97,10 @@ namespace SpeechAgent.Features.Settings
         customNameIndex: NameIndex,
         customNameRegex: NameRegex,
         customNameRegexIndex: NameRegexIndex,
-        customImageRect: CustomImageRect,
-        isBootPopupBrowserEnabled: IsBootPopupBrowserEnabled,
-        audioFileSavePath: AudioFileSaveDir
+        customImageRect: CustomImageRect
       );
       // 기존 레지스트리는 무조건 제거
       _autoStartService.SetAutoStartLegacy(false);
-      // 새로 설정
-      if (AutoStartEnabled)
-        _autoStartService.CreateStartupShortcut();
-      else
-        _autoStartService.DeleteStartupShortcut();
 
       View.Close();
     }
@@ -173,13 +157,8 @@ namespace SpeechAgent.Features.Settings
       NameRegex = _settingsService.Settings.CustomNameRegex;
       NameRegexIndex = _settingsService.Settings.CustomNameRegexIndex.ToString();
       CustomImageRect = _settingsService.Settings.CustomImageRect;
-      IsBootPopupBrowserEnabled = _settingsService.Settings.IsBootPopupBrowserEnabled;
-      AudioFileSaveDir = _settingsService.Settings.AudioFileSaveDir;
 
       SelectedOption = Options.FirstOrDefault(o => o.Value == TargetAppName) ?? Options[0];
-
-      // Load auto start status from registry
-      AutoStartEnabled = _autoStartService.IsAutoStartEnabled();
 
       WeakReferenceMessenger.Default.Register<SendToSettingsMessage>(
         this,

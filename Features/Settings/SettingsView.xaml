@@ -140,73 +140,7 @@
                   이미지 컨트롤 찾기
                 </Button>
               </StackPanel>
-            </Border>
-
-            <!--  음성 파일 저장 경로 섹션  -->
-            <Border
-              Margin="0,0,0,10"
-              Padding="10"
-              Background="#F8F9FA"
-              CornerRadius="5">
-              <StackPanel>
-                <TextBlock
-                  Margin="0,0,0,6"
-                  FontSize="12"
-                  FontWeight="SemiBold"
-                  Foreground="#424242"
-                  Text="음성 파일 저장 경로" />
-                <controls:DirectoryControl Margin="0,0,0,6" DirPath="{Binding AudioFileSaveDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-              </StackPanel>
-            </Border>
-
-            <!--  자동 시작 섹션  -->
-            <Border
-              Margin="0,0,0,12"
-              Padding="10"
-              Background="#F8F9FA"
-              CornerRadius="5">
-              <StackPanel>
-                <TextBlock
-                  Margin="0,0,0,6"
-                  FontSize="12"
-                  FontWeight="SemiBold"
-                  Foreground="#424242"
-                  Text="시스템 설정" />
-                <CheckBox IsChecked="{Binding AutoStartEnabled}" Style="{StaticResource MaterialDesignCheckBox}">
-                  <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon
-                      Width="14"
-                      Height="14"
-                      Margin="0,0,6,0"
-                      VerticalAlignment="Center"
-                      Foreground="#616161"
-                      Kind="WindowRestore" />
-                    <TextBlock
-                      VerticalAlignment="Center"
-                      FontSize="12"
-                      Foreground="#424242"
-                      Text="윈도우 시작 시 자동 실행" />
-                  </StackPanel>
-                </CheckBox>
-
-                <CheckBox IsChecked="{Binding IsBootPopupBrowserEnabled}" Style="{StaticResource MaterialDesignCheckBox}">
-                  <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon
-                      Width="14"
-                      Height="14"
-                      Margin="0,0,6,0"
-                      VerticalAlignment="Center"
-                      Foreground="#616161"
-                      Kind="WindowRestore" />
-                    <TextBlock
-                      VerticalAlignment="Center"
-                      FontSize="12"
-                      Foreground="#424242"
-                      Text="실행 시 VoiceMedic 브라우저 자동 팝업" />
-                  </StackPanel>
-                </CheckBox>
-              </StackPanel>
-            </Border>
+            </Border>  
 
             <!--  버튼 영역  -->
             <Grid>

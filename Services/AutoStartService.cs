@@ -10,10 +10,10 @@ namespace SpeechAgent.Services
   {
     bool IsAutoStartEnabledLegacy();
     void SetAutoStartLegacy(bool enable);
-    bool CreateStartupShortcut();
+    bool CreateStartup();
     bool IsAutoStartEnabled();
-    bool DeleteStartupShortcut();
-    void MigrateToShortcutIfNeeded();
+    bool DeleteStartup();
+    void MigrateIfNeeded();
   }
 
   public class AutoStartService : IAutoStartService
@@ -82,7 +82,7 @@ namespace SpeechAgent.Services
       return candidate;
     }
 
-    public bool CreateStartupShortcut()
+    public bool CreateStartup()
     {
       try
       {
@@ -149,7 +149,7 @@ namespace SpeechAgent.Services
     /// <summary>
     /// 시작 폴더의 바로가기를 삭제합니다.
     /// </summary>
-    public bool DeleteStartupShortcut()
+    public bool DeleteStartup()
     {
       try
       {
@@ -187,7 +187,7 @@ namespace SpeechAgent.Services
     /// 레지스트리의 레거시 자동 시작 설정을 바로가기 방식으로 마이그레이션합니다.
     /// 레지스트리에 등록되어 있으면 레지스트리에서 제거하고 바로가기를 생성합니다.
     /// </summary>
-    public void MigrateToShortcutIfNeeded()
+    public void MigrateIfNeeded()
     {
       try
       {
@@ -209,7 +209,7 @@ namespace SpeechAgent.Services
           LogUtils.WriteLog(LogLevel.Info, "[AutoStart] 레지스트리에서 자동 시작 설정 제거 완료");
 
           // 2. 바로가기 생성
-          if (CreateStartupShortcut())
+          if (CreateStartup())
           {
             LogUtils.WriteLog(
               LogLevel.Info,

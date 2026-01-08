@@ -147,58 +147,8 @@ namespace SpeechAgent.Features.Settings.FindWin
         )
       );
 
-      View.Close();
-    }
-
-    partial void OnSelectedWindowChanged(WindowInfo? value)
-    {
-      SearchedControls.Clear();
-
-      if (value != null)
-      {
-        IsLoading = true;
-
-        Task.Run(() =>
-        {
-          try
-          {
-            // UI Automation으로 컨트롤 검색
-            if (_automationSearcher.FindWindowByTitle(title => title.Contains(value.Title)))
-            {
-              var controls = _automationSearcher.SearchControls();
-
-              App.Current.Dispatcher.Invoke(() =>
-              {
-                SearchedControls.Clear();
-                foreach (var control in controls)
-                {
-                  SearchedControls.Add(control);
-                }
-              });
-            }
-          }
-          catch (Exception ex)
-          {
-            App.Current.Dispatcher.Invoke(() =>
-            {
-              MessageBox.Show(
-                $"컨트롤 검색 중 오류가 발생했습니다: {ex.Message}",
-                "오류",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error
-              );
-            });
-          }
-          finally
-          {
-            App.Current.Dispatcher.Invoke(() =>
-            {
-              IsLoading = false;
-            });
-          }
-        });
+        View.Close();
       }
-    }
 
     [RelayCommand]
     private void AssignToChart(AutomationControlInfo controlInfo)
@@ -217,6 +167,51 @@ namespace SpeechAgent.Features.Settings.FindWin
       {
         PatientNameControlType = controlInfo.ControlType;
         PatientNameIndex = controlInfo.Index.ToString();
+      }
+    }
+
+    [RelayCommand]
+    private async Task LoadWindow(WindowInfo? window)
+    {
+      if (window == null)
+        return;
+
+      SelectedWindow = window;
+      SearchedControls.Clear();
+      IsLoading = true;
+
+      try
+      {
+        await Task.Run(() =>
+        {
+          // UI Automation으로 컨트롤 검색
+          if (_automationSearcher.FindWindowByTitle(title => title.Contains(window.Title)))
+          {
+            var controls = _automationSearcher.SearchControls();
+
+            App.Current.Dispatcher.Invoke(() =>
+            {
+              SearchedControls.Clear();
+              foreach (var control in controls)
+              {
+                SearchedControls.Add(control);
+              }
+            });
+          }
+        });
+      }
+      catch (Exception ex)
+      {
+        MessageBox.Show(
+          $"컨트롤 검색 중 오류가 발생했습니다: {ex.Message}",
+          "오류",
+          MessageBoxButton.OK,
+          MessageBoxImage.Error
+        );
+      }
+      finally
+      {
+        IsLoading = false;
       }
     }
   }

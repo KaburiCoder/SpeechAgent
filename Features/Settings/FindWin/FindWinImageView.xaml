@@ -132,6 +132,7 @@
       <controls:WindowListControl
         Grid.Column="0"
         SelectedWindow="{Binding SelectedWindow, Mode=TwoWay}"
+        ShowLoadButton="False"
         Windows="{Binding Windows}" />
 
       <!--  Splitter  -->

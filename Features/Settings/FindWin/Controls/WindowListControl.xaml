@@ -8,44 +8,51 @@
   d:DesignHeight="450"
   d:DesignWidth="800"
   mc:Ignorable="d">
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+  </UserControl.Resources>
   <Border
     BorderBrush="Gray"
     BorderThickness="1"
     CornerRadius="5">
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-      <ListBox
-        Background="Transparent"
-        BorderThickness="0"
-        ItemsSource="{Binding Windows}"
-        SelectedItem="{Binding SelectedWindow}">
-        <ListBox.ItemsPanel>
-          <ItemsPanelTemplate>
-            <WrapPanel Orientation="Horizontal" />
-          </ItemsPanelTemplate>
-        </ListBox.ItemsPanel>
-        <ListBox.ItemTemplate>
-          <DataTemplate>
-            <Border
-              Width="420"
-              Margin="5"
-              Background="White"
-              BorderBrush="LightGray"
-              BorderThickness="1"
-              CornerRadius="5"
-              Cursor="Hand">
-              <Border.Style>
-                <Style TargetType="Border">
-                  <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
-                      <Setter Property="Background" Value="LightBlue" />
-                    </DataTrigger>
-                    <Trigger Property="IsMouseOver" Value="True">
-                      <Setter Property="Background" Value="LightYellow" />
-                    </Trigger>
-                  </Style.Triggers>
-                </Style>
-              </Border.Style>
-              <StackPanel Margin="10">
+    <ListBox
+      Background="Transparent"
+      BorderThickness="0"
+      ItemsSource="{Binding Windows}"
+      SelectedItem="{Binding SelectedWindow}">
+      <ListBox.ItemsPanel>
+        <ItemsPanelTemplate>
+          <UniformGrid Columns="2" />
+        </ItemsPanelTemplate>
+      </ListBox.ItemsPanel>
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <Border
+            Width="420"
+            Margin="5"
+            Background="White"
+            BorderBrush="LightGray"
+            BorderThickness="1"
+            CornerRadius="5"
+            Cursor="Hand">
+            <Border.Style>
+              <Style TargetType="Border">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                    <Setter Property="Background" Value="LightBlue" />
+                  </DataTrigger>
+                  <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="LightYellow" />
+                  </Trigger>
+                </Style.Triggers>
+              </Style>
+            </Border.Style>
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <StackPanel Grid.Row="0" Margin="10">
                 <!--  스크린샷  -->
                 <Image
                   MaxHeight="238"
@@ -69,21 +76,30 @@
                   Text="{Binding ClassName}"
                   TextWrapping="Wrap" />
               </StackPanel>
-            </Border>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-        <ListBox.ItemContainerStyle>
-          <Style TargetType="ListBoxItem">
-            <Setter Property="Template">
-              <Setter.Value>
-                <ControlTemplate TargetType="ListBoxItem">
-                  <ContentPresenter />
-                </ControlTemplate>
-              </Setter.Value>
-            </Setter>
-          </Style>
-        </ListBox.ItemContainerStyle>
-      </ListBox>
-    </ScrollViewer>
+              <Button
+                Grid.Row="1"
+                Margin="10,0,10,10"
+                HorizontalAlignment="Right"
+                Command="{Binding DataContext.LoadWindowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                CommandParameter="{Binding}"
+                Content="불러오기"
+                Padding="15,8"
+                Visibility="{Binding ShowLoadButton, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}" />
+            </Grid>
+          </Border>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+      <ListBox.ItemContainerStyle>
+        <Style TargetType="ListBoxItem">
+          <Setter Property="Template">
+            <Setter.Value>
+              <ControlTemplate TargetType="ListBoxItem">
+                <ContentPresenter />
+              </ControlTemplate>
+            </Setter.Value>
+          </Setter>
+        </Style>
+      </ListBox.ItemContainerStyle>
+    </ListBox>
   </Border>
 </UserControl>

@@ -29,6 +29,9 @@ namespace SpeechAgent.Features.Settings.FindWin.Controls
     public static readonly DependencyProperty SelectedWindowProperty =
       DependencyProperty.Register(nameof(SelectedWindow), typeof(WindowInfo), typeof(WindowListControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
+    public static readonly DependencyProperty ShowLoadButtonProperty =
+      DependencyProperty.Register(nameof(ShowLoadButton), typeof(bool), typeof(WindowListControl), new PropertyMetadata(true));
+
     public ObservableCollection<WindowInfo> Windows
     {
       get => (ObservableCollection<WindowInfo>)GetValue(WindowsProperty);
@@ -39,6 +42,12 @@ namespace SpeechAgent.Features.Settings.FindWin.Controls
     {
       get => (WindowInfo)GetValue(SelectedWindowProperty);
       set => SetValue(SelectedWindowProperty, value);
+    }
+
+    public bool ShowLoadButton
+    {
+      get => (bool)GetValue(ShowLoadButtonProperty);
+      set => SetValue(ShowLoadButtonProperty, value);
     }
 
     public WindowListControl()

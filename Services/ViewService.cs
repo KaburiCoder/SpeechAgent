@@ -20,6 +20,8 @@ namespace SpeechAgent.Services
 
   public class ViewService : IViewService
   {
+    private SettingsView? _settingsViewInstance;
+
     public void ShowMainView()
     {
       var mainView = App.Current.Services.GetRequiredService<MainView>();
@@ -44,7 +46,26 @@ namespace SpeechAgent.Services
 
     public void ShowSettingsView(Window? parent)
     {
-      ShowDialogCommon<SettingsView, SettingsViewModel>(parent);
+      // 이미 열려있는 SettingsView가 있으면 활성화만 함
+      if (_settingsViewInstance != null && _settingsViewInstance.IsVisible)
+      {
+        _settingsViewInstance.Activate();
+        _settingsViewInstance.Focus();
+        return;
+      }
+
+      var viewModelFactory = App.Current.Services.GetRequiredService<IViewModelFactory>();
+      var result = viewModelFactory.CreateViewModel<SettingsView, SettingsViewModel>(parent);
+
+      _settingsViewInstance = result.View;
+
+      // 윈도우가 닫혔을 때 인스턴스 제거
+      _settingsViewInstance.Closed += (s, e) =>
+      {
+        _settingsViewInstance = null;
+      };
+
+      _settingsViewInstance.ShowDialog();
     }
 
     public void ShowFindWinView(Window parent)

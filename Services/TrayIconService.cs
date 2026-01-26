@@ -107,7 +107,7 @@ namespace SpeechAgent.Services
         return;
 
       _mainView.Hide();
-      _notifyIcon.Visible = true;
+      _notifyIcon.Visible = false; // 트레이 아이콘 숨기기
     }
 
     private void OnShow(object? sender, EventArgs e)

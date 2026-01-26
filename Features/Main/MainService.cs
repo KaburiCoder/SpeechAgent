@@ -72,8 +72,8 @@ namespace SpeechAgent.Features.Main
         case NamePipeReceiveAction.PING:
           await _namedPipeService.SendAsync(new NamedPipeData(NamedPipeAction.PONG, "pong"));
           break;
-        case NamePipeReceiveAction.OPEN_SETTINGS:   
-          _uiDispatcher.Invoke(() => _viewService.ShowSettingsView());
+        case NamePipeReceiveAction.OPEN_SETTINGS:
+          await _uiDispatcher.InvokeAsync(() => _viewService.ShowSettingsView());
           break;
         default:
           break;

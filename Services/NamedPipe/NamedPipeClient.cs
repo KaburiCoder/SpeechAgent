@@ -95,7 +95,7 @@ namespace SpeechAgent.Services.NamedPipe
     /// </summary>
     private void HandleConnectionError(Exception ex)
     {
-      LogUtils.WriteLog(LogLevel.Error, $"파이프 서버 연결 실패: {ex.Message}");
+      LogUtils.WriteLog(LogLevel.Error, $"파이프 서버 연결 실패: {ex?.Message}");
       ConnectionError?.Invoke(this, ex);
 
       CleanupConnection();

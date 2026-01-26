@@ -21,6 +21,7 @@ namespace SpeechAgent.Features.Main
   {
     private readonly IPatientSearchService _patientSearchService;
     private readonly INamedPipeService _namedPipeService;
+    private readonly IViewService _viewService;
     private readonly System.Timers.Timer _timer;
     private readonly Dispatcher _uiDispatcher;
     private PatientInfo _patientInfo = new("", "", DateTime.MinValue);
@@ -30,14 +31,17 @@ namespace SpeechAgent.Features.Main
       IPatientSearchService patientSearchService,
       ISettingsService settingsService,
       IUserNotificationService userNotificationService,
-      INamedPipeService namedPipeService
+      INamedPipeService namedPipeService,
+      IViewService viewService
     )
     {
       _patientSearchService = patientSearchService;
       _namedPipeService = namedPipeService;
+      this._viewService = viewService;
       _namedPipeService.Connected += (s, e) => OnNamedPipeConnectChanged(true);
       _namedPipeService.Disconnected += (s, e) => OnNamedPipeConnectChanged(false);
       _namedPipeService.ConnectionError += (s, e) => OnNamedPipeConnectChanged(false);
+      _namedPipeService.MessageReceived += _namedPipeService_MessageReceived;
       _namedPipeService.ConnectAsync();
 
       _timer = new System.Timers.Timer();
@@ -59,6 +63,21 @@ namespace SpeechAgent.Features.Main
           }
         }
       );
+    }
+
+    private async void _namedPipeService_MessageReceived(object? sender, NamedPipeData e)
+    {
+      switch (e.Action)
+      {
+        case NamePipeReceiveAction.PING:
+          await _namedPipeService.SendAsync(new NamedPipeData(NamedPipeAction.PONG, "pong"));
+          break;
+        case NamePipeReceiveAction.OPEN_SETTINGS:   
+          _uiDispatcher.Invoke(() => _viewService.ShowSettingsView());
+          break;
+        default:
+          break;
+      }
     }
 
     private void OnNamedPipeConnectChanged(bool isConnected)

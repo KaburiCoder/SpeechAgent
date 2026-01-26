@@ -1,5 +1,7 @@
 using SpeechAgent.Models;
+using SpeechAgent.Utils;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -7,7 +9,7 @@ namespace SpeechAgent.Services.NamedPipe
 {
   public interface INamedPipeService
   {
-    event EventHandler<string>? MessageReceived;
+    event EventHandler<NamedPipeData>? MessageReceived;
     event EventHandler<Exception>? ConnectionError;
     event EventHandler? Connected;
     event EventHandler? Disconnected;
@@ -24,7 +26,7 @@ namespace SpeechAgent.Services.NamedPipe
     private readonly NamedPipeClient _pipeClient;
     private const string PIPE_NAME = "voice-medic-pipe";
 
-    public event EventHandler<string>? MessageReceived;
+    public event EventHandler<NamedPipeData>? MessageReceived;
     public event EventHandler<Exception>? ConnectionError;
     public event EventHandler? Connected;
     public event EventHandler? Disconnected;
@@ -32,7 +34,12 @@ namespace SpeechAgent.Services.NamedPipe
     public NamedPipeService()
     {
       _pipeClient = new NamedPipeClient(PIPE_NAME);
-      _pipeClient.MessageReceived += (s, message) => MessageReceived?.Invoke(this, message);
+      _pipeClient.MessageReceived += async (s, message) =>
+      {
+        var received = JsonSerializer.Deserialize<NamedPipeData>(message, JsonUtils.DefaultOptions);
+        if (received != null)
+          MessageReceived?.Invoke(this, received);        
+      };
       _pipeClient.ConnectionError += (s, error) => ConnectionError?.Invoke(this, error);
       _pipeClient.Connected += (s, e) => Connected?.Invoke(this, e);
       _pipeClient.Disconnected += (s, e) => Disconnected?.Invoke(this, e);
@@ -53,7 +60,7 @@ namespace SpeechAgent.Services.NamedPipe
     public async Task SendMessageAsync(string message)
     {
       await _pipeClient.SendMessageAsync(message);
-    } 
+    }
 
     public void Disconnect()
     {

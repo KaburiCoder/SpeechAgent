@@ -16,13 +16,7 @@ namespace SpeechAgent.Services.NamedPipe
     private CancellationTokenSource? _cancellationTokenSource;
     private bool _isManuallyDisconnected = false;
     private bool _isReconnecting = false;  // 재연결 중 상태 플래그
-    private readonly int _reconnectIntervalMs = 5000; // 5초
-    private readonly JsonSerializerOptions _jsonOptions = new()
-    {
-      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-      Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-    };
-
+    private readonly int _reconnectIntervalMs = 5000; // 5초    
     public event EventHandler<string>? MessageReceived;
     public event EventHandler<Exception>? ConnectionError;
     public event EventHandler? Disconnected;
@@ -87,7 +81,7 @@ namespace SpeechAgent.Services.NamedPipe
     private void StartMessageReading()
     {
       _cancellationTokenSource = new CancellationTokenSource();
-      _ = ReadMessagesAsync(_cancellationTokenSource.Token);
+      _ = Task.Run(() => ReadMessagesAsync(_cancellationTokenSource.Token));
     }
 
     /// <summary>
@@ -268,7 +262,7 @@ namespace SpeechAgent.Services.NamedPipe
       try
       {
         ValidateConnection();
-        string jsonMessage = JsonSerializer.Serialize(message, _jsonOptions);
+        string jsonMessage = JsonSerializer.Serialize(message, JsonUtils.DefaultOptions);
         await _streamWriter!.WriteLineAsync(jsonMessage);
         await _streamWriter.FlushAsync();
       }

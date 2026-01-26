@@ -11,7 +11,7 @@ namespace SpeechAgent.Services
   public interface IViewService
   {
     void ShowMainView();
-    void ShowSettingsView(Window parent);
+    void ShowSettingsView(Window? parent = null);
     void ShowFindWinView(Window parent);
     void ShowFindWinApiView(Window parent);
     void ShowFindWinImageView(Window parent);
@@ -32,7 +32,7 @@ namespace SpeechAgent.Services
       mainView.Show();
     }
 
-    private void ShowDialogCommon<TView, TViewModel>(Window parent)
+    private void ShowDialogCommon<TView, TViewModel>(Window? parent)
       where TView : Window, new()
       where TViewModel : BaseViewModel
     {
@@ -42,7 +42,7 @@ namespace SpeechAgent.Services
       result.View.ShowDialog();
     }
 
-    public void ShowSettingsView(Window parent)
+    public void ShowSettingsView(Window? parent)
     {
       ShowDialogCommon<SettingsView, SettingsViewModel>(parent);
     }
@@ -61,7 +61,7 @@ namespace SpeechAgent.Services
     {
       ShowDialogCommon<FindWinImageView, FindWinImageViewModel>(parent);
     }
-     
+
     public void ShowUpdateHistoryView(Window parent)
     {
       ShowDialogCommon<UpdateHistoryView, UpdateHistoryViewModel>(parent);

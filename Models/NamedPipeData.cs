@@ -8,7 +8,14 @@ namespace SpeechAgent.Models
 {
   public class NamedPipeAction
   {
-    public static readonly string LOAD_PATIENT = "LOAD_PATIENT";
+    public const string PONG = "PONG";
+    public const string LOAD_PATIENT = "LOAD_PATIENT";
+  }
+
+  public class NamePipeReceiveAction
+  {
+    public const string PING = "PING";
+    public const string OPEN_SETTINGS = "OPEN_SETTINGS";
   }
 
   public record NamedPipeData(string Action, object Payload) { }

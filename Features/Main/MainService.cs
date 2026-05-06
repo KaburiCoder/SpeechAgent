@@ -45,7 +45,7 @@ namespace SpeechAgent.Features.Main
       _namedPipeService.ConnectAsync();
 
       _timer = new System.Timers.Timer();
-      _timer.AutoReset = false; // Áßº¹ ½ÇÇà ¹æÁö
+      _timer.AutoReset = false;
       _timer.Elapsed += Timer_Elapsed;
       _uiDispatcher = Dispatcher.CurrentDispatcher;
       userNotificationService.StartIntervalFeedbackNotification();
@@ -75,6 +75,10 @@ namespace SpeechAgent.Features.Main
         case NamePipeReceiveAction.OPEN_SETTINGS:
           await _uiDispatcher.InvokeAsync(() => _viewService.ShowSettingsView());
           break;
+        case NamePipeReceiveAction.GET_CURRENT_CHART:
+          // voice-medic ìˆ˜ë™ ëª¨ë“œ â€” í˜„ìž¬ ì°¨íŠ¸ ì •ë³´ë¥¼ ì¦‰ì‹œ ì‘ë‹µ
+          await _namedPipeService.SendAsync(new NamedPipeData(NamedPipeAction.CURRENT_CHART, _patientInfo));
+          break;
         default:
           break;
       }
@@ -89,18 +93,18 @@ namespace SpeechAgent.Features.Main
     {
       try
       {
-        // ¹é±×¶ó¿îµå ½º·¹µå¿¡¼­ ¹«°Å¿î ÀÛ¾÷ ½ÇÇà (UI Automation)
+        // ï¿½ï¿½×¶ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½å¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½Å¿ï¿½ ï¿½Û¾ï¿½ ï¿½ï¿½ï¿½ï¿½ (UI Automation)
         var patientInfo = await _patientSearchService.FindPatientInfo();
         var previousPatientInfo = _patientInfo;
 
-        // UI ½º·¹µå¿¡¼­¸¸ »óÅÂ ¾÷µ¥ÀÌÆ® ¹× ¸Þ½ÃÁö ¹ß¼Û
+        // UI ï¿½ï¿½ï¿½ï¿½ï¿½å¿¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ß¼ï¿½
         _uiDispatcher.Invoke(() =>
         {
           _patientInfo = patientInfo;
 
           if (!patientInfo.IsEqual(previousPatientInfo) && !patientInfo.HasOnlyOneInfo())
           {
-            // ³×Æ®¿öÅ© ÀÛ¾÷Àº ºñµ¿±â·Î Ã³¸® (UI ½º·¹µå ºí·ÎÅ· ¾È ÇÔ)
+            // ï¿½ï¿½Æ®ï¿½ï¿½Å© ï¿½Û¾ï¿½ï¿½ï¿½ ï¿½ñµ¿±ï¿½ï¿½ Ã³ï¿½ï¿½ (UI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å· ï¿½ï¿½ ï¿½ï¿½)
             _ = SendPatientInfoAsync(_patientInfo);
           }
         });
@@ -136,7 +140,7 @@ namespace SpeechAgent.Features.Main
     public void StartReadChartTimer()
     {
       int intervalSec = 1; // (_settingsService.Settings.TargetAppName == AppKey.CustomUserImage) ? 3 : 1;
-      _timer.Interval = intervalSec * 1000; // ¹Ð¸®ÃÊ ´ÜÀ§
+      _timer.Interval = intervalSec * 1000; // ï¿½Ð¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
       _shouldRun = true;
       _timer.Start();
     }

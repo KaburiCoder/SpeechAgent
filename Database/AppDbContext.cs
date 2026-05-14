@@ -1,6 +1,7 @@
-﻿using System.IO;
+using System.IO;
 using Microsoft.EntityFrameworkCore;
 using SpeechAgent.Database.Schemas;
+using SpeechAgent.Utils;
 
 namespace SpeechAgent.Database
 {
@@ -11,25 +12,24 @@ namespace SpeechAgent.Database
 
     public string DbPath { get; }
 
+    /// <summary>
+    /// 컨텍스트 인스턴스화 없이 DB 파일 경로만 조회합니다. 디렉토리는 보장하지 않습니다.
+    /// </summary>
+    public static string GetDbPath()
+    {
+      return Path.Combine(PathUtils.GetLocalAppDataDirectory(), "settings.db");
+    }
+
     public AppDbContext()
     {
-      var folder = Environment.SpecialFolder.LocalApplicationData;
-      var path = Environment.GetFolderPath(folder);
+      DbPath = GetDbPath();
 
-      // WPF 프로젝트의 Assembly 이름을 동적으로 가져옴
-      var projectName =
-        System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name ?? "SpeechAgent";
-      var dirPath = Path.Join(path, projectName);
-      DbPath = Path.Join(dirPath, "settings.db");
-
-      // 폴더가 없는 경우 생성
+      var dirPath = Path.GetDirectoryName(DbPath)!;
       var di = new DirectoryInfo(dirPath);
       if (!di.Exists)
         di.Create();
     }
 
-    // The following configures EF to create a Sqlite database file in the
-    // special "local" folder for your platform.
     protected override void OnConfiguring(DbContextOptionsBuilder options) =>
       options.UseSqlite($"Data Source={DbPath}");
 

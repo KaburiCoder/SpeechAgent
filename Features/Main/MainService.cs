@@ -6,6 +6,7 @@ using SpeechAgent.Services;
 using SpeechAgent.Services.MedicSIO;
 using SpeechAgent.Services.MedicSIO.Dto;
 using SpeechAgent.Services.NamedPipe;
+using SpeechAgent.Utils;
 using System.Timers;
 using System.Windows.Threading;
 
@@ -42,7 +43,18 @@ namespace SpeechAgent.Features.Main
       _namedPipeService.Disconnected += (s, e) => OnNamedPipeConnectChanged(false);
       _namedPipeService.ConnectionError += (s, e) => OnNamedPipeConnectChanged(false);
       _namedPipeService.MessageReceived += _namedPipeService_MessageReceived;
-      _namedPipeService.ConnectAsync();
+      _ = Task.Run(async () =>
+      {
+        try
+        {
+          LogUtils.WriteLog(LogLevel.Info, "MainService: NamedPipe 초기 연결 시도");
+          await _namedPipeService.ConnectAsync();
+        }
+        catch (Exception ex)
+        {
+          LogUtils.WriteLog(LogLevel.Error, "MainService: NamedPipe 초기 연결 중 예외", ex);
+        }
+      });
 
       _timer = new System.Timers.Timer();
       _timer.AutoReset = false;
@@ -111,7 +123,7 @@ namespace SpeechAgent.Features.Main
       }
       catch (Exception ex)
       {
-        System.Diagnostics.Debug.WriteLine($"Error in MainService timer: {ex.Message}");
+        LogUtils.WriteLog(LogLevel.Error, "MainService 타이머 처리 중 예외", ex);
       }
       finally
       {
@@ -133,7 +145,7 @@ namespace SpeechAgent.Features.Main
       }
       catch (Exception ex)
       {
-        System.Diagnostics.Debug.WriteLine($"Error sending patient info: {ex.Message}");
+        LogUtils.WriteLog(LogLevel.Error, "환자정보 송신 중 예외", ex);
       }
     }
 

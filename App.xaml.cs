@@ -85,26 +85,73 @@ namespace SpeechAgent
     static Mutex? _mutex = null;
     private const string MutexName = "VoiceMedicAgent_UniqueMutex";
 
+    private HeartbeatLogger? _heartbeat;
+
     [STAThread]
     public static void Main()
     {
-      KillLegacyProcesses();
-      // 작업 디렉토리를 실행 파일 위치로 변경(윈도우 재시작 후 바로가기로 실행 시 문제 방지)
-      Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+      // 전역 예외 핸들러를 가장 먼저 등록 — 이후 모든 무성 예외를 잡기 위함
+      RegisterGlobalExceptionHandlers();
 
-      // 관리자 권한 확인 및 필요시 재실행
-      AdminHelper.RequireAdminOrExit();
-      // EUC-KR, CP949, 949
-      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+      LogUtils.WriteSessionBanner();
+      LogUtils.WriteLog(LogLevel.Info, "Main() 진입");
 
-      // 실행 중인 프로세스 버전 비교 및 처리
-      if (!TryAcquireMutex())
+      try
       {
-        HandleExistingProcess();
-        return;
-      }
+        LogUtils.WriteLog(LogLevel.Debug, "기존 프로세스 정리 시작");
+        KillLegacyProcesses();
 
-      RunApp();
+        // 작업 디렉토리를 실행 파일 위치로 변경(윈도우 재시작 후 바로가기로 실행 시 문제 방지)
+        Directory.SetCurrentDirectory(PathUtils.GetExeDirectory());
+        LogUtils.WriteLog(LogLevel.Debug, $"작업 디렉토리 설정 완료: {Directory.GetCurrentDirectory()}");
+
+        // 관리자 권한 확인 및 필요시 재실행
+        LogUtils.WriteLog(LogLevel.Debug, $"관리자 권한 체크 (IsAdmin={AdminHelper.IsRunningAsAdmin()})");
+        AdminHelper.RequireAdminOrExit();
+
+        // EUC-KR, CP949, 949
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        LogUtils.WriteLog(LogLevel.Debug, "코드페이지 인코딩 등록 완료");
+
+        // 실행 중인 프로세스 버전 비교 및 처리
+        LogUtils.WriteLog(LogLevel.Debug, "Mutex 획득 시도");
+        if (!TryAcquireMutex())
+        {
+          LogUtils.WriteLog(LogLevel.Info, "Mutex 획득 실패 → 기존 프로세스 처리 분기");
+          HandleExistingProcess();
+          return;
+        }
+        LogUtils.WriteLog(LogLevel.Info, "Mutex 획득 성공 → RunApp 진입");
+
+        RunApp();
+      }
+      catch (Exception ex)
+      {
+        LogUtils.WriteLog(LogLevel.Error, "Main()에서 처리되지 않은 예외", ex);
+        throw;
+      }
+      finally
+      {
+        LogUtils.WriteLog(LogLevel.Info, "Main() 종료");
+      }
+    }
+
+    /// <summary>
+    /// 전역 예외 핸들러를 등록합니다. 프로세스가 "떠 있지만 동작 안하는" 상태의 무성 예외를 잡기 위함.
+    /// </summary>
+    private static void RegisterGlobalExceptionHandlers()
+    {
+      AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+      {
+        var ex = e.ExceptionObject as Exception;
+        LogUtils.WriteLog(LogLevel.Error, $"AppDomain.UnhandledException (IsTerminating={e.IsTerminating})", ex);
+      };
+
+      System.Threading.Tasks.TaskScheduler.UnobservedTaskException += (s, e) =>
+      {
+        LogUtils.WriteLog(LogLevel.Error, "TaskScheduler.UnobservedTaskException", e.Exception);
+        e.SetObserved();
+      };
     }
 
     private static void KillLegacyProcesses()
@@ -123,60 +170,196 @@ namespace SpeechAgent
       }
     }
 
+    private const int MigrationTimeoutMs = 15000;       // 전체 마이그레이션 타임아웃
+    private const int CommandTimeoutSeconds = 5;         // 각 SQL 명령 타임아웃
+
+    private static readonly string[] SqliteSidecarSuffixes = { "", "-wal", "-shm", "-journal" };
+
     private static void RunApp()
     {
-      // 데이터베이스 마이그레이션 적용
-      using (var context = new AppDbContext())
+      // 데이터베이스 마이그레이션 적용 — 타임아웃 + 실패 시 DB 파일 삭제 후 재시도
+      string dbPath = AppDbContext.GetDbPath();
+      LogUtils.WriteLog(LogLevel.Debug, $"DB 경로: {dbPath}");
+
+      if (!TryMigrate())
       {
-        string dbPath = context.DbPath;
-        try
+        LogUtils.WriteLog(LogLevel.Warn, "1차 마이그레이션 실패 — DB 파일 삭제 후 재시도");
+        // 풀에 남은 SQLite 연결 핸들을 해제해야 DB 파일 삭제가 가능
+        try { Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools(); } catch { }
+        DeleteSqliteFiles(dbPath);
+
+        if (!TryMigrate())
         {
-          context.Database.Migrate();
+          var ex = new InvalidOperationException("DB 마이그레이션이 재시도 후에도 실패했습니다.");
+          LogUtils.WriteLog(LogLevel.Error, "DB 초기화 실패 (재시도 포함)", ex);
+          throw ex;
         }
-        catch (SqliteException ex)
-        {
-          if (ex.SqliteErrorCode == 1)
-          {
-            context.Database.EnsureDeleted();
-            context.Database.Migrate();
-          }
-        }
+        LogUtils.WriteLog(LogLevel.Info, "DB 재생성 후 마이그레이션 성공");
       }
 
       // WPF Application 실행
-      var app = new App();
-      app.InitializeComponent();
-      app.Run();
+      try
+      {
+        LogUtils.WriteLog(LogLevel.Debug, "App 인스턴스 생성");
+        var app = new App();
+        LogUtils.WriteLog(LogLevel.Debug, "InitializeComponent 호출");
+        app.InitializeComponent();
+
+        // WPF Dispatcher 예외 핸들러는 Application 인스턴스가 생긴 다음에 등록 가능
+        app.DispatcherUnhandledException += (s, e) =>
+        {
+          LogUtils.WriteLog(LogLevel.Error, "Application.DispatcherUnhandledException", e.Exception);
+          e.Handled = true; // 앱이 죽지 않도록 막아 진단 가능 상태 유지
+        };
+
+        LogUtils.WriteLog(LogLevel.Info, "app.Run() 시작");
+        app.Run();
+        LogUtils.WriteLog(LogLevel.Info, "app.Run() 정상 반환");
+      }
+      catch (Exception ex)
+      {
+        LogUtils.WriteLog(LogLevel.Error, "WPF 애플리케이션 실행 실패", ex);
+        throw;
+      }
+    }
+
+    /// <summary>
+    /// Migrate를 작업 스레드에서 실행하고 MigrationTimeoutMs 안에 끝나지 않으면 실패로 간주합니다.
+    /// 각 SQL 명령은 CommandTimeoutSeconds로 추가 제한됩니다.
+    /// </summary>
+    private static bool TryMigrate()
+    {
+      AppDbContext? context = null;
+      try
+      {
+        LogUtils.WriteLog(LogLevel.Debug, $"DB 마이그레이션 시도 (전체 타임아웃 {MigrationTimeoutMs}ms, 명령 타임아웃 {CommandTimeoutSeconds}s)");
+        context = new AppDbContext();
+        context.Database.SetCommandTimeout(TimeSpan.FromSeconds(CommandTimeoutSeconds));
+
+        var ctx = context;
+        var migrateTask = Task.Run(() => ctx.Database.Migrate());
+
+        if (!migrateTask.Wait(MigrationTimeoutMs))
+        {
+          LogUtils.WriteLog(LogLevel.Error, $"DB 마이그레이션 타임아웃 ({MigrationTimeoutMs}ms 초과) — 강제 연결 종료");
+          // 작업 스레드가 SQLite 호출에 묶여 있을 가능성 → 연결 강제 종료로 풀어줌
+          try { ctx.Database.GetDbConnection().Close(); } catch { }
+          return false;
+        }
+
+        if (migrateTask.IsFaulted)
+        {
+          LogUtils.WriteLog(LogLevel.Error, "DB 마이그레이션 실패", migrateTask.Exception?.GetBaseException());
+          return false;
+        }
+
+        LogUtils.WriteLog(LogLevel.Info, "DB 마이그레이션 완료");
+        return true;
+      }
+      catch (Exception ex)
+      {
+        LogUtils.WriteLog(LogLevel.Error, "DB 마이그레이션 중 예외", ex);
+        return false;
+      }
+      finally
+      {
+        try { context?.Dispose(); } catch { }
+      }
+    }
+
+    /// <summary>
+    /// settings.db 와 관련 SQLite 보조 파일(.db-wal, .db-shm, .db-journal)을 모두 삭제합니다.
+    /// 락 경합으로 즉시 삭제 실패 시 200ms 간격으로 5회 재시도합니다.
+    /// </summary>
+    private static void DeleteSqliteFiles(string dbPath)
+    {
+      foreach (var suffix in SqliteSidecarSuffixes)
+      {
+        var file = dbPath + suffix;
+        if (!File.Exists(file))
+          continue;
+
+        for (int attempt = 1; attempt <= 5; attempt++)
+        {
+          try
+          {
+            File.Delete(file);
+            LogUtils.WriteLog(LogLevel.Warn, $"DB 파일 삭제: {Path.GetFileName(file)}");
+            break;
+          }
+          catch (Exception ex)
+          {
+            if (attempt == 5)
+              LogUtils.WriteLog(LogLevel.Error, $"DB 파일 삭제 실패 (5회 시도): {file}", ex);
+            else
+              Thread.Sleep(200);
+          }
+        }
+      }
     }
 
     public App()
     {
-      Services = ConfigureServices();
+      try
+      {
+        LogUtils.WriteLog(LogLevel.Debug, "DI 컨테이너 구성 시작");
+        Services = ConfigureServices();
+        LogUtils.WriteLog(LogLevel.Debug, "DI 컨테이너 구성 완료");
+      }
+      catch (Exception ex)
+      {
+        LogUtils.WriteLog(LogLevel.Error, "DI 컨테이너 구성 실패", ex);
+        throw;
+      }
     }
 
     private void Application_Startup(object sender, StartupEventArgs e)
     {
-      //var testView = new TestApp();
-      //testView.Show();
-      //return;
+      LogUtils.WriteLog(LogLevel.Info, "Application_Startup 진입");
+      try
+      {
+        //var testView = new TestApp();
+        //testView.Show();
+        //return;
 
-      var autoStartService = Services.GetRequiredService<IAutoStartService>();
-      autoStartService.MigrateIfNeeded();
-      autoStartService.DeleteStartup(); // 자동 실행 삭제
+        LogUtils.WriteLog(LogLevel.Debug, "AutoStartService 처리");
+        var autoStartService = Services.GetRequiredService<IAutoStartService>();
+        autoStartService.MigrateIfNeeded();
+        autoStartService.DeleteStartup(); // 자동 실행 삭제
 
-      // 설정 로드
-      var settingsService = Services.GetRequiredService<ISettingsService>();
-      settingsService.UpdateSettings(isBootPopupBrowserEnabled: false);
-      settingsService.LoadSettings();
+        // 설정 로드
+        LogUtils.WriteLog(LogLevel.Debug, "SettingsService 로드");
+        var settingsService = Services.GetRequiredService<ISettingsService>();
+        settingsService.UpdateSettings(isBootPopupBrowserEnabled: false);
+        settingsService.LoadSettings();
 
-      var viewService = Services.GetRequiredService<IViewService>();
-      viewService.ShowMainView();
+        LogUtils.WriteLog(LogLevel.Debug, "MainView 표시");
+        var viewService = Services.GetRequiredService<IViewService>();
+        viewService.ShowMainView();
+
+        _heartbeat = new HeartbeatLogger(TimeSpan.FromSeconds(60));
+        _heartbeat.Start();
+
+        LogUtils.WriteLog(LogLevel.Info, "Application_Startup 완료");
+      }
+      catch (Exception ex)
+      {
+        LogUtils.WriteLog(LogLevel.Error, "Application_Startup 실패", ex);
+        throw;
+      }
     }
 
     private void OnUpdateError(object? sender, UpdateErrorEventArgs e)
     {
       // 오류 발생 시 에러 로그 추가 (기존 동작 유지)
       LogUtils.WriteLog(LogLevel.Error, $"업데이트 오류: {e.Message}");
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+      _heartbeat?.Dispose();
+      _heartbeat = null;
+      base.OnExit(e);
     }
 
     /// <summary>
@@ -293,21 +476,25 @@ namespace SpeechAgent
         _mutex = new Mutex(true, MutexName, out bool createdNew);
         if (createdNew)
         {
+          LogUtils.WriteLog(LogLevel.Debug, "Mutex 새로 생성됨");
           return true;
         }
 
         // Mutex가 이미 존재하는 경우 획득 시도
-        return _mutex.WaitOne(TimeSpan.Zero, true);
+        bool acquired = _mutex.WaitOne(TimeSpan.Zero, true);
+        LogUtils.WriteLog(LogLevel.Debug, $"Mutex 기존 존재, 획득 시도 결과={acquired}");
+        return acquired;
       }
       catch (AbandonedMutexException)
       {
-        // 버려진 Mutex인 경우 새로 생성 (이전 프로세스가 비정상 종료됨)
+        LogUtils.WriteLog(LogLevel.Warn, "버려진 Mutex 감지 — 새로 생성 (이전 프로세스 비정상 종료 추정)");
         _mutex?.Dispose();
         _mutex = new Mutex(true, MutexName, out _);
         return true;
       }
-      catch
+      catch (Exception ex)
       {
+        LogUtils.WriteLog(LogLevel.Error, "Mutex 획득 중 예외", ex);
         return false;
       }
     }

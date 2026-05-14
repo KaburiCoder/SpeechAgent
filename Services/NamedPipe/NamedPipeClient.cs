@@ -15,8 +15,9 @@ namespace SpeechAgent.Services.NamedPipe
     private StreamWriter? _streamWriter;
     private CancellationTokenSource? _cancellationTokenSource;
     private bool _isManuallyDisconnected = false;
-    private bool _isReconnecting = false;  // Àç¿¬°á Áß »óÅÂ ÇÃ·¡±×
-    private readonly int _reconnectIntervalMs = 5000; // 5ÃÊ    
+    private bool _isReconnecting = false;
+    private readonly int _reconnectIntervalMs = 5000;
+    private int _connectAttemptCount = 0;
     public event EventHandler<string>? MessageReceived;
     public event EventHandler<Exception>? ConnectionError;
     public event EventHandler? Disconnected;
@@ -28,7 +29,7 @@ namespace SpeechAgent.Services.NamedPipe
     }
 
     /// <summary>
-    /// ÆÄÀÌÇÁ ¼­¹ö¿¡ ¿¬°áÀ» ½ÃÀÛÇÕ´Ï´Ù.
+    /// íŒŒì´í”„ ì„œë²„ì— ì—°ê²°ì„ ì‹œì‘í•©ë‹ˆë‹¤.
     /// </summary>
     public async Task ConnectAsync(int timeoutMs = 5000)
     {
@@ -38,45 +39,57 @@ namespace SpeechAgent.Services.NamedPipe
     }
 
     /// <summary>
-    /// ÆÄÀÌÇÁ ¼­¹ö¿¡ ¿¬°áÀ» ½ÃµµÇÕ´Ï´Ù.
+    /// íŒŒì´í”„ ì„œë²„ ì—°ê²°ì„ ì‹œë„í•©ë‹ˆë‹¤.
     /// </summary>
     private async Task TryConnectAsync(int timeoutMs)
     {
+      _connectAttemptCount++;
+      int attempt = _connectAttemptCount;
       try
       {
+        LogUtils.WriteLog(LogLevel.Debug, $"íŒŒì´í”„ ì—°ê²° ì‹œë„ #{attempt} (PipeName=\\\\.\\pipe\\{_pipeName}, timeout={timeoutMs}ms)");
         CleanupConnection();
 
         _pipeStream = new NamedPipeClientStream(".", _pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
         await _pipeStream.ConnectAsync(timeoutMs);
-        
+
         InitializeStreams();
 
-        LogUtils.WriteLog(LogLevel.Info, $"ÆÄÀÌÇÁ ¼­¹ö¿¡ ¿¬°áµÇ¾ú½À´Ï´Ù. PipeName: {_pipeName}");
+        LogUtils.WriteLog(LogLevel.Info, $"íŒŒì´í”„ ì„œë²„ì— ì—°ê²°ë˜ì—ˆìŠµë‹ˆë‹¤. PipeName={_pipeName}, attempt=#{attempt}");
+        // ì—°ê²° ì„±ê³µ ì‹œ ì¹´ìš´í„° ë¦¬ì…‹ â€” ë‹¤ìŒ ëŠê¹€ë¶€í„° ìƒˆë¡œ ì¹´ìš´íŠ¸
+        _connectAttemptCount = 0;
         Connected?.Invoke(this, EventArgs.Empty);
 
         StartMessageReading();
       }
+      catch (TimeoutException ex)
+      {
+        LogUtils.WriteLog(LogLevel.Warn, $"íŒŒì´í”„ ì—°ê²° íƒ€ì„ì•„ì›ƒ #{attempt} (PipeName={_pipeName}, timeout={timeoutMs}ms). ì„œë²„ê°€ ë– ìˆì§€ ì•Šì„ ê°€ëŠ¥ì„±", ex);
+        _isReconnecting = false;
+        HandleConnectionError(ex);
+      }
       catch (Exception ex)
       {
-        _isReconnecting = false; // Àç¿¬°á ½Ãµµ ÇÃ·¡±× ÃÊ±âÈ­
+        LogUtils.WriteLog(LogLevel.Error, $"íŒŒì´í”„ ì—°ê²° ì‹¤íŒ¨ #{attempt} (PipeName={_pipeName})", ex);
+        _isReconnecting = false;
         HandleConnectionError(ex);
       }
     }
 
     /// <summary>
-    /// ½ºÆ®¸²À» ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// ìŠ¤íŠ¸ë¦¼ì„ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     /// </summary>
     private void InitializeStreams()
     {
       if (_pipeStream == null)
-        throw new InvalidOperationException("ÆÄÀÌÇÁ ½ºÆ®¸²ÀÌ ÃÊ±âÈ­µÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+        throw new InvalidOperationException("íŒŒì´í”„ ìŠ¤íŠ¸ë¦¼ì´ ì´ˆê¸°í™”ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
 
       _streamReader = new StreamReader(_pipeStream, Encoding.UTF8);
       _streamWriter = new StreamWriter(_pipeStream, Encoding.UTF8) { AutoFlush = true };
     }
 
     /// <summary>
-    /// ¸Ş½ÃÁö ÀĞ±â¸¦ ½ÃÀÛÇÕ´Ï´Ù.
+    /// ë©”ì‹œì§€ ì½ê¸°ë¥¼ ì‹œì‘í•©ë‹ˆë‹¤.
     /// </summary>
     private void StartMessageReading()
     {
@@ -85,11 +98,11 @@ namespace SpeechAgent.Services.NamedPipe
     }
 
     /// <summary>
-    /// ¿¬°á ¿À·ù¸¦ Ã³¸®ÇÕ´Ï´Ù.
+    /// ì—°ê²° ì˜¤ë¥˜ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
     /// </summary>
     private void HandleConnectionError(Exception ex)
     {
-      LogUtils.WriteLog(LogLevel.Error, $"ÆÄÀÌÇÁ ¼­¹ö ¿¬°á ½ÇÆĞ: {ex?.Message}");
+      LogUtils.WriteLog(LogLevel.Error, "íŒŒì´í”„ ì—°ê²° ì˜¤ë¥˜ ë°œìƒ", ex);
       ConnectionError?.Invoke(this, ex);
 
       CleanupConnection();
@@ -98,14 +111,17 @@ namespace SpeechAgent.Services.NamedPipe
       {
         StartAutoReconnect();
       }
+      else
+      {
+        LogUtils.WriteLog(LogLevel.Debug, "ìˆ˜ë™ ì¢…ë£Œ ìƒíƒœ â€” ìë™ ì¬ì—°ê²° ìƒëµ");
+      }
     }
 
     /// <summary>
-    /// ÀÚµ¿ Àç¿¬°áÀ» ½ÃÀÛÇÕ´Ï´Ù.
+    /// ìë™ ì¬ì—°ê²°ì„ ì‹œì‘í•©ë‹ˆë‹¤.
     /// </summary>
     private void StartAutoReconnect()
     {
-      // ÀÌ¹Ì Àç¿¬°á ÁßÀÌ¸é »õ·Î¿î ÅÂ½ºÅ©¸¦ ½ÃÀÛÇÏÁö ¾ÊÀ½
       if (_isReconnecting)
       {
         return;
@@ -116,7 +132,7 @@ namespace SpeechAgent.Services.NamedPipe
     }
 
     /// <summary>
-    /// ÀÚµ¿ Àç¿¬°áÀ» ¼öÇàÇÕ´Ï´Ù. ¼º°øÇÒ ¶§±îÁö °è¼Ó ½ÃµµÇÕ´Ï´Ù.
+    /// ìë™ ì¬ì—°ê²°ì„ ìˆ˜í–‰í•©ë‹ˆë‹¤. ì¼ì • ê°„ê²©ìœ¼ë¡œ ê³„ì† ì‹œë„í•©ë‹ˆë‹¤.
     /// </summary>
     private async Task AutoReconnectAsync()
     {
@@ -136,16 +152,16 @@ namespace SpeechAgent.Services.NamedPipe
     }
 
     /// <summary>
-    /// Àç¿¬°á Àü ´ë±â ½Ã°£À» °®½À´Ï´Ù.
+    /// ì¬ì—°ê²° ì „ ëŒ€ê¸° ì‹œê°„ì„ ê°€ì§‘ë‹ˆë‹¤.
     /// </summary>
     private async Task WaitBeforeReconnect()
     {
-      LogUtils.WriteLog(LogLevel.Info, $"ÆÄÀÌÇÁ ¼­¹ö Àç¿¬°á ½Ãµµ ({_reconnectIntervalMs}ms ÈÄ)...");
+      LogUtils.WriteLog(LogLevel.Info, $"íŒŒì´í”„ ìë™ ì¬ì—°ê²° ëŒ€ê¸° ({_reconnectIntervalMs}ms, ë‹¤ìŒì‹œë„ #{_connectAttemptCount + 1})");
       await Task.Delay(_reconnectIntervalMs);
     }
 
     /// <summary>
-    /// ¸Ş½ÃÁö¸¦ °è¼Ó ÀĞ°í ¼ö½Å ÀÌº¥Æ®¸¦ ¹ß»ı½ÃÅµ´Ï´Ù.
+    /// ë©”ì‹œì§€ë¥¼ ê³„ì† ì½ê³  ìˆ˜ì‹  ì´ë²¤íŠ¸ë¥¼ ë°œìƒì‹œí‚µë‹ˆë‹¤.
     /// </summary>
     private async Task ReadMessagesAsync(CancellationToken cancellationToken)
     {
@@ -158,16 +174,16 @@ namespace SpeechAgent.Services.NamedPipe
       }
       catch (OperationCanceledException)
       {
-        LogUtils.WriteLog(LogLevel.Debug, "ÆÄÀÌÇÁ ¸Ş½ÃÁö ÀĞ±â°¡ Ãë¼ÒµÇ¾ú½À´Ï´Ù.");
+        LogUtils.WriteLog(LogLevel.Debug, "íŒŒì´í”„ ë©”ì‹œì§€ ì½ê¸°ê°€ ì·¨ì†Œë˜ì—ˆìŠµë‹ˆë‹¤.");
       }
       catch (IOException ex)
       {
-        LogUtils.WriteLog(LogLevel.Error, $"ÆÄÀÌÇÁ ¿¬°áÀÌ ²÷¾îÁ³½À´Ï´Ù: {ex.Message}");
+        LogUtils.WriteLog(LogLevel.Error, "íŒŒì´í”„ ì—°ê²°ì´ ëŠì–´ì¡ŒìŠµë‹ˆë‹¤ (IO).", ex);
         ConnectionError?.Invoke(this, ex);
       }
       catch (Exception ex)
       {
-        LogUtils.WriteLog(LogLevel.Error, $"ÆÄÀÌÇÁ ¸Ş½ÃÁö ¼ö½Å Áß ¿À·ù: {ex.Message}");
+        LogUtils.WriteLog(LogLevel.Error, "íŒŒì´í”„ ë©”ì‹œì§€ ìˆ˜ì‹  ì¤‘ ì˜ˆì™¸", ex);
         ConnectionError?.Invoke(this, ex);
       }
       finally
@@ -178,7 +194,7 @@ namespace SpeechAgent.Services.NamedPipe
     }
 
     /// <summary>
-    /// ¿¬°áÀÌ À¯È¿ÇÑÁö È®ÀÎÇÕ´Ï´Ù.
+    /// ì—°ê²°ì´ ìœ íš¨í•œì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     private bool IsConnectionValid(CancellationToken cancellationToken)
     {
@@ -188,7 +204,7 @@ namespace SpeechAgent.Services.NamedPipe
     }
 
     /// <summary>
-    /// ´ÜÀÏ ¸Ş½ÃÁö¸¦ ÀĞ½À´Ï´Ù.
+    /// ë‹¨ì¼ ë©”ì‹œì§€ë¥¼ ì½ìŠµë‹ˆë‹¤.
     /// </summary>
     private async Task ReadSingleMessage(CancellationToken cancellationToken)
     {
@@ -201,25 +217,25 @@ namespace SpeechAgent.Services.NamedPipe
     }
 
     /// <summary>
-    /// ¿¬°áÀÌ Á¾·áµÉ ¶§ÀÇ Ã³¸®¸¦ ¼öÇàÇÕ´Ï´Ù.
+    /// ì—°ê²°ì´ ë‹«íˆë©´ ì •ë¦¬ ì²˜ë¦¬ë¥¼ ìˆ˜í–‰í•©ë‹ˆë‹¤.
     /// </summary>
     private void HandleConnectionClose()
     {
       if (_isManuallyDisconnected)
       {
-        LogUtils.WriteLog(LogLevel.Info, "ÆÄÀÌÇÁ ¼­¹ö¿ÍÀÇ ¿¬°áÀ» Á¾·áÇß½À´Ï´Ù.");
+        LogUtils.WriteLog(LogLevel.Info, "íŒŒì´í”„ ì—°ê²°ì„ ìˆ˜ë™ìœ¼ë¡œ ì¢…ë£Œí–ˆìŠµë‹ˆë‹¤.");
         CleanupConnection();
       }
       else
       {
-        LogUtils.WriteLog(LogLevel.Info, "ÆÄÀÌÇÁ ¼­¹ö¿ÍÀÇ ¿¬°áÀÌ ²÷¾îÁ³½À´Ï´Ù. Àç¿¬°áÀ» ½ÃµµÇÕ´Ï´Ù.");
+        LogUtils.WriteLog(LogLevel.Info, "íŒŒì´í”„ ì—°ê²°ì´ ëŠì–´ì¡ŒìŠµë‹ˆë‹¤. ìë™ ì¬ì—°ê²°ì„ ì‹œë„í•©ë‹ˆë‹¤.");
         CleanupConnection();
         StartAutoReconnect();
       }
     }
 
     /// <summary>
-    /// ¿¬°á ¸®¼Ò½º¸¦ Á¤¸®ÇÕ´Ï´Ù.
+    /// ì—°ê²° ë¦¬ì†ŒìŠ¤ë¥¼ ì •ë¦¬í•©ë‹ˆë‹¤.
     /// </summary>
     private void CleanupConnection()
     {
@@ -231,12 +247,12 @@ namespace SpeechAgent.Services.NamedPipe
       }
       catch (Exception ex)
       {
-        LogUtils.WriteLog(LogLevel.Debug, $"¿¬°á Á¤¸® Áß ¿À·ù: {ex.Message}");
+        LogUtils.WriteLog(LogLevel.Debug, "ì—°ê²° ì •ë¦¬ ì¤‘ ì˜ˆì™¸", ex);
       }
     }
 
     /// <summary>
-    /// ¹®ÀÚ¿­ ¸Ş½ÃÁö¸¦ Àü¼ÛÇÕ´Ï´Ù.
+    /// ë¬¸ìì—´ ë©”ì‹œì§€ë¥¼ ì „ì†¡í•©ë‹ˆë‹¤.
     /// </summary>
     public async Task SendMessageAsync(string message)
     {
@@ -248,14 +264,14 @@ namespace SpeechAgent.Services.NamedPipe
       }
       catch (Exception ex)
       {
-        LogUtils.WriteLog(LogLevel.Error, $"ÆÄÀÌÇÁ ¸Ş½ÃÁö ¼Û½Å ½ÇÆĞ: {ex.Message}");
+        LogUtils.WriteLog(LogLevel.Error, "íŒŒì´í”„ ë©”ì‹œì§€ ì†¡ì‹  ì‹¤íŒ¨", ex);
         ConnectionError?.Invoke(this, ex);
         throw;
       }
     }
 
     /// <summary>
-    /// Á¦³×¸¯ °´Ã¼¸¦ JSONÀ¸·Î Á÷·ÄÈ­ÇÏ¿© Àü¼ÛÇÕ´Ï´Ù.
+    /// ì œë„¤ë¦­ ê°ì²´ë¥¼ JSONìœ¼ë¡œ ì§ë ¬í™”í•˜ì—¬ ì „ì†¡í•©ë‹ˆë‹¤.
     /// </summary>
     public async Task SendAsync<T>(T message)
     {
@@ -268,25 +284,25 @@ namespace SpeechAgent.Services.NamedPipe
       }
       catch (Exception ex)
       {
-        LogUtils.WriteLog(LogLevel.Error, $"ÆÄÀÌÇÁ ¸Ş½ÃÁö ¼Û½Å ½ÇÆĞ: {ex.Message}");
+        LogUtils.WriteLog(LogLevel.Error, "íŒŒì´í”„ ë©”ì‹œì§€ ì†¡ì‹  ì‹¤íŒ¨(JSON)", ex);
         ConnectionError?.Invoke(this, ex);
         throw;
       }
     }
 
     /// <summary>
-    /// ¿¬°á »óÅÂ¸¦ È®ÀÎÇÕ´Ï´Ù.
+    /// ì—°ê²° ìƒíƒœë¥¼ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     private void ValidateConnection()
     {
       if (_streamWriter == null || _pipeStream == null || !_pipeStream.IsConnected)
       {
-        throw new InvalidOperationException("ÆÄÀÌÇÁ ¼­¹ö¿¡ ¿¬°áµÇ¾î ÀÖÁö ¾Ê½À´Ï´Ù.");
+        throw new InvalidOperationException("íŒŒì´í”„ ì—°ê²°ì´ ìœ íš¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
       }
     }
 
     /// <summary>
-    /// ÆÄÀÌÇÁ ¼­¹ö¿ÍÀÇ ¿¬°áÀ» Á¾·áÇÕ´Ï´Ù.
+    /// íŒŒì´í”„ ì—°ê²°ì„ ìˆ˜ë™ìœ¼ë¡œ ì¢…ë£Œí•©ë‹ˆë‹¤.
     /// </summary>
     public void Disconnect()
     {
@@ -298,17 +314,17 @@ namespace SpeechAgent.Services.NamedPipe
         _cancellationTokenSource?.Cancel();
         CleanupConnection();
 
-        LogUtils.WriteLog(LogLevel.Info, "ÆÄÀÌÇÁ ¼­¹ö¿ÍÀÇ ¿¬°áÀ» Á¾·áÇß½À´Ï´Ù.");
+        LogUtils.WriteLog(LogLevel.Info, "íŒŒì´í”„ ì—°ê²°ì„ ìˆ˜ë™ìœ¼ë¡œ ì¢…ë£Œí–ˆìŠµë‹ˆë‹¤.");
         Disconnected?.Invoke(this, EventArgs.Empty);
       }
       catch (Exception ex)
       {
-        LogUtils.WriteLog(LogLevel.Error, $"ÆÄÀÌÇÁ ¿¬°á Á¾·á Áß ¿À·ù: {ex.Message}");
+        LogUtils.WriteLog(LogLevel.Error, "íŒŒì´í”„ ì—°ê²° ì¢…ë£Œ ì¤‘ ì˜ˆì™¸", ex);
       }
     }
 
     /// <summary>
-    /// ÇöÀç ¿¬°á »óÅÂ¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+    /// í˜„ì¬ ì—°ê²° ìƒíƒœë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
     public bool IsConnected => _pipeStream?.IsConnected ?? false;
   }

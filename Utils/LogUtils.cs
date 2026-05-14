@@ -2,98 +2,242 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace SpeechAgent.Utils
 {
-  /// <summary>
-  /// ·Î±× ·¹º§ ¿­°ÅÇü
-  /// </summary>
   public enum LogLevel
   {
     Debug,
     Info,
+    Warn,
     Error,
   }
 
   public static class LogUtils
   {
-    private static readonly string LogDirectory = Path.Combine(
-      AppDomain.CurrentDomain.BaseDirectory,
-      "Log"
-    );
+    private static readonly object _fileLock = new();
+    private static readonly object _initLock = new();
+    private static readonly int _pid = Environment.ProcessId;
+    private static string? _resolvedLogDirectory;
+    private static bool _fallbackNotified;
+    private static DateTime _lastCleanupDate = DateTime.MinValue;
 
-    /// <summary>
-    /// ·Î±×¸¦ ÀúÀåÇÕ´Ï´Ù. ÆÄÀÏ¸íÀº yyyy-MM-dd.txt·Î ÀÚµ¿ »ı¼ºµË´Ï´Ù.
-    /// ·Î±× Çü½Ä: [LogLevel] HH:mm:ss ÅØ½ºÆ®
-    /// 3ÀÏ ÀÌ»ó Áö³­ ·Î±×´Â ÀÚµ¿À¸·Î »èÁ¦µË´Ï´Ù.
-    /// </summary>
-    /// <param name="level">·Î±× ·¹º§ (Debug, Info, Error)</param>
-    /// <param name="text">ÀúÀåÇÒ ÅØ½ºÆ®</param>
-    public static void WriteLog(LogLevel level, string text)
+    private const int LogRetentionDays = 14;
+
+    // exe í´ë”ê°€ ë³´í˜¸ëœ ìœ„ì¹˜(Program Files ë“±)ì´ê³  ê¶Œí•œ ì¬ì‹¤í–‰ ì´ì „ì´ë©´ ì“°ê¸° ì‹¤íŒ¨í•  ìˆ˜ ìˆìœ¼ë¯€ë¡œ,
+    // %LocalAppData%\<projectName>\Log ë¥¼ í´ë°±ìœ¼ë¡œ ì‹œë„í•©ë‹ˆë‹¤.
+    private static string? GetOrInitLogDirectory()
+    {
+      if (_resolvedLogDirectory != null)
+        return _resolvedLogDirectory;
+
+      lock (_initLock)
+      {
+        if (_resolvedLogDirectory != null)
+          return _resolvedLogDirectory;
+
+        var primary = Path.Combine(PathUtils.GetExeDirectory(), "Log");
+        var fallback = Path.Combine(PathUtils.GetLocalAppDataDirectory(), "Log");
+
+        foreach (var path in new[] { primary, fallback })
+        {
+          if (TryUseDirectory(path))
+          {
+            _resolvedLogDirectory = path;
+            if (path == fallback && !_fallbackNotified)
+            {
+              _fallbackNotified = true;
+              // í´ë°±ì´ ì±„íƒëœ ì‚¬ì‹¤ ìì²´ë¥¼ ê¸°ë¡ (ì¬ê·€ í˜¸ì¶œ ì•ˆì „: _resolvedLogDirectoryê°€ ì´ë¯¸ ì„¸íŒ…ë¨)
+              try
+              {
+                string fileName = DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
+                string filePath = Path.Combine(path, fileName);
+                string line = $"[Warn] {DateTime.Now:HH:mm:ss.fff} P{_pid}/T{Environment.CurrentManagedThreadId} " +
+                  $"ê¸°ë³¸ ë¡œê·¸ ê²½ë¡œ({primary})ì— ì“¸ ìˆ˜ ì—†ì–´ í´ë°± ê²½ë¡œ ì‚¬ìš© ì¤‘";
+                File.AppendAllText(filePath, line + Environment.NewLine, System.Text.Encoding.UTF8);
+              }
+              catch { }
+            }
+            return path;
+          }
+        }
+
+        return null;
+      }
+    }
+
+    private static bool TryUseDirectory(string path)
     {
       try
       {
-        // Log Æú´õ »ı¼º
-        if (!Directory.Exists(LogDirectory))
-          Directory.CreateDirectory(LogDirectory);
+        if (!Directory.Exists(path))
+          Directory.CreateDirectory(path);
 
-        // ÆÄÀÏ°æ·Î: Log/yyyy-MM-dd.txt
-        string fileName = DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
-        string filePath = Path.Combine(LogDirectory, fileName);
-
-        // ·Î±× ¶óÀÎ Çü½Ä: [Level] HH:mm:ss ÅØ½ºÆ®
-        string logLine = $"[{level}] {DateTime.Now:HH:mm:ss} {text}";
-
-        Debug.WriteLine(logLine);
-
-        // ÆÄÀÏ¿¡ Ãß°¡
-        File.AppendAllText(filePath, logLine + Environment.NewLine, System.Text.Encoding.UTF8);
-
-        // 3ÀÏ ÀÌ»ó Áö³­ ·Î±× »èÁ¦
-        DeleteOldLogs();
+        // ì‹¤ì œ ì“°ê¸° ê¶Œí•œ í™•ì¸ â€” í´ë” ìƒì„±ë§Œ ë˜ê³  íŒŒì¼ ì“°ê¸°ê°€ ë§‰íˆëŠ” ì¼€ì´ìŠ¤ ë°©ì–´
+        var probePath = Path.Combine(path, $".probe-{_pid}");
+        File.WriteAllText(probePath, string.Empty);
+        File.Delete(probePath);
+        return true;
       }
       catch
       {
-        // ·Î±× ÀúÀå ½ÇÆĞ´Â ¹«½Ã
+        return false;
       }
     }
 
     /// <summary>
-    /// 3ÀÏ ÀÌ»ó Áö³­ ·Î±× ÆÄÀÏÀ» »èÁ¦ÇÕ´Ï´Ù.
+    /// ë¡œê·¸ë¥¼ ê¸°ë¡í•©ë‹ˆë‹¤. íŒŒì¼ëª…ì€ yyyy-MM-dd.txtë¡œ ìë™ ìƒì„±ë©ë‹ˆë‹¤.
+    /// ë¡œê·¸ í˜•ì‹: [Level] HH:mm:ss.fff PID/TID í…ìŠ¤íŠ¸
+    /// 2ì£¼ ì´ìƒ ì§€ë‚œ ë¡œê·¸ëŠ” ìë™ìœ¼ë¡œ ì‚­ì œë©ë‹ˆë‹¤.
+    /// </summary>
+    public static void WriteLog(LogLevel level, string text)
+    {
+      WriteLog(level, text, null);
+    }
+
+    /// <summary>
+    /// ì˜ˆì™¸ ì •ë³´ë¥¼ í¬í•¨í•˜ì—¬ ë¡œê·¸ë¥¼ ê¸°ë¡í•©ë‹ˆë‹¤. ìŠ¤íƒíŠ¸ë ˆì´ìŠ¤ê°€ í•¨ê»˜ ì €ì¥ë©ë‹ˆë‹¤.
+    /// </summary>
+    public static void WriteLog(LogLevel level, string text, Exception? ex)
+    {
+      try
+      {
+        var logDir = GetOrInitLogDirectory();
+        if (logDir == null)
+          return;
+
+        string fileName = DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
+        string filePath = Path.Combine(logDir, fileName);
+
+        int tid = Environment.CurrentManagedThreadId;
+        string logLine = $"[{level}] {DateTime.Now:HH:mm:ss.fff} P{_pid}/T{tid} {text}";
+
+        if (ex != null)
+        {
+          logLine += Environment.NewLine + "    " + ex.GetType().FullName + ": " + ex.Message;
+          if (!string.IsNullOrEmpty(ex.StackTrace))
+            logLine += Environment.NewLine + ex.StackTrace;
+          var inner = ex.InnerException;
+          while (inner != null)
+          {
+            logLine += Environment.NewLine + "  --> " + inner.GetType().FullName + ": " + inner.Message;
+            if (!string.IsNullOrEmpty(inner.StackTrace))
+              logLine += Environment.NewLine + inner.StackTrace;
+            inner = inner.InnerException;
+          }
+        }
+
+        Debug.WriteLine(logLine);
+
+        lock (_fileLock)
+        {
+          File.AppendAllText(filePath, logLine + Environment.NewLine, System.Text.Encoding.UTF8);
+        }
+
+        DeleteOldLogs();
+      }
+      catch
+      {
+        // ë¡œê·¸ ì €ì¥ ì‹¤íŒ¨ëŠ” ë¬´ì‹œ
+      }
+    }
+
+    /// <summary>
+    /// ìƒˆ ì„¸ì…˜ì˜ ì‹œì‘ì„ êµ¬ë¶„í•˜ëŠ” ë°°ë„ˆë¥¼ ê¸°ë¡í•©ë‹ˆë‹¤. í”„ë¡œì„¸ìŠ¤ ì‹œì‘ ì§í›„ 1íšŒ í˜¸ì¶œí•˜ì„¸ìš”.
+    /// </summary>
+    public static void WriteSessionBanner(string? extra = null)
+    {
+      try
+      {
+        string banner =
+          "================ SESSION START ================" + Environment.NewLine +
+          $"  Time     : {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}" + Environment.NewLine +
+          $"  PID      : {_pid}" + Environment.NewLine +
+          $"  ProcName : {Process.GetCurrentProcess().ProcessName}" + Environment.NewLine +
+          $"  BaseDir  : {AppDomain.CurrentDomain.BaseDirectory}" + Environment.NewLine +
+          $"  Cmdline  : {Environment.CommandLine}" + Environment.NewLine +
+          $"  OS       : {Environment.OSVersion} ({(Environment.Is64BitProcess ? "x64" : "x86")} proc)" + Environment.NewLine +
+          $"  CLR      : {Environment.Version}" + Environment.NewLine +
+          $"  User     : {Environment.UserDomainName}\\{Environment.UserName} (IsAdmin={AdminHelper.IsRunningAsAdmin()})";
+
+        if (!string.IsNullOrEmpty(extra))
+          banner += Environment.NewLine + "  Extra    : " + extra;
+
+        banner += Environment.NewLine + "===============================================";
+
+        var logDir = GetOrInitLogDirectory();
+        if (logDir == null)
+          return;
+
+        string fileName = DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
+        string filePath = Path.Combine(logDir, fileName);
+
+        lock (_fileLock)
+        {
+          File.AppendAllText(filePath, banner + Environment.NewLine, System.Text.Encoding.UTF8);
+        }
+      }
+      catch
+      {
+        // ë¬´ì‹œ
+      }
+    }
+
+    /// <summary>
+    /// ë³´ê´€ê¸°ê°„(LogRetentionDays)ì´ ì§€ë‚œ ë¡œê·¸ íŒŒì¼ì„ ì‚­ì œí•©ë‹ˆë‹¤.
+    /// íŒŒì¼ëª…(yyyy-MM-dd.txt)ì„ ê¸°ì¤€ìœ¼ë¡œ íŒë‹¨í•˜ì—¬, ì‹œìŠ¤í…œ ì‹œê°„/ìƒì„±ì‹œê° ë³€ê²½ì˜ ì˜í–¥ì„ ë°›ì§€ ì•ŠìŠµë‹ˆë‹¤.
+    /// ë§¤ WriteLogë§ˆë‹¤ í˜¸ì¶œë˜ë¯€ë¡œ í•˜ë£¨ 1íšŒë¡œ ê°€ë“œí•©ë‹ˆë‹¤.
     /// </summary>
     private static void DeleteOldLogs()
     {
       try
       {
-        if (!Directory.Exists(LogDirectory))
+        var today = DateTime.Today;
+        if (_lastCleanupDate == today)
+          return;
+        _lastCleanupDate = today;
+
+        var logDir = _resolvedLogDirectory;
+        if (logDir == null || !Directory.Exists(logDir))
           return;
 
-        var logFiles = Directory.GetFiles(LogDirectory, "*.txt");
-        var cutoffDate = DateTime.Now.AddDays(-3);
+        var logFiles = Directory.GetFiles(logDir, "*.txt");
+        var cutoffDate = DateTime.Today.AddDays(-LogRetentionDays);
 
         foreach (var file in logFiles)
         {
-          var fileInfo = new FileInfo(file);
-          if (fileInfo.CreationTime < cutoffDate)
+          try
           {
-            File.Delete(file);
+            var nameOnly = Path.GetFileNameWithoutExtension(file);
+            // yyyy-MM-dd í˜•ì‹ íŒŒì¼ëª… ìš°ì„  â€” íŒŒì‹± ì‹¤íŒ¨ ì‹œ ìƒì„±ì‹œê°ìœ¼ë¡œ í´ë°±
+            if (DateTime.TryParseExact(nameOnly, "yyyy-MM-dd",
+                  System.Globalization.CultureInfo.InvariantCulture,
+                  System.Globalization.DateTimeStyles.None, out var fileDate))
+            {
+              if (fileDate < cutoffDate)
+                File.Delete(file);
+            }
+            else
+            {
+              var fileInfo = new FileInfo(file);
+              if (fileInfo.CreationTime < cutoffDate)
+                File.Delete(file);
+            }
+          }
+          catch
+          {
+            // ê°œë³„ íŒŒì¼ ì‚­ì œ ì‹¤íŒ¨ëŠ” ë‹¤ìŒ íŒŒì¼ë¡œ ì§„í–‰
           }
         }
       }
       catch
       {
-        // ·Î±× »èÁ¦ ½ÇÆĞ´Â ¹«½Ã
+        // ë¬´ì‹œ
       }
     }
 
-    /// <summary>
-    /// ÅØ½ºÆ® ÆÄÀÏ·Î ·Î±×¸¦ ÀúÀåÇÕ´Ï´Ù. (±âº»ÀûÀ¸·Î UTF-8 ÀÎÄÚµù)
-    /// ·Î±×¿¡ ½Ã°£ Á¤º¸°¡ ÀÚµ¿À¸·Î Ãß°¡µË´Ï´Ù.
-    /// </summary>
-    /// <param name="filePath">ÀúÀåÇÒ ÆÄÀÏ °æ·Î</param>
-    /// <param name="text">ÀúÀåÇÒ ÅØ½ºÆ®</param>
-    /// <param name="append">true¸é ±âÁ¸ ÆÄÀÏ¿¡ Ãß°¡, false¸é »õ·Î ÀÛ¼º</param>
-    [Obsolete("WriteLog(LogLevel, string)¸¦ »ç¿ëÇÏ¼¼¿ä.")]
+    [Obsolete("WriteLog(LogLevel, string)ë¥¼ ì‚¬ìš©í•˜ì„¸ìš”.")]
     public static void WriteTextLog(string filePath, string text, bool append = true)
     {
       try
@@ -109,7 +253,7 @@ namespace SpeechAgent.Utils
       }
       catch
       {
-        // ·Î±× ÀúÀå ½ÇÆĞ´Â ¹«½Ã
+        // ë¬´ì‹œ
       }
     }
   }

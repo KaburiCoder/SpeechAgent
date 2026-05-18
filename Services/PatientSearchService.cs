@@ -29,8 +29,8 @@ namespace SpeechAgent.Services
   {
     private AutomationAppControls _appControls = new();
     private PatientImageResult _previousImageResult = new();
-    private int _nullCount = 0; // ÄÁÆ®·ÑÀ» Ã£Áö ¸øÇÑ ¿¬¼Ó È½¼ö (10È¸ ÀÌ»óÀÌ¸é ÃÊ±âÈ­)
-    private const int MaxNullCount = 10; // ÃÊ±âÈ­ ±âÁØ È½¼ö
+    private int _nullCount = 0; // ì»¨íŠ¸ë¡¤ì„ ì°¾ì§€ ëª»í•œ ì—°ì† íšŸìˆ˜ (10íšŒ ì´ìƒì´ë©´ ì´ˆê¸°í™”)
+    private const int MaxNullCount = 10; // ì´ˆê¸°í™” ê¸°ì¤€ íšŸìˆ˜
 
     LocalSettings Settings => _settingsService.Settings;
     bool IsCustom =>
@@ -43,7 +43,7 @@ namespace SpeechAgent.Services
       || Settings.TargetAppName == AppKey.CustomUserWinApi;
 
     /// <summary>
-    /// ÄÁÆ®·Ñ °Ë»ö ¼º°ø ½Ã _nullCount¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// ì»¨íŠ¸ë¡¤ ê²€ìƒ‰ ì„±ê³µ ì‹œ _nullCountë¥¼ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     /// </summary>
     private void ResetNullCount()
     {
@@ -51,7 +51,7 @@ namespace SpeechAgent.Services
     }
 
     /// <summary>
-    /// ÄÁÆ®·Ñ °Ë»ö ½ÇÆĞ ½Ã _nullCount¸¦ Áõ°¡½ÃÅ°°í, ÀÏÁ¤ È½¼ö ÀÌ»óÀÌ¸é »óÅÂ¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// ì»¨íŠ¸ë¡¤ ê²€ìƒ‰ ì‹¤íŒ¨ ì‹œ _nullCountë¥¼ ì¦ê°€ì‹œí‚¤ê³ , ì¼ì • íšŸìˆ˜ ì´ìƒì´ë©´ ìƒíƒœë¥¼ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     /// </summary>
     private void IncrementAndCheckNullCount()
     {
@@ -65,36 +65,43 @@ namespace SpeechAgent.Services
     private bool FindWindowByTitle(out bool isNewCreated)
     {
       isNewCreated = false;
-      if (!_searcher.IsWindowValid())
+      bool isWindowValid = _searcher.IsWindowValid();
+      LogUtils.WriteLog(LogLevel.Debug, $"[FindWindowByTitle] ì§„ì… - TargetAppName={Settings.TargetAppName}, IsWindowValid={isWindowValid}");
+      if (!isWindowValid)
       {
         if (IsCustom)
         {
           if (!_searcher.FindWindowByTitle(title => title.Contains(Settings.CustomExeTitle)))
+          {
+            LogUtils.WriteLog(LogLevel.Debug, $"[FindWindowByTitle] Custom ìœˆë„ìš° íƒìƒ‰ ì‹¤íŒ¨ - CustomExeTitle={Settings.CustomExeTitle}");
             return false;
+          }
         }
         else
         {
           switch (Settings.TargetAppName)
           {
             case AppKey.USarang:
-              if (!_searcher.FindWindowByTitles("Áø·á½Ç", "Åø¹öÀü"))
+              var usarangFound = _searcher.FindWindowByTitles("íˆ´ë²„ì „");
+              LogUtils.WriteLog(LogLevel.Debug, $"[FindWindowByTitle] USarang FindWindowByTitles(íˆ´ë²„ì „) ê²°ê³¼: {usarangFound}");
+              if (!usarangFound)
                 return false;
               break;
             case AppKey.Brain:
-              if (!_searcher.FindWindowByTitles("Áø·á½Ç", "ver"))
+              if (!_searcher.FindWindowByTitles("ì§„ë£Œì‹¤", "ver"))
                 return false;
               break;
             case AppKey.DRChart:
             case AppKey.BitUChart:
-              if (!_searcher.FindWindowByTitles("Áø·á½Ç"))
+              if (!_searcher.FindWindowByTitles("ì§„ë£Œì‹¤"))
                 return false;
               break;
             case AppKey.Doctors:
-              if (!_searcher.FindWindowByTitles("Áø·á½Ç", "¡İ"))
+              if (!_searcher.FindWindowByTitles("ì§„ë£Œì‹¤", "â—"))
                 return false;
               break;
             default:
-              if (!_searcher.FindWindowByTitles("Áø·á½Ç["))
+              if (!_searcher.FindWindowByTitles("ì§„ë£Œì‹¤["))
                 return false;
               break;
           }
@@ -131,13 +138,13 @@ namespace SpeechAgent.Services
             {
               ControlType = "ControlType.Title",
               Index = 0,
-              Regex = new() { GroupIndex = 1, Pattern = @"¡İ\s+(\S+)\s+([^\s¡İ]+)" },
+              Regex = new() { GroupIndex = 1, Pattern = @"â—\s+(\S+)\s+([^\sâ—]+)" },
             },
             nameInfo: new()
             {
               ControlType = "ControlType.Title",
               Index = 0,
-              Regex = new() { GroupIndex = 2, Pattern = @"¡İ\s+(\S+)\s+([^\s¡İ]+)" },
+              Regex = new() { GroupIndex = 2, Pattern = @"â—\s+(\S+)\s+([^\sâ—]+)" },
             }
           );
           break;
@@ -165,6 +172,8 @@ namespace SpeechAgent.Services
           result = FindDefaultControls(controls);
           break;
       }
+
+      LogUtils.WriteLog(LogLevel.Debug, $"[GetAppControls] {Settings.TargetAppName} ì²˜ë¦¬ í›„ - result nullì—¬ë¶€={result == null}, ChartTextBox nullì—¬ë¶€={result?.ChartTextBox == null}, NameTextBox nullì—¬ë¶€={result?.NameTextBox == null}");
 
       if (result != null && result.ChartTextBox != null)
       {
@@ -285,7 +294,7 @@ namespace SpeechAgent.Services
 
       if (chartControl != null && nameControl != null)
       {
-        // Á¤±Ô½Ä Á¤ÀÇ µÇ¾îÀÖ´Â °æ¿ì Àü´Ş
+        // ì •ê·œì‹ ì •ì˜ ë˜ì–´ìˆëŠ” ê²½ìš° ì „ë‹¬
         chartControl.Regex = chartInfo.Regex;
         nameControl.Regex = nameInfo.Regex;
         var appControls = new AutomationAppControls();
@@ -298,21 +307,28 @@ namespace SpeechAgent.Services
 
     private AutomationAppControls? FindUSarangControls(List<AutomationControlInfo> controls)
     {
-      // ControlType.EditÀÎ ÄÁÆ®·ÑµéÀ» ÇÊÅÍ¸µ
+      LogUtils.WriteLog(LogLevel.Debug, $"[FindUSarangControls] ì§„ì… - controls.Count={controls.Count}");
+
+      // ControlType.Editì¸ ì»¨íŠ¸ë¡¤ë“¤ì„ í•„í„°ë§
       var editControls = controls.Where(c => c.ControlType == "ControlType.Edit").ToList();
+      LogUtils.WriteLog(LogLevel.Debug, $"[FindUSarangControls] editControls.Count={editControls.Count}");
 
       if (editControls.Count < 2)
+      {
+        LogUtils.WriteLog(LogLevel.Debug, "[FindUSarangControls] editControlsê°€ 2ê°œ ë¯¸ë§Œ - null ë°˜í™˜");
         return null;
+      }
 
-      // ÇÑ ¶óÀÎ¿¡ °¡Àå ¸¹Àº ÄÁÆ®·ÑÀÌ ÀÖ´Â ±×·ì Ã£±â
+      // í•œ ë¼ì¸ì— ê°€ì¥ ë§ì€ ì»¨íŠ¸ë¡¤ì´ ìˆëŠ” ê·¸ë£¹ ì°¾ê¸°
       var maxGroup = editControls
         .GroupBy(x => x.RectTop)
         .OrderByDescending(g => g.Count())
         .FirstOrDefault();
+      LogUtils.WriteLog(LogLevel.Debug, $"[FindUSarangControls] maxGroup - RectTop={maxGroup?.Key}, Count={maxGroup?.Count() ?? 0}");
 
       var chartControl = maxGroup?.First();
 
-      // ³ª¸ÓÁö ÄÁÆ®·Ñ Áß¿¡¼­ X°ªÀÌ °¡Àå °¡±î¿î ÄÁÆ®·ÑÀ» Ã£±â
+      // ë‚˜ë¨¸ì§€ ì»¨íŠ¸ë¡¤ ì¤‘ì—ì„œ Xê°’ì´ ê°€ì¥ ê°€ê¹Œìš´ ì»¨íŠ¸ë¡¤ì„ ì°¾ê¸°
       var nameControl = maxGroup
         ?.Where(c => c != chartControl)
         .OrderBy(c =>
@@ -320,32 +336,39 @@ namespace SpeechAgent.Services
         )
         .First();
       chartControl = _searcher.CreateControlInfo(chartControl?.Element);
+      LogUtils.WriteLog(LogLevel.Debug, $"[FindUSarangControls] chartControl nullì—¬ë¶€={chartControl == null}, nameControl nullì—¬ë¶€={nameControl == null}");
 
       if (chartControl == null || nameControl == null)
+      {
+        LogUtils.WriteLog(LogLevel.Debug, "[FindUSarangControls] chartControl/nameControl ì¤‘ í•˜ë‚˜ê°€ null - null ë°˜í™˜");
         return null;
+      }
 
-      //// Å×½ºÆ®
+      //// í…ŒìŠ¤íŠ¸
       //chartControl = editControls[2];
       //nameControl = editControls[3];
 
-      // OCR ¼öÇà
+      // OCR ìˆ˜í–‰
       try
       {
         IntPtr hWnd = _searcher.GetWindowHandle();
+        LogUtils.WriteLog(LogLevel.Debug, $"[FindUSarangControls] OCR ì²˜ë¦¬ - hWnd={hWnd}");
         if (hWnd != IntPtr.Zero)
         {
-          // Àªµµ¿ìÀÇ Àı´ë ÁÂÇ¥ ¾ò±â
+          // ìœˆë„ìš°ì˜ ì ˆëŒ€ ì¢Œí‘œ ì–»ê¸°
           Vanara.PInvoke.User32.GetWindowRect(new Vanara.PInvoke.HWND(hWnd), out var windowRect);
 
-          // Àı´ë ÁÂÇ¥¸¦ À©µµ¿ì »ó´ë ÁÂÇ¥·Î º¯È¯ (DPI ½ºÄÉÀÏ Àû¿ë)
+          // ì ˆëŒ€ ì¢Œí‘œë¥¼ ìœˆë„ìš° ìƒëŒ€ ì¢Œí‘œë¡œ ë³€í™˜ (DPI ìŠ¤ì¼€ì¼ ì ìš©)
           var dpiScale = DpiUtils.GetDpiScale(hWnd);
           var chartRectRelative = DpiUtils.ConvertToWindowRelativeRect(
             chartControl.BoundingRectangle,
             windowRect,
             dpiScale
           );
+          LogUtils.WriteLog(LogLevel.Debug, $"[FindUSarangControls] OCR ìº¡ì²˜ ì˜ì—­ - rect={chartRectRelative}, dpiScale={dpiScale}");
 
           var chartImg = _windowCaptureService.CaptureWindow(hWnd, chartRectRelative);
+          LogUtils.WriteLog(LogLevel.Debug, $"[FindUSarangControls] CaptureWindow - chartImg nullì—¬ë¶€={chartImg == null}");
 
           //chartImg?.SaveBitmapSourceToFile(
           //  System.IO.Path.Combine(
@@ -355,26 +378,32 @@ namespace SpeechAgent.Services
           //  )
           //);
 
-          // ÀÌÀü ÀÌ¹ÌÁö¿Í À¯»çÇÏ¸é Ä³½ÃµÈ Á¤º¸ »ç¿ë
+          // ì´ì „ ì´ë¯¸ì§€ì™€ ìœ ì‚¬í•˜ë©´ ìºì‹œëœ ì •ë³´ ì‚¬ìš©
           if (OpenCvUtils.AreImagesSimilar(_previousImageResult.BitmapSource, chartImg, 1))
+          {
+            LogUtils.WriteLog(LogLevel.Debug, "[FindUSarangControls] ì´ì „ ì´ë¯¸ì§€ì™€ ë™ì¼ - ìºì‹œ ì‚¬ìš©");
             return _appControls;
+          }
 
           _previousImageResult.BitmapSource = chartImg;
 
-          // BitmapSource¸¦ BitmapÀ¸·Î º¯È¯ ÈÄ OCR ¼öÇà
+          // BitmapSourceë¥¼ Bitmapìœ¼ë¡œ ë³€í™˜ í›„ OCR ìˆ˜í–‰
           if (chartImg != null)
           {
             string? previousChart = _appControls.ChartTextBox?.Text;
             chartControl.Text = chartImg.OcrUSarangChart().Trim();
+            LogUtils.WriteLog(LogLevel.Debug, $"[FindUSarangControls] OCR ê²°ê³¼ - chartText='{chartControl.Text}', previousChart='{previousChart}'");
             if (previousChart != chartControl.Text)
             {
               nameControl.Text = string.IsNullOrWhiteSpace(chartControl.Text)
                 ? ""
                 : _searcher.GetControlText(nameControl.Element);
+              LogUtils.WriteLog(LogLevel.Debug, $"[FindUSarangControls] nameControl.Text='{nameControl.Text}'");
             }
           }
           else
           {
+            LogUtils.WriteLog(LogLevel.Debug, "[FindUSarangControls] chartImgê°€ null - null ë°˜í™˜");
             _previousImageResult.Clear();
             return null;
           }
@@ -402,7 +431,7 @@ namespace SpeechAgent.Services
 
     public async Task<PatientInfo> FindPatientInfo()
     {
-      // ClickSoft ÀÏ¶§ Win32 API ¿ì¼± »ç¿ë
+      // ClickSoft ì¼ë•Œ Win32 API ìš°ì„  ì‚¬ìš©
       if (Settings.TargetAppName == AppKey.ClickSoft)
       {
         var win32Result = _clickSoftControlSearchService.FindControls();
@@ -416,19 +445,21 @@ namespace SpeechAgent.Services
           ResetNullCount();
           return CreatePatientInfo();
         }
-        // Win32·Î ¸ø Ã£À¸¸é _nullCount Áõ°¡
+        // Win32ë¡œ ëª» ì°¾ìœ¼ë©´ _nullCount ì¦ê°€
         IncrementAndCheckNullCount();
-        // Win32·Î ¸ø Ã£À¸¸é AutomationÀ¸·Î °è¼Ó ½Ãµµ
+        // Win32ë¡œ ëª» ì°¾ìœ¼ë©´ Automationìœ¼ë¡œ ê³„ì† ì‹œë„
       }
 
-      // À©µµ¿ì Å¸ÀÌÆ²·Î ÇÚµé Ã£±â
+      // ìœˆë„ìš° íƒ€ì´í‹€ë¡œ í•¸ë“¤ ì°¾ê¸°
       if (!FindWindowByTitle(out bool isNewCreated))
       {
+        LogUtils.WriteLog(LogLevel.Debug, "[FindPatientInfo] FindWindowByTitle ì‹¤íŒ¨ - ë¹ˆ PatientInfo ë°˜í™˜");
         _searcher.ClearFoundControls();
         _appControls.ClearControls();
         _previousImageResult.Clear();
         return new PatientInfo();
       }
+      LogUtils.WriteLog(LogLevel.Debug, $"[FindPatientInfo] FindWindowByTitle ì„±ê³µ - isNewCreated={isNewCreated}, UseCustomUserImage={_settingsService.UseCustomUserImage}");
 
       if (_settingsService.UseCustomUserImage)
       {
@@ -454,7 +485,7 @@ namespace SpeechAgent.Services
         {
           _previousImageResult.Clear();
         }
-        // ÀÌÀü ÀÌ¹ÌÁö¿Í À¯»çÇÏ¸é Ä³½ÃµÈ Á¤º¸ »ç¿ë
+        // ì´ì „ ì´ë¯¸ì§€ì™€ ìœ ì‚¬í•˜ë©´ ìºì‹œëœ ì •ë³´ ì‚¬ìš©
         else if (
           _previousImageResult.BitmapSource == null
           || !OpenCvUtils.AreImagesSimilar(_previousImageResult.BitmapSource, bitmapSource, 1)
@@ -469,9 +500,9 @@ namespace SpeechAgent.Services
       }
       else
       {
-        if (_settingsService.Settings.TargetAppName != AppKey.USarang) // ÀÇ»ç¶ûÀº OCR·Î Ã³¸®ÇÏ¹Ç·Î Ä³½Ã Á¦¿Ü
+        if (_settingsService.Settings.TargetAppName != AppKey.USarang) // ì˜ì‚¬ë‘ì€ OCRë¡œ ì²˜ë¦¬í•˜ë¯€ë¡œ ìºì‹œ ì œì™¸
         {
-          // ±âÁ¸ À©µµ¿ì¸é Ä³½ÃµÈ ÄÁÆ®·Ñ »ç¿ë
+          // ê¸°ì¡´ ìœˆë„ìš°ë©´ ìºì‹œëœ ì»¨íŠ¸ë¡¤ ì‚¬ìš©
 
           if (!isNewCreated)
           {
@@ -491,13 +522,17 @@ namespace SpeechAgent.Services
           }
         }
 
-        var controls =
-          _searcher.FoundControls.Count != 0 ? _searcher.FoundControls : _searcher.SearchControls();
+        var useCached = _searcher.FoundControls.Count != 0;
+        var controls = useCached ? _searcher.FoundControls : _searcher.SearchControls();
+        LogUtils.WriteLog(LogLevel.Debug, $"[FindPatientInfo] controls ë¡œë“œ - ìºì‹œì‚¬ìš©={useCached}, count={controls.Count}");
 
-        // Â÷Æ®, ¼öÁøÀÚ¸í ÄÁÆ®·Ñ Ã£¾Æ¼­ Àü´Ş
-        GetAppControls(controls);
+        // ì°¨íŠ¸, ìˆ˜ì§„ìëª… ì»¨íŠ¸ë¡¤ ì°¾ì•„ì„œ ì „ë‹¬
+        var appControlsResult = GetAppControls(controls);
+        LogUtils.WriteLog(LogLevel.Debug, $"[FindPatientInfo] GetAppControls ê²°ê³¼ - nullì—¬ë¶€={appControlsResult == null}, ChartTextBox={(_appControls.ChartTextBox != null)}, NameTextBox={(_appControls.NameTextBox != null)}");
 
-        return CreatePatientInfo();
+        var patientInfo = CreatePatientInfo();
+        LogUtils.WriteLog(LogLevel.Debug, $"[FindPatientInfo] CreatePatientInfo ê²°ê³¼ - Chart='{patientInfo.Chart}', Name='{patientInfo.Name}'");
+        return patientInfo;
       }
     }
 

@@ -1,5 +1,6 @@
 using System.Windows.Automation;
 using SpeechAgent.Models;
+using SpeechAgent.Utils;
 
 namespace SpeechAgent.Utils.Automation
 {
@@ -22,6 +23,7 @@ namespace SpeechAgent.Utils.Automation
     private AutomationElement? _targetWindow;
     private readonly List<AutomationControlInfo> _foundControls = new();
     private readonly AutomationElementCollector _collector = new();
+    private static DateTime _lastTitleListLogTime = DateTime.MinValue;
 
     public List<AutomationControlInfo> FoundControls => _foundControls;
 
@@ -47,10 +49,34 @@ namespace SpeechAgent.Utils.Automation
           }
         });
 
+        if (_targetWindow == null && (DateTime.Now - _lastTitleListLogTime).TotalSeconds > 30)
+        {
+          _lastTitleListLogTime = DateTime.Now;
+          var titles = windows
+            .Select(w =>
+            {
+              try
+              {
+                return w.Current.Name;
+              }
+              catch
+              {
+                return "<error>";
+              }
+            })
+            .Where(t => !string.IsNullOrEmpty(t))
+            .ToList();
+          LogUtils.WriteLog(
+            LogLevel.Debug,
+            $"[FindWindowByTitle] ë§¤ì¹­ ì‹¤íŒ¨ - í˜„ìž¬ ìµœìƒìœ„ ìœˆë„ìš° {titles.Count}ê°œ: {string.Join(" | ", titles)}"
+          );
+        }
+
         return _targetWindow != null;
       }
-      catch
+      catch (Exception ex)
       {
+        LogUtils.WriteLog(LogLevel.Error, $"[FindWindowByTitle] ì˜ˆì™¸: {ex.Message}");
         return false;
       }
     }
@@ -90,11 +116,11 @@ namespace SpeechAgent.Utils.Automation
         }
         catch (ElementNotAvailableException)
         {
-          // ¹«½Ã
+          // ï¿½ï¿½ï¿½ï¿½
         }
       }
 
-      // ÄÁÆ®·Ñ Å¸ÀÔº°·Î ±×·ìÈ­ÇÏ¿© Index Àç¼³Á¤
+      // ï¿½ï¿½Æ®ï¿½ï¿½ Å¸ï¿½Ôºï¿½ï¿½ï¿½ ï¿½×·ï¿½È­ï¿½Ï¿ï¿½ Index ï¿½ç¼³ï¿½ï¿½
       var grouped = _foundControls.GroupBy(c => c.ControlType);
       foreach (var group in grouped)
       {
@@ -131,7 +157,7 @@ namespace SpeechAgent.Utils.Automation
         var automationId = element.Current.AutomationId;
         var controlType = element.Current.ControlType.ProgrammaticName;
 
-        // ÅØ½ºÆ® °¡Á®¿À±â ½Ãµµ
+        // ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ãµï¿½
         string text = GetControlText(element);
 
         return new AutomationControlInfo
@@ -160,18 +186,18 @@ namespace SpeechAgent.Utils.Automation
     {
       try
       {
-        // Name ¼Ó¼º ¸ÕÀú È®ÀÎ
+        // Name ï¿½Ó¼ï¿½ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         var name = element.Current.Name;
         if (!string.IsNullOrEmpty(name))
           return name;
 
-        // ValuePattern ½Ãµµ
+        // ValuePattern ï¿½Ãµï¿½
         if (element.TryGetCurrentPattern(ValuePattern.Pattern, out object? valuePattern))
         {
           return ((ValuePattern)valuePattern).Current.Value ?? "";
         }
 
-        // TextPattern ½Ãµµ
+        // TextPattern ï¿½Ãµï¿½
         if (element.TryGetCurrentPattern(TextPattern.Pattern, out object? textPattern))
         {
           return ((TextPattern)textPattern).DocumentRange.GetText(-1) ?? "";
@@ -192,7 +218,7 @@ namespace SpeechAgent.Utils.Automation
 
       try
       {
-        // BoundingRectangle Á¢±Ù ½Ãµµ·Î À¯È¿¼º È®ÀÎ
+        // BoundingRectangle ï¿½ï¿½ï¿½ï¿½ ï¿½Ãµï¿½ï¿½ï¿½ ï¿½ï¿½È¿ï¿½ï¿½ È®ï¿½ï¿½
         _ = _targetWindow.Current.BoundingRectangle;
         return true;
       }

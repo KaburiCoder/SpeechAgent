@@ -63,3 +63,29 @@ vpk upload github --repoUrl https://github.com/KaburiCoder/SpeechAgent --publish
 2. **패키징**: Velopack을 사용하여 설치 패키지 생성
 3. **업로드**: GitHub Releases에 자동 업로드
 4. **아티팩트**: CI/CD 실행 시 빌드 결과물을 아티팩트로 보관 (30일)
+
+## 트러블슈팅
+
+### `vpk` 명령어를 찾을 수 없음
+
+`publish.ps1` 실행 시 다음 에러가 발생하는 경우:
+
+```
+vpk : 'vpk' 용어가 cmdlet, 함수, 스크립트 파일 또는 실행할 수 있는 프로그램 이름으로 인식되지 않습니다.
+```
+
+**원인**: Velopack CLI(`vpk`)가 글로벌 dotnet tool로 설치되어 있지 않음.
+
+**해결**:
+```powershell
+dotnet tool install -g vpk
+```
+
+설치 후 새 PowerShell 창을 열어야 PATH가 갱신되어 `vpk` 명령이 인식됩니다.
+
+설치 확인:
+```powershell
+vpk -h
+```
+
+> 참고: `vpk` CLI 버전은 `SpeechAgent.csproj`의 `Velopack` NuGet 패키지 버전과 일치시키는 것이 좋습니다 (현재 0.0.1298).

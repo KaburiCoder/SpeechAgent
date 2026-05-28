@@ -77,7 +77,7 @@ namespace SpeechAgent.Services
           switch (Settings.TargetAppName)
           {
             case AppKey.USarang:
-              if (!_searcher.FindWindowByTitles("진료실", "툴버전"))
+              if (!_searcher.FindWindowByTitles("툴버전"))
                 return false;
               break;
             case AppKey.Brain:

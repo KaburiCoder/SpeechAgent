@@ -9,8 +9,14 @@ namespace SpeechAgent.Utils
   /// </summary>
   public static class OcrExtensions
   {
-    private const string TessdataPath = @"./tessdata";
+    // 단일파일(self-extract) 게시 시 tessdata는 exe 옆이 아니라 임시 추출폴더(AppContext.BaseDirectory)에 풀린다.
+    // 일반 빌드에서도 BaseDirectory가 exe 폴더이므로 양쪽 모두 정확히 맞는다. ("./tessdata" 상대경로는 단일파일에서 실패)
+    private static readonly string TessdataPath =
+      System.IO.Path.Combine(AppContext.BaseDirectory, "tessdata");
     private const string Languages = "eng";
+
+    // tessdata 경로/존재여부를 세션당 1회만 로그로 남기기 위한 가드 (단일파일 게시 검증용)
+    private static int _tessdataStatusLogged;
 
     /// <summary>
     /// BitmapSource에서 텍스트를 추출합니다 (Tesseract OCR 사용).
@@ -20,6 +26,8 @@ namespace SpeechAgent.Utils
     {
       try
       {
+        LogTessdataStatusOnce();
+
         string? tempFilePath = bitmapSource.ToTempFile();
 
         if (tempFilePath == null)
@@ -40,7 +48,11 @@ namespace SpeechAgent.Utils
           Cv2.ImWrite(preprocessedPath, preprocessedMat);
           try
           {
-            return ExtractTextFromFile(preprocessedPath, onlyNumber: true);
+            string result = ExtractTextFromFile(preprocessedPath, onlyNumber: true);
+            LogUtils.WriteLog(
+              LogLevel.Debug,
+              $"[OCR] 의사랑 차트 인식 결과='{result.Trim()}' (len={result.Length})");
+            return result;
           }
           finally
           {
@@ -58,6 +70,23 @@ namespace SpeechAgent.Utils
         LogUtils.WriteLog(LogLevel.Error, ex.ToString());
         return string.Empty;
       }
+    }
+
+    /// <summary>
+    /// tessdata 폴더 경로와 존재 여부를 세션당 1회 로그로 남깁니다.
+    /// 단일파일 게시 시 OCR이 정상 위치(AppContext.BaseDirectory\tessdata)를 찾는지 확인하기 위함입니다.
+    /// </summary>
+    private static void LogTessdataStatusOnce()
+    {
+      if (Interlocked.Exchange(ref _tessdataStatusLogged, 1) != 0)
+        return;
+
+      bool dirExists = System.IO.Directory.Exists(TessdataPath);
+      bool engExists = System.IO.File.Exists(
+        System.IO.Path.Combine(TessdataPath, "eng.traineddata"));
+      LogUtils.WriteLog(
+        dirExists && engExists ? LogLevel.Info : LogLevel.Error,
+        $"[OCR] tessdata 경로='{TessdataPath}' (폴더존재={dirExists}, eng.traineddata={engExists})");
     }
 
     /// <summary>
@@ -85,6 +114,7 @@ namespace SpeechAgent.Utils
       }
       catch (Exception ex)
       {
+        LogUtils.WriteLog(LogLevel.Error, $"[OCR] ExtractTextFromFile 실패: {ex}");
         return string.Empty;
       }
     }
